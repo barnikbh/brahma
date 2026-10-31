@@ -1,0 +1,443 @@
+{
+  "cases": [
+    {
+      "answers": {
+        "IBD-N20": "negative",
+        "IBD-N21": "ulcerative colitis",
+        "IBD-N22": "E3",
+        "IBD-N23": "severe"
+      },
+      "findings": [
+        {
+          "kind": "finding",
+          "name": "bloody stool"
+        },
+        {
+          "kind": "finding",
+          "name": "haemoglobin",
+          "unit": "g/dL",
+          "value": 10.2
+        },
+        {
+          "kind": "finding",
+          "name": "faecal calprotectin",
+          "unit": "ug/g",
+          "value": 850
+        }
+      ],
+      "group": "UC",
+      "id": "uc-acute-severe",
+      "notes": "Acute severe extensive colitis; the demo path (Tier 2 IV steroids).",
+      "pack": "IBD",
+      "patient": {
+        "age": 34,
+        "sex": "female",
+        "syntheticName": "Benchmark UC acute severe (synthetic)",
+        "weightKg": 58
+      },
+      "reviewedBy": null,
+      "text": "34-year-old woman, bloody stool 6 months, Hb 10.2 g/dL, calprotectin 850 \u00b5g/g"
+    },
+    {
+      "answers": {
+        "IBD-N20": "negative",
+        "IBD-N21": "ulcerative colitis",
+        "IBD-N22": "E1",
+        "IBD-N23": "mild"
+      },
+      "findings": [
+        {
+          "kind": "finding",
+          "name": "bloody stool"
+        },
+        {
+          "kind": "finding",
+          "name": "faecal calprotectin",
+          "unit": "ug/g",
+          "value": 120
+        }
+      ],
+      "group": "UC",
+      "id": "uc-mild-proctitis",
+      "notes": "Mild proctitis (Tier 1 mesalamine).",
+      "pack": "IBD",
+      "patient": {
+        "age": 29,
+        "sex": "male",
+        "syntheticName": "Benchmark UC mild proctitis (synthetic)",
+        "weightKg": 78
+      },
+      "reviewedBy": null,
+      "text": "29-year-old man, bloody stool 2 months, calprotectin 120 \u00b5g/g"
+    },
+    {
+      "answers": {
+        "IBD-N20": "negative",
+        "IBD-N21": "ulcerative colitis",
+        "IBD-N22": "E2",
+        "IBD-N23": "moderate"
+      },
+      "findings": [
+        {
+          "kind": "finding",
+          "name": "bloody diarrhoea"
+        },
+        {
+          "kind": "finding",
+          "name": "faecal calprotectin",
+          "unit": "ug/g",
+          "value": 400
+        }
+      ],
+      "group": "UC",
+      "id": "uc-moderate-leftsided",
+      "notes": "Moderate left-sided colitis (Tier 1 mesalamine).",
+      "pack": "IBD",
+      "patient": {
+        "age": 41,
+        "sex": "female",
+        "syntheticName": "Benchmark UC moderate left-sided (synthetic)",
+        "weightKg": 65
+      },
+      "reviewedBy": null,
+      "text": "41-year-old woman, bloody diarrhoea 4 months, calprotectin 400 \u00b5g/g"
+    },
+    {
+      "answers": {
+        "IBD-N20": "negative",
+        "IBD-N21": "ulcerative colitis",
+        "IBD-N22": "E2",
+        "IBD-N23": "severe"
+      },
+      "findings": [
+        {
+          "kind": "finding",
+          "name": "bloody stool"
+        },
+        {
+          "kind": "finding",
+          "name": "stools per day",
+          "value": 7
+        },
+        {
+          "kind": "finding",
+          "name": "haemoglobin",
+          "unit": "g/dL",
+          "value": 9.8
+        },
+        {
+          "kind": "finding",
+          "name": "faecal calprotectin",
+          "unit": "ug/g",
+          "value": 900
+        }
+      ],
+      "group": "UC",
+      "id": "uc-severe-e2",
+      "notes": "Severe but not extensive colitis (Tier 2 IV steroids).",
+      "pack": "IBD",
+      "patient": {
+        "age": 52,
+        "sex": "male",
+        "syntheticName": "Benchmark UC severe E2 (synthetic)",
+        "weightKg": 82
+      },
+      "reviewedBy": null,
+      "text": "52-year-old man, bloody stool 3 months, 7 stools a day, Hb 9.8 g/dL, calprotectin 900 \u00b5g/g"
+    },
+    {
+      "id": "uc-day3-responder",
+      "group": "UC",
+      "pack": "IBD",
+      "notes": "Acute severe extensive UC, day 3 of IV steroids and responding (stool frequency 4/day, CRP 20); the rescue tier must NOT appear.",
+      "patient": {
+        "syntheticName": "Benchmark UC day-3 responder (synthetic)",
+        "age": 41,
+        "sex": "male",
+        "weightKg": 72
+      },
+      "text": "41-year-old man, known extensive ulcerative colitis, day 3 of intravenous steroids. Stool frequency 4 per day, CRP 20 mg/L, Hb 11.8 g/dL, still some bloody stool. Stool culture negative.",
+      "findings": [
+        {
+          "kind": "finding",
+          "name": "bloody stool"
+        },
+        {
+          "kind": "finding",
+          "name": "stool frequency",
+          "value": 4,
+          "unit": "per day"
+        },
+        {
+          "kind": "finding",
+          "name": "CRP",
+          "value": 20,
+          "unit": "mg/L"
+        },
+        {
+          "kind": "finding",
+          "name": "haemoglobin",
+          "value": 11.8,
+          "unit": "g/dL"
+        }
+      ],
+      "answers": {
+        "IBD-N20": "negative",
+        "IBD-N21": "ulcerative colitis",
+        "IBD-N22": "E3",
+        "IBD-N23": "severe"
+      },
+      "reviewedBy": null
+    },
+    {
+      "answers": {
+        "IBD-N20": "negative",
+        "IBD-N21": "crohn's disease",
+        "IBD-N24": "L1",
+        "IBD-N25": "B1",
+        "IBD-N26": "mild"
+      },
+      "findings": [
+        {
+          "kind": "finding",
+          "name": "abdominal pain"
+        },
+        {
+          "kind": "finding",
+          "name": "weight loss"
+        },
+        {
+          "kind": "finding",
+          "name": "faecal calprotectin",
+          "unit": "ug/g",
+          "value": 200
+        }
+      ],
+      "group": "CD",
+      "id": "cd-ileal-mild",
+      "notes": "Mild ileal Crohn's (Tier 1 budesonide).",
+      "pack": "IBD",
+      "patient": {
+        "age": 26,
+        "sex": "male",
+        "syntheticName": "Benchmark CD ileal mild (synthetic)",
+        "weightKg": 75
+      },
+      "reviewedBy": null,
+      "text": "26-year-old man, abdominal pain 4 months, weight loss 3 kg, calprotectin 200 \u00b5g/g"
+    },
+    {
+      "answers": {
+        "IBD-N20": "negative",
+        "IBD-N21": "crohn's disease",
+        "IBD-N24": "L2",
+        "IBD-N25": "B1",
+        "IBD-N26": "moderate"
+      },
+      "findings": [
+        {
+          "kind": "finding",
+          "name": "abdominal pain"
+        },
+        {
+          "kind": "finding",
+          "name": "weight loss"
+        },
+        {
+          "kind": "finding",
+          "name": "faecal calprotectin",
+          "unit": "ug/g",
+          "value": 350
+        }
+      ],
+      "group": "CD",
+      "id": "cd-colonic-moderate",
+      "notes": "Moderate colonic Crohn's (Tier 2 anti-TNF).",
+      "pack": "IBD",
+      "patient": {
+        "age": 33,
+        "sex": "female",
+        "syntheticName": "Benchmark CD colonic moderate (synthetic)",
+        "weightKg": 62
+      },
+      "reviewedBy": null,
+      "text": "33-year-old woman, abdominal pain and diarrhoea 5 months, weight loss 4 kg, calprotectin 350 \u00b5g/g"
+    },
+    {
+      "answers": {
+        "IBD-N20": "negative",
+        "IBD-N21": "crohn's disease",
+        "IBD-N24": "L3",
+        "IBD-N25": "B1",
+        "IBD-N26": "severe"
+      },
+      "findings": [
+        {
+          "kind": "finding",
+          "name": "abdominal pain"
+        },
+        {
+          "kind": "finding",
+          "name": "weight loss"
+        },
+        {
+          "kind": "finding",
+          "name": "haemoglobin",
+          "unit": "g/dL",
+          "value": 10.0
+        },
+        {
+          "kind": "finding",
+          "name": "faecal calprotectin",
+          "unit": "ug/g",
+          "value": 700
+        }
+      ],
+      "group": "CD",
+      "id": "cd-ileocolonic-severe",
+      "notes": "Severe ileocolonic Crohn's (Tier 2 anti-TNF).",
+      "pack": "IBD",
+      "patient": {
+        "age": 45,
+        "sex": "male",
+        "syntheticName": "Benchmark CD ileocolonic severe (synthetic)",
+        "weightKg": 80
+      },
+      "reviewedBy": null,
+      "text": "45-year-old man, abdominal pain 6 months, weight loss 8 kg, Hb 10.0 g/dL, calprotectin 700 \u00b5g/g"
+    },
+    {
+      "answers": {
+        "IBD-N20": "negative",
+        "IBD-N21": "crohn's disease",
+        "IBD-N24": "L1",
+        "IBD-N25": "B2",
+        "IBD-N26": "moderate"
+      },
+      "findings": [
+        {
+          "kind": "finding",
+          "name": "abdominal pain"
+        },
+        {
+          "kind": "finding",
+          "name": "weight loss"
+        },
+        {
+          "kind": "finding",
+          "name": "faecal calprotectin",
+          "unit": "ug/g",
+          "value": 300
+        }
+      ],
+      "group": "CD",
+      "id": "cd-stricturing",
+      "notes": "Stricturing ileal Crohn's (Tier 1 plus stricture watch).",
+      "pack": "IBD",
+      "patient": {
+        "age": 38,
+        "sex": "male",
+        "syntheticName": "Benchmark CD stricturing (synthetic)",
+        "weightKg": 77
+      },
+      "reviewedBy": null,
+      "text": "38-year-old man, crampy abdominal pain 6 months, weight loss 5 kg, calprotectin 300 \u00b5g/g"
+    },
+    {
+      "answers": {
+        "IBD-N20": "negative",
+        "IBD-N21": "crohn's disease",
+        "IBD-N24": "L3",
+        "IBD-N25": "B3",
+        "IBD-N26": "severe"
+      },
+      "findings": [
+        {
+          "kind": "finding",
+          "name": "abdominal pain"
+        },
+        {
+          "kind": "finding",
+          "name": "weight loss"
+        },
+        {
+          "kind": "finding",
+          "name": "faecal calprotectin",
+          "unit": "ug/g",
+          "value": 500
+        }
+      ],
+      "group": "CD",
+      "id": "cd-penetrating",
+      "notes": "Penetrating ileocolonic Crohn's (Tier 2 plus abscess watch).",
+      "pack": "IBD",
+      "patient": {
+        "age": 31,
+        "sex": "female",
+        "syntheticName": "Benchmark CD penetrating (synthetic)",
+        "weightKg": 59
+      },
+      "reviewedBy": null,
+      "text": "31-year-old woman, abdominal pain 4 months, weight loss 6 kg, calprotectin 500 \u00b5g/g"
+    },
+    {
+      "answers": {
+        "URO-N3": "ureteric stone"
+      },
+      "findings": [
+        {
+          "kind": "finding",
+          "name": "renal colic"
+        },
+        {
+          "kind": "finding",
+          "name": "stone size",
+          "unit": "mm",
+          "value": 6
+        }
+      ],
+      "group": "URO",
+      "id": "uro-distal-small",
+      "notes": "Small distal stone (Tier 1 observation with expulsive therapy).",
+      "pack": "URO",
+      "patient": {
+        "age": 45,
+        "sex": "male",
+        "syntheticName": "Benchmark uro small stone (synthetic)",
+        "weightKg": 85
+      },
+      "reviewedBy": null,
+      "text": "45-year-old man with renal colic since yesterday, stone size 6 mm"
+    },
+    {
+      "answers": {
+        "URO-N3": "ureteric stone"
+      },
+      "findings": [
+        {
+          "kind": "finding",
+          "name": "renal colic"
+        },
+        {
+          "kind": "finding",
+          "name": "stone size",
+          "unit": "mm",
+          "value": 12
+        }
+      ],
+      "group": "URO",
+      "id": "uro-large",
+      "notes": "12 mm stone exceeds the Tier 1 size condition, so no tier is entered.",
+      "pack": "URO",
+      "patient": {
+        "age": 50,
+        "sex": "female",
+        "syntheticName": "Benchmark uro large stone (synthetic)",
+        "weightKg": 68
+      },
+      "reviewedBy": null,
+      "text": "50-year-old woman with renal colic for 3 days, stone size 12 mm"
+    }
+  ],
+  "version": 1
+}

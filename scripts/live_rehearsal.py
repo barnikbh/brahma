@@ -66,6 +66,18 @@ def start_on_free_port() -> tuple[subprocess.Popen[bytes], str, IO[str]]:
     raise RuntimeError("no free port in 8001-8003; see /tmp/live_server.log")
 
 
+def stop_server(server: subprocess.Popen[bytes], log: IO[str]) -> None:
+    """Terminate a server from ``start_on_free_port``; shared with the benchmark runner."""
+    server.terminate()
+    try:
+        server.wait(timeout=15)
+    except subprocess.TimeoutExpired:
+        server.kill()
+        server.wait(timeout=15)
+    assert server.poll() is not None, "server survived SIGKILL?!"
+    log.close()
+
+
 def main() -> int:
     server, base, log = start_on_free_port()
     live_knowledge.BASE = base
@@ -77,14 +89,7 @@ def main() -> int:
             code = max(code, live_knowledge.main())
         return code
     finally:
-        server.terminate()
-        try:
-            server.wait(timeout=15)
-        except subprocess.TimeoutExpired:
-            server.kill()
-            server.wait(timeout=15)
-        assert server.poll() is not None, "server survived SIGKILL?!"
-        log.close()
+        stop_server(server, log)
 
 
 if __name__ == "__main__":

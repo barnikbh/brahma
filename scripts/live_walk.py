@@ -88,21 +88,23 @@ def payloads(events: list[tuple[str, dict[str, Any]]], kind: str) -> list[dict[s
     return [data for name, data in events if name == kind]
 
 
-def main() -> int:
-    client = httpx.Client(base_url=BASE, timeout=900.0)
-    log(f"health: {client.get('/api/health').json()}")
-    assert client.post("/api/session", json={"profileId": "p-maya"}).status_code == 200
-    assert client.post("/api/disclaimer").status_code == 200
-    log("signed in as p-maya, disclaimer accepted")
-    created = client.post(
-        "/api/patients",
-        json={
-            "syntheticName": "Live Demo Patient (synthetic)",
-            "age": 34,
-            "sex": "female",
-            "weightKg": 58,
-        },
-    )
+DEMO_PATIENT = {
+    "syntheticName": "Live Demo Patient (synthetic)",
+    "age": 34,
+    "sex": "female",
+    "weightKg": 58,
+}
+
+
+def run_case_walk(
+    client: httpx.Client, patient: dict[str, Any], text: str, answers: dict[str, str]
+) -> dict[str, Any]:
+    """Drive one full walk: patient, findings confirm, needs-data rounds to done.
+
+    Returns {"ok": True, "caseId", "lines", "done", "extracted"} or {"ok": False,
+    "reason"}. Shared with the benchmark runner.
+    """
+    created = client.post("/api/patients", json=patient)
     assert created.status_code == 201, created.text
     case_id: str = created.json()["case"]["caseId"]
     log(f"case {case_id}")
@@ -111,11 +113,11 @@ def main() -> int:
     }
 
     log("walk start...")
-    events = walk_events(client, case_id, {"mode": "start", "text": DEMO_TEXT})
+    events = walk_events(client, case_id, {"mode": "start", "text": text})
     forms = payloads(events, "form")
     if not forms or payloads(events, "error"):
         log("START DID NOT REACH CONFIRM-FINDINGS; stopping")
-        return 1
+        return {"ok": False, "reason": "no-confirm-form"}
     form = forms[0]
     log(f"confirm-findings fields: {json.dumps(form['fields'])[:600]}")
     findings = [
@@ -147,21 +149,21 @@ def main() -> int:
             break
         if not needs:
             log(f"round {round_no}: no form and no done; stopping")
-            return 1
+            return {"ok": False, "reason": "no-form-no-done"}
         need = needs[-1]
         fields = need.get("fields", [])
         unknown = [
-            f for f in fields if f.get("nodeId") not in ANSWERS and f.get("name") not in ANSWERS
+            f for f in fields if f.get("nodeId") not in answers and f.get("name") not in answers
         ]
         if unknown:
             log(f"UNEXPECTED needs-data fields: {json.dumps(fields)[:500]}; stopping")
-            return 1
+            return {"ok": False, "reason": "unexpected-needs"}
 
         def key(f: dict[str, Any]) -> str:
             return str(f.get("nodeId") or f.get("name"))
 
-        answers = {key(f): ANSWERS[key(f)] for f in fields}
-        log(f"round {round_no}: answering {answers}")
+        chosen = {key(f): answers[key(f)] for f in fields}
+        log(f"round {round_no}: answering {chosen}")
         step = walk_events(
             client,
             case_id,
@@ -169,13 +171,13 @@ def main() -> int:
                 "mode": "continue",
                 "walkId": walk_id,
                 "formMessageId": need["messageId"],
-                "formValues": answers,
+                "formValues": chosen,
             },
         )
         events += step
     else:
         log("too many form rounds; stopping")
-        return 1
+        return {"ok": False, "reason": "too-many-rounds"}
 
     dones = payloads(events, "done")
     errors = payloads(events, "error")
@@ -183,8 +185,22 @@ def main() -> int:
     log(f"TOTAL lines={len(lines)} done={bool(dones)} errors={len(errors)}")
     if not dones:
         log(f"NO DONE. errors={errors}")
+        return {"ok": False, "reason": "no-done", "errors": errors}
+    return {"ok": True, "caseId": case_id, "lines": lines, "done": dones[0], "extracted": findings}
+
+
+def main() -> int:
+    client = httpx.Client(base_url=BASE, timeout=900.0)
+    log(f"health: {client.get('/api/health').json()}")
+    assert client.post("/api/session", json={"profileId": "p-maya"}).status_code == 200
+    assert client.post("/api/disclaimer").status_code == 200
+    log("signed in as p-maya, disclaimer accepted")
+    result = run_case_walk(client, DEMO_PATIENT, DEMO_TEXT, ANSWERS)
+    if not result["ok"]:
         return 1
-    d = dones[0]
+    case_id = result["caseId"]
+    lines = result["lines"]
+    d = result["done"]
     outcome = d.get("outcome")
     counts = d.get("counts")
     pack = d.get("packVersion")
