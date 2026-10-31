@@ -8,6 +8,8 @@ Uses the first free port in 8001-8003 with a fresh scratch database, so it never
 touches a server already running on 8000 or the demo database in ``data/``. The
 server log (metadata only, never keys or clinical text) goes to
 ``/tmp/live_server.log``. Exit code is the walk's (see ``live_walk.py``).
+With ``BRAHMA_REHEARSAL_ALL=1`` the knowledge-update probe (``live_knowledge.py``)
+runs after the walk on the same server, and the exit code is the worst of both.
 """
 
 from __future__ import annotations
@@ -24,6 +26,7 @@ import httpx
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import live_knowledge
 import live_walk
 
 
@@ -65,9 +68,14 @@ def start_on_free_port() -> tuple[subprocess.Popen[bytes], str, IO[str]]:
 
 def main() -> int:
     server, base, log = start_on_free_port()
+    live_knowledge.BASE = base
     print(f"server healthy on {base}; starting live walk", flush=True)
     try:
-        return live_walk.main()
+        code = live_walk.main()
+        if os.environ.get("BRAHMA_REHEARSAL_ALL") == "1":
+            print("starting live knowledge probe", flush=True)
+            code = max(code, live_knowledge.main())
+        return code
     finally:
         server.terminate()
         try:

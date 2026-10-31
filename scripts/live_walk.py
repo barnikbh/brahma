@@ -7,9 +7,10 @@ base URL, default http://127.0.0.1:8000)::
     BRAHMA_REHEARSAL_BASE=http://127.0.0.1:8001 .venv/bin/python scripts/live_walk.py
 
 Signs in as Dr. Maya, creates one synthetic patient, walks the IBD demo case
-(requesting the same needs-data answers as the recorded demo) and prints every
-emitted line. Exit code 0 means the walk answered with 0 ungrounded lines,
-2 means it answered with some ungrounded, 1 means it did not finish.
+(requesting the same needs-data answers as the recorded demo), runs the
+anti-TNF-failure follow-up turn and prints every emitted line. Exit code 0 means
+the walk and the follow-up both answered with 0 ungrounded lines, 2 means one of
+them had some ungrounded, 1 means something did not finish.
 """
 
 from __future__ import annotations
@@ -32,6 +33,7 @@ ANSWERS = {
     "IBD-N22": "E3",
     "IBD-N23": "severe",
 }
+FOLLOW_UP_TEXT = "Remicade failed. steroids work. Suggest alternate treatment plan"
 T0 = time.time()
 
 
@@ -179,17 +181,41 @@ def main() -> int:
     errors = payloads(events, "error")
     lines = payloads(events, "line")
     log(f"TOTAL lines={len(lines)} done={bool(dones)} errors={len(errors)}")
-    if dones:
-        d = dones[0]
-        outcome = d.get("outcome")
-        counts = d.get("counts")
-        pack = d.get("packVersion")
-        log(f"RESULT outcome={outcome} counts={counts} pack={pack}")
-        for line in lines:
-            print(f"  LINE nodes={line.get('nodeIds')} :: {line.get('text')}")
-        return 0 if d.get("counts", {}).get("ungrounded", 99) == 0 else 2
-    log(f"NO DONE. errors={errors}")
-    return 1
+    if not dones:
+        log(f"NO DONE. errors={errors}")
+        return 1
+    d = dones[0]
+    outcome = d.get("outcome")
+    counts = d.get("counts")
+    pack = d.get("packVersion")
+    log(f"RESULT outcome={outcome} counts={counts} pack={pack}")
+    for line in lines:
+        print(f"  LINE nodes={line.get('nodeIds')} :: {line.get('text')}")
+    walk_code = 0 if d.get("counts", {}).get("ungrounded", 99) == 0 else 2
+
+    log(f"follow-up: {FOLLOW_UP_TEXT!r}")
+    follow = walk_events(client, case_id, {"mode": "follow_up", "text": FOLLOW_UP_TEXT})
+    histories = payloads(follow, "history")
+    follow_done = payloads(follow, "done")
+    follow_lines = payloads(follow, "line")
+    follow_errors = payloads(follow, "error")
+    log(f"FOLLOW-UP lines={len(follow_lines)} done={bool(follow_done)} errors={len(follow_errors)}")
+    if histories:
+        log(f"FOLLOW-UP history: {histories[0].get('text', '')[:200]}")
+    if not follow_done:
+        log(f"FOLLOW-UP NO DONE. errors={follow_errors}")
+        return 1
+    fd = follow_done[0]
+    log(f"FOLLOW-UP RESULT outcome={fd.get('outcome')} counts={fd.get('counts')}")
+    for line in follow_lines:
+        print(f"  FU-LINE nodes={line.get('nodeIds')} :: {line.get('text')}")
+    cited = {n for line in follow_lines for n in line.get("nodeIds", [])}
+    log(f"FOLLOW-UP cited: {sorted(cited)}")
+    view = client.get(f"/api/cases/{case_id}").json()
+    history = (view["messages"][-1].get("body") or {}).get("history")
+    log(f"FOLLOW-UP stored history: {json.dumps(history)[:200]}")
+    follow_code = 0 if fd.get("counts", {}).get("ungrounded", 99) == 0 else 2
+    return max(walk_code, follow_code)
 
 
 if __name__ == "__main__":

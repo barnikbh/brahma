@@ -62,7 +62,10 @@ _CLAIMS_RULE = (
     '"Tier 2". The line text follows the same rule: name only drugs, tests and '
     "diagnoses a cited node carries under that exact name, and give a number with a "
     "unit only when a cited node carries that exact number and unit. Leave out "
-    "anything the nodes do not give exactly."
+    "anything the nodes do not give exactly. In particular, never write a disease, "
+    "drug or test name that none of the cited nodes carries: 'Send stool culture "
+    "when inflammatory bowel disease is suspected' citing only a test node is wrong; "
+    "'Send stool culture when this disease is suspected' is right."
 )
 _CLAIM_EXAMPLES = (
     " Example lines (shape only; always cite the current section's own nodes): "

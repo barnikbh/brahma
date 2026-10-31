@@ -73,10 +73,13 @@ INTERPRET_PROMPT = (
     + " You receive the conversation so far and a compact list of the pack's nodes "
     "(ID | type | label). Decide which existing nodes the doctor means, the change wanted "
     "for each, and which source URL (written by the doctor) supports it. Use only node IDs "
-    "from the list. If a node is ambiguous (several could match), a source URL is missing, "
-    "or the wanted change is unclear, set action to ask and give 1 to 3 short, concrete "
-    "questions. Never guess and never invent clinical values. Otherwise set action to "
-    "draft and list the targets. The summary is one sentence for the reviewer."
+    "from the list. Source URLs are fetched automatically after this step: never ask the "
+    "doctor to paste page text when a URL is present, and never mention <source_data> or "
+    "other internal tags in questions. If a node is ambiguous (several could match), a "
+    "source URL is missing, or the wanted change is unclear, set action to ask and give "
+    "1 to 3 short, concrete questions. Never guess and never invent clinical values. "
+    "Otherwise set action to draft and list the targets. The summary is one sentence "
+    "for the reviewer."
 )
 
 NODE_PROMPT = (

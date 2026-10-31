@@ -100,7 +100,7 @@ python scripts/check_env_example.py && python scripts/check_secrets.py
 
 1. **Shared SQLite connection, no lock.** One connection is shared across FastAPI worker threads (`check_same_thread=False`). Overlapping requests can raise a 500 (seen once in testing). The web app works around it (the tab-lock heartbeat starts after the case loads and skips while a request is in flight). **Real fix:** a lock around DB use or a connection per request. Do this before recording the video.
 2. **Strict grounding guard vs live models.** Rehearsed Oct 31 on `muse-spark-1.3`: the full demo walk answers with **0 ungrounded** (31 lines cited, ~75 s). It took two fixes (guard matching untouched): `normalize_declared` in `src/brahma/agent/scanner.py` parses declared values ("100 mg", "Tier 2") the way the text scanner does, and the writer prompts gained a claim-shape rule, two few-shot examples and a why-section co-cite rule. Re-run the scripted walk (`scripts/live_rehearsal.py`) after any prompt/model change. Before recording, start a FRESH server: a stale process on port 8000 silently serves old code (bit us once — three "tuning" runs hit a stale server).
-3. **The follow-up turn and the Knowledge conversation have only been tested with recorded replies**, never with the real Meta model or a real URL. Expect prompt tuning.
+3. **Follow-up turn and Knowledge conversation: live-tested Oct 31.** Follow-up maps Remicade→infliximab and answers with 0–1 ungrounded; the knowledge ask→draft→publish loop works end to end (drafted IBD-N58+N103 from Wikipedia, no copy flags, reviewer published IBD 1.2 on a scratch DB). One fix: the interpret prompt now says URLs are fetched automatically (it used to beg for pasted text and leaked the `<source_data>` tag name). fda.gov's abuse-detection blocks the fetcher's transparent user agent (302 to a broken apology page) — the assistant says "could not read" gracefully; deliberately not spoofing a browser UA.
 4. **Composer:** after an answered walk, pressing Enter in the chat box didn't send in the e2e; clicking **Send** works. Cause unknown.
 5. **"✎ edited" marker** is kept only in the browser; node detail returns `edited: null`, so it disappears on reload.
 6. **Old cases** walked on IBD 1.0 show the "newer version available" banner. Re-walk them, or create new patients, to use the follow-up path.
@@ -116,14 +116,14 @@ The owner planned for a family or friend reviewer to check the IBD content **by 
 - **Mesalamine** is stored as exactly 2 g, so any line saying 2.4 g or 3 g fails the guard. The severe demo case doesn't reach it. Decide on a dose range before the demo.
 - **No edge uses the stool culture result**, so a positive culture doesn't lead to infectious colitis (reachable only via Explore).
 - **New in v1.1 for the reviewer to verify:** vedolizumab 300 mg IV at weeks 0, 2, 6 then every 8 weeks; tofacitinib 10 mg orally twice daily for 8 weeks then 5 mg twice daily, with the VTE and cardiovascular warning at age 50+ with risk factors and shingles vaccination; ustekinumab about 6 mg/kg IV once then 90 mg SC every 8 weeks (reused from the Crohn's node, confirm for UC); trough level at least 5 µg/mL; steroids only as a bridge; early surgical review if steroid-refractory.
-- **Source `IBD-S20`** (FDA 2021 JAK inhibitor safety communication): its URL was written from memory. **Check it resolves.**
+- **Source `IBD-S20`** (FDA 2021 JAK inhibitor safety communication): URL verified Oct 31 — resolves (HTTP 200, correct document). Only the in-app fetcher is blocked by fda.gov's abuse-detection (see issue 3); the citation itself is fine to display.
 
 ## Open deadlines and decisions (from the owner)
 
 - **Oct 30 (overdue if not done):** confirm the hackathon rules allow Claude-drafted knowledge content. If not, redraft the pack through the Meta model using the knowledge-update flow before the final run.
 - **Oct 31:** reviewer check of the IBD content (above).
 - **Nov 2, 9 PM ET:** Meta credentials. The key now works (`muse-spark-1.3`), so the Meta path is confirmed; record this against requirement FR13.10.
-- **Nov 3–4:** rehearse the demo on the Meta model, record the video from a tagged commit, submit repo and video before **Nov 4, 9 PM ET**.
+- **Nov 3–4:** rehearse the demo on the Meta model, record the video from a tagged commit, submit repo and video before **Nov 4, 9 PM ET**. Ungrounded runs 0–1 per walk and the badge is demo-visible, so record multiple takes and ship a 0-take.
 - **Benchmark (U7):** the owner deferred it. The original plan was a 20-case synthetic benchmark (graph run vs plain model, grounded share at least 95%, graph beats plain). Check the hackathon submission requirements: if a benchmark or quantitative result is expected, rebuild U7 (design in `requirements.md` FR13).
 
 ## Backlog (low priority, not scheduled)
