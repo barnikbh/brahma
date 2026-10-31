@@ -1,12 +1,13 @@
 """The grounding guard: ``check_line`` and ``check_line_by_source`` (C6, BR1, FR4.10).
 
-A line's claims are the claims the model declared plus every claim the deterministic
-``ClaimScanner`` finds in its text, so a dose cannot be hidden by leaving it out of the
-declared claims (BR1.1). Each claim must match a field of a cited node exactly after
-unit normalisation (U1 ``match_claims``); a dose for a per-kg drug may also match the
-node's per-kg value or the case's computed dose (U3 ``compute_dose``) (BR1.2). A line
-passes only when every claim matches and it cites at least one node of the pinned
-version (BR1.3). Any exception inside the guard counts as a failed check (NFR8.5).
+A line's claims are the claims the model declared (parsed the way the scanner parses
+text, so "100 mg" reads as 100 mg) plus every claim the deterministic ``ClaimScanner``
+finds in its text, so a dose cannot be hidden by leaving it out of the declared claims
+(BR1.1). Each claim must match a field of a cited node exactly after unit normalisation
+(U1 ``match_claims``); a dose for a per-kg drug may also match the node's per-kg value
+or the case's computed dose (U3 ``compute_dose``) (BR1.2). A line passes only when
+every claim matches and it cites at least one node of the pinned version (BR1.3). Any
+exception inside the guard counts as a failed check (NFR8.5).
 """
 
 from __future__ import annotations
@@ -16,7 +17,7 @@ import logging
 from collections.abc import Iterable, Sequence
 
 from brahma.agent.models import CheckResult, GuardFailure
-from brahma.agent.scanner import ClaimScanner, merge_claims
+from brahma.agent.scanner import ClaimScanner, merge_claims, normalize_declared
 from brahma.cases.models import DoseResult
 from brahma.cases.service import CaseService
 from brahma.knowledge.errors import NodeNotFound
@@ -90,7 +91,8 @@ class Guard:
     # --- internals -------------------------------------------------------------------
 
     def _claims(self, text: str, version: PackVersionRef, declared: Iterable[Claim]) -> list[Claim]:
-        return merge_claims(list(declared), self.scanner.scan(text, version))
+        parsed = [normalize_declared(claim) for claim in declared]
+        return merge_claims(parsed, self.scanner.scan(text, version))
 
     def _check_line(
         self,

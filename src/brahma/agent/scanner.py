@@ -22,7 +22,7 @@ from brahma.knowledge.matcher import normalise_text
 from brahma.knowledge.models import Claim, ClaimKind, Node, PackVersionRef
 from brahma.knowledge.repository import version_id
 from brahma.knowledge.service import KnowledgeService
-from brahma.knowledge.units import normalise_unit
+from brahma.knowledge.units import normalise_unit, to_decimal
 
 # Display spellings, matched case-insensitively. Longest first so "mg/kg" wins over "mg".
 _UNITS = (
@@ -123,6 +123,34 @@ def scan_numbers(text: str) -> list[Claim]:
         kind: ClaimKind = "threshold" if normalise_unit(unit) in THRESHOLD_UNITS else "dose"
         claims.append(Claim(kind=kind, value=value, unit=unit))
     return claims
+
+
+_TIER_VALUE = re.compile(r"(?i)^\s*(?:tier\s*)?(\d+(?:\.\d+)?)\s*$")
+
+
+def normalize_declared(claim: Claim) -> Claim:
+    """Parse a model-declared claim value the way the text scanner would.
+
+    A live model declares the value as it wrote it in the line ("100 mg",
+    "Tier 2") instead of the bare number the matcher needs ("100" plus unit
+    "mg"). The scanned twin of that claim then matches while the declared one
+    fails and rejects an otherwise grounded line. Parsing the declared value
+    with the same number rule keeps the exact match (a wrong value still fails);
+    a value that does not parse is kept as it is and fails as a model error.
+    """
+    if claim.kind in ("dose", "threshold"):
+        if to_decimal(claim.value) is not None:
+            return claim
+        found = scan_numbers(claim.value)
+        if len(found) == 1:
+            return Claim(kind=claim.kind, value=found[0].value, unit=found[0].unit)
+        return claim
+    if claim.kind == "tier":
+        match = _TIER_VALUE.match(claim.value)
+        if match is not None:
+            return Claim(kind="tier", value=match.group(1))
+        return claim
+    return claim
 
 
 class ClaimScanner:

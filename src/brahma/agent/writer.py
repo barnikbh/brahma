@@ -52,19 +52,44 @@ HISTORY_SYSTEM = (
     "for side effects) or responded. Leave out a medicine whose outcome is not stated; "
     "never invent one. " + _DATA_RULE
 )
+_CLAIMS_RULE = (
+    "Claims rule: a claim's kind must fit a cited node's type (diagnosis for "
+    "diagnosis/subtype nodes, test for test nodes, drug/dose/frequency/duration for "
+    "drug nodes, threshold for metric/monitoring/response_criterion nodes, tier for "
+    "treatment_tier/response_criterion nodes). Values are exact: names copied from "
+    "the node; dose, threshold and tier as a bare number with the unit in the unit "
+    'field (e.g. {"kind": "dose", "value": "90", "unit": "mg"}), never a phrase like '
+    '"Tier 2". The line text follows the same rule: name only drugs, tests and '
+    "diagnoses a cited node carries under that exact name, and give a number with a "
+    "unit only when a cited node carries that exact number and unit. Leave out "
+    "anything the nodes do not give exactly."
+)
+_CLAIM_EXAMPLES = (
+    " Example lines (shape only; always cite the current section's own nodes): "
+    '{"text": "Visible blood in loose stools is a key presenting feature to assess.", '
+    '"nodeIds": ["IBD-N1"], "claims": []} '
+    '{"text": "A haemoglobin below 10.5 g/dL counts as a marker of systemic toxicity.", '
+    '"nodeIds": ["IBD-N3"], "claims": [{"kind": "threshold", "value": "10.5", '
+    '"unit": "g/dL"}]}'
+)
 SECTION_SYSTEM = (
     "You write one section of a decision-support pathway (decision support, not "
     "diagnosis). Use only the facts in <node_data>; never use your own knowledge. Each "
     "line cites, in nodeIds, the node IDs it is based on, taken from <node_data> only. "
     "List in claims every diagnosis, test, drug, dose, frequency, duration, threshold and "
-    "tier the line states, exactly as the node gives it. Paraphrase; do not copy long "
+    "tier the line states. " + _CLAIMS_RULE + _CLAIM_EXAMPLES + " Paraphrase; do not copy long "
     "passages. Do not restate the patient's own measured values. Return JSON only, "
     "matching the schema. " + _DATA_RULE
 )
 WHY_SYSTEM = (
     "You explain in plain language why this pathway was reached, one sentence per line. "
     "Use only the facts in <node_data>; every sentence cites the node IDs it is based on "
-    "and lists its claims. Return JSON only, matching the schema. " + _DATA_RULE
+    "and lists its claims. A sentence may cite several nodes: whenever it names a "
+    "diagnosis, drug or test, also cite that entity's own node from <node_data>. "
+    + _CLAIMS_RULE
+    + _CLAIM_EXAMPLES
+    + " Return JSON only, matching the schema. "
+    + _DATA_RULE
 )
 
 

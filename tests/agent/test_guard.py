@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from brahma.agent.guard import Guard
-from brahma.agent.scanner import ClaimScanner, merge_claims, scan_numbers
+from brahma.agent.scanner import ClaimScanner, merge_claims, normalize_declared, scan_numbers
 from brahma.cases import Case, CaseService, NewPatient
 from brahma.knowledge import Claim, KnowledgeService, PackVersionRef
 from tests.agent.conftest import DOCTOR
@@ -50,6 +50,61 @@ def test_a_declared_wrong_dose_fails(guard: Guard, demo_case: Case) -> None:
     assert [(f.claim.value if f.claim else None, f.reason) for f in result.failures] == [
         ("120", "value_differs")
     ]
+
+
+def test_a_declared_phrased_value_is_parsed_like_text(guard: Guard, demo_case: Case) -> None:
+    dose = guard.check_line(
+        "Hydrocortisone 100 mg intravenously.",
+        ["IBD-N51"],
+        IBD,
+        demo_case.case_id,
+        declared=[Claim(kind="dose", value="100 mg")],
+    )
+    assert dose.passed, dose.failures
+    tier = guard.check_line(
+        "Tier 2 care in hospital.",
+        ["IBD-N41"],
+        IBD,
+        demo_case.case_id,
+        declared=[Claim(kind="tier", value="Tier 2")],
+    )
+    assert tier.passed, tier.failures
+    threshold = guard.check_line(
+        "Haemoglobin below 10.5 g/dL.",
+        ["IBD-N3"],
+        IBD,
+        demo_case.case_id,
+        declared=[Claim(kind="threshold", value="10.5 g/dL", unit="g/dL")],
+    )
+    assert threshold.passed, threshold.failures
+
+
+def test_an_unparsable_declared_value_still_fails(guard: Guard, demo_case: Case) -> None:
+    extent = guard.check_line(
+        "Montreal E3 extent.",
+        ["IBD-N41"],
+        IBD,
+        demo_case.case_id,
+        declared=[Claim(kind="tier", value="E3")],
+    )
+    assert not extent.passed
+    vague = guard.check_line(
+        "Hydrocortisone at a high dose.",
+        ["IBD-N51"],
+        IBD,
+        demo_case.case_id,
+        declared=[Claim(kind="dose", value="a high dose")],
+    )
+    assert not vague.passed
+
+
+def test_normalize_declared_keeps_exact_and_other_kinds() -> None:
+    assert normalize_declared(Claim(kind="dose", value="100", unit="mg")) == Claim(
+        kind="dose", value="100", unit="mg"
+    )
+    assert normalize_declared(Claim(kind="tier", value="2")) == Claim(kind="tier", value="2")
+    drug = Claim(kind="drug", value="hydrocortisone 100 mg")
+    assert normalize_declared(drug) == drug
 
 
 def test_a_dose_scanned_but_not_declared_still_fails(guard: Guard, demo_case: Case) -> None:
