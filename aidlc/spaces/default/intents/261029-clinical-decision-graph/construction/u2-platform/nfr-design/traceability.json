@@ -1,0 +1,17 @@
+{
+  "stage": "nfr-design",
+  "unit": "u2-platform",
+  "upstream_ids": ["NFR5.1", "NFR5.2", "NFR7.1", "NFR7.2", "NFR6.1", "NFR6.2", "NFR8.1", "NFR8.2", "NFR8.3", "NFR7.3"],
+  "coverage": [
+    { "id": "NFR5.1", "status": "OK", "target": "ProviderConfig.from_env with SecretStr; error field holds class and status only (security-design.md)" },
+    { "id": "NFR5.2", "status": "OK", "target": ".env.example with empty values; CI check" },
+    { "id": "NFR7.1", "status": "OK", "target": "pf_connect triggers, BEGIN IMMEDIATE, trigger self-check on open" },
+    { "id": "NFR7.2", "status": "OK", "target": "AuditEntryIn and SessionRecordIn models; ProfileRepository check; 256 KB limit" },
+    { "id": "NFR6.1", "status": "OK", "target": "Metadata-only logger in ModelGateway" },
+    { "id": "NFR6.2", "status": "OK", "target": "PdfExporter with bundled DejaVu Sans and header strings" },
+    { "id": "NFR8.1", "status": "OK", "target": "ModelGateway timeout and at most 2 retries with backoff" },
+    { "id": "NFR8.2", "status": "OK", "target": "Pydantic validation of structured output within the retry budget" },
+    { "id": "NFR8.3", "status": "OK", "target": "HTTPS check on BRAHMA_MODEL_BASE_URL at start" },
+    { "id": "NFR7.3", "status": "OK", "target": "IdentityService.require_role via ProfileRepository" }
+  ]
+}

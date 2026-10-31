@@ -1,0 +1,21 @@
+{
+  "stage": "infrastructure-design",
+  "unit": "u1-knowledge-graph",
+  "upstream_ids": ["NFR2.1", "NFR6.1", "NFR2.2", "NFR8.1", "NFR8.2", "NFR7.1", "NFR5.1", "NFR6.2", "NFR12.1", "NFR1.1", "NFR11.1", "NFR9.1", "NFR10.1", "NFR12.2"],
+  "coverage": [
+    { "id": "NFR2.1", "status": "OK", "target": "CI step 5 pack validation; tests in CI step 4" },
+    { "id": "NFR6.1", "status": "OK", "target": "CI step 5 pack validation (patient-data scan)" },
+    { "id": "NFR2.2", "status": "OK", "target": "CI step 4 exact-matching tests" },
+    { "id": "NFR8.1", "status": "OK", "target": "CI step 5 and safe-loader tests in step 4" },
+    { "id": "NFR8.2", "status": "N/A", "target": "application-level transactions; no infrastructure beyond the local SQLite file" },
+    { "id": "NFR7.1", "status": "N/A", "target": "enforced in the database schema created by kg_connect; no infrastructure" },
+    { "id": "NFR5.1", "status": "OK", "target": "CI sets no secrets; temporary BRAHMA_DB_PATH per test; read-only workflow permissions" },
+    { "id": "NFR6.2", "status": "N/A", "target": "application-level validation; no infrastructure" },
+    { "id": "NFR12.1", "status": "OK", "target": "CI step 2 Ruff; check_copy.py as a manual pre-commit step" },
+    { "id": "NFR1.1", "status": "OK", "target": "CI step 4 timing test" },
+    { "id": "NFR11.1", "status": "N/A", "target": "structured log lines to the local log; no log infrastructure for a local app" },
+    { "id": "NFR9.1", "status": "OK", "target": "CI step 4 coverage floor of 80%" },
+    { "id": "NFR10.1", "status": "OK", "target": "CI step 1 frozen install; step 4 load-time test" },
+    { "id": "NFR12.2", "status": "OK", "target": "CI step 3 mypy --strict" }
+  ]
+}

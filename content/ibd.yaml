@@ -1,0 +1,1293 @@
+# Brahma IBD knowledge pack v1.1. Decision support, not diagnosis.
+# v1.1 adds the ulcerative colitis path after anti-TNF failure (treatment history).
+# Paraphrased from the cited guidelines (no verbatim copying) and drafted with Claude for
+# clinical review. Contains no patient data. Every node cites at least one source below.
+# Values not confidently attributable to a cited guideline were left out, not guessed;
+# see the code summary for the reviewer list.
+pack:
+  code: IBD
+  name: Inflammatory bowel disease
+  specialty: Gastroenterology
+version: "1.1"
+changeSummary: Ulcerative colitis after anti-TNF failure - drug levels, switching class (ustekinumab, vedolizumab, tofacitinib), steroids as a bridge and steroid-refractory escalation
+
+sources:
+  - sourceId: IBD-S1
+    title: "Raine T, et al. ECCO Guidelines on Therapeutics in Ulcerative Colitis: Medical Treatment. J Crohns Colitis"
+    year: 2022
+    section: Acute severe ulcerative colitis; mild to moderate and moderate to severe disease
+  - sourceId: IBD-S2
+    title: "Lamb CA, et al. British Society of Gastroenterology consensus guidelines on the management of inflammatory bowel disease in adults. Gut"
+    year: 2019
+    section: Acute severe ulcerative colitis; investigations at presentation; thromboprophylaxis
+  - sourceId: IBD-S3
+    title: "Rubin DT, et al. ACG Clinical Guideline: Ulcerative Colitis in Adults. Am J Gastroenterol"
+    year: 2019
+    section: Hospitalised patients with acute severe ulcerative colitis
+  - sourceId: IBD-S4
+    title: "Ko CW, et al. AGA Clinical Practice Guidelines on the Management of Mild-to-Moderate Ulcerative Colitis. Gastroenterology"
+    year: 2019
+    section: Recommendations on mesalamine dose and dosing frequency
+  - sourceId: IBD-S5
+    title: "Torres J, et al. ECCO Guidelines on Therapeutics in Crohn's Disease: Medical Treatment. J Crohns Colitis"
+    year: 2020
+    section: Induction and maintenance of remission
+  - sourceId: IBD-S6
+    title: "Lichtenstein GR, et al. ACG Clinical Guideline: Management of Crohn's Disease in Adults. Am J Gastroenterol"
+    year: 2018
+    section: Mild to moderate and moderate to severe disease
+  - sourceId: IBD-S7
+    title: "Adamina M, et al. ECCO Guidelines on Therapeutics in Crohn's Disease: Surgical Treatment. J Crohns Colitis"
+    year: 2020
+    section: Localised ileocaecal disease, strictures and intra-abdominal abscess
+  - sourceId: IBD-S8
+    title: "Maaser C, et al. ECCO-ESGAR Guideline for Diagnostic Assessment in IBD Part 1. J Crohns Colitis"
+    year: 2019
+    section: Initial diagnosis, laboratory and endoscopic assessment
+  - sourceId: IBD-S9
+    title: "Satsangi J, et al. The Montreal classification of inflammatory bowel disease: controversies, consensus, and implications. Gut"
+    year: 2006
+    section: Classification of Crohn's disease and of ulcerative colitis extent
+  - sourceId: IBD-S10
+    title: "NICE Diagnostics Guidance DG11. Faecal calprotectin diagnostic tests for inflammatory diseases of the bowel"
+    year: 2013
+    section: Recommendations
+  - sourceId: IBD-S11
+    title: "World Health Organization. Haemoglobin concentrations for the diagnosis of anaemia and assessment of severity (VMNIS)"
+    year: 2011
+    section: Haemoglobin levels to diagnose anaemia at sea level (table)
+  - sourceId: IBD-S12
+    title: "Turner D, et al. STRIDE-II: an update on the Selecting Therapeutic Targets in Inflammatory Bowel Disease initiative. Gastroenterology"
+    year: 2021
+    section: Intermediate treatment targets
+  - sourceId: IBD-S13
+    title: "Feuerstein JD, et al. AGA Institute Guideline on Therapeutic Drug Monitoring in Inflammatory Bowel Disease. Gastroenterology"
+    year: 2017
+    section: Reactive therapeutic drug monitoring of anti-TNF agents
+  - sourceId: IBD-S14
+    title: "Bischoff SC, et al. ESPEN guideline on clinical nutrition in inflammatory bowel disease. Clin Nutr"
+    year: 2023
+    section: Nutrition in active disease
+  - sourceId: IBD-S15
+    title: "Kucharzik T, et al. ECCO Guidelines on the Prevention, Diagnosis, and Management of Infections in Inflammatory Bowel Disease. J Crohns Colitis"
+    year: 2021
+    section: Screening before immunosuppressive and biologic therapy
+  - sourceId: IBD-S16
+    title: "Jonklaas J, et al. Guidelines for the Treatment of Hypothyroidism. American Thyroid Association. Thyroid"
+    year: 2014
+    section: Levothyroxine dosing and factors affecting absorption
+  - sourceId: IBD-S17
+    title: "Khan DA, et al. Drug allergy: a 2022 practice parameter update. J Allergy Clin Immunol"
+    year: 2022
+    section: Penicillin allergy and beta-lactam cross-reactivity
+  - sourceId: IBD-S18
+    title: "Riddle MS, et al. ACG Clinical Guideline: Diagnosis, Treatment, and Prevention of Acute Diarrheal Infections in Adults. Am J Gastroenterol"
+    year: 2016
+    section: Diagnostic testing in acute diarrhoea
+  - sourceId: IBD-S19
+    title: "Feuerstein JD, et al. AGA Clinical Practice Guidelines on the Management of Moderate to Severe Ulcerative Colitis. Gastroenterology"
+    year: 2020
+    section: Biologic therapy choices
+  - sourceId: IBD-S20
+    title: "US Food and Drug Administration. Drug Safety Communication: FDA requires warnings about increased risk of serious heart-related events, cancer, blood clots, and death for JAK inhibitors that treat certain chronic inflammatory conditions"
+    year: 2021
+    section: Tofacitinib (Xeljanz) boxed warning and patient selection
+    url: https://www.fda.gov/drugs/drug-safety-and-availability/fda-requires-warnings-about-increased-risk-serious-heart-related-events-cancer-blood-clots-and-death
+
+nodes:
+  # ---------------------------------------------------------------- findings
+  - nodeId: IBD-N1
+    type: symptom
+    label: Bloody diarrhoea
+    content: >-
+      Loose stools with visible blood are a cardinal presenting feature of ulcerative
+      colitis and should prompt assessment for inflammatory bowel disease as well as
+      for an infective cause.
+    fields:
+      name: bloody diarrhoea
+      synonyms: [bloody stool, bloody stools, blood in stool, rectal bleeding with diarrhoea]
+    sourceIds: [IBD-S2, IBD-S8]
+    column: findings
+  - nodeId: IBD-N2
+    type: symptom
+    label: Abdominal pain
+    content: >-
+      Abdominal pain, often with diarrhoea, is a common presenting complaint in Crohn's
+      disease and is one reason to look for bowel inflammation.
+    fields:
+      name: abdominal pain
+      synonyms: [abdominal cramps, belly pain, tummy pain]
+    sourceIds: [IBD-S6, IBD-S8]
+    column: findings
+  - nodeId: IBD-N3
+    type: metric
+    label: Haemoglobin below 10.5 g/dL
+    content: >-
+      A haemoglobin under 10.5 g/dL is one of the systemic toxicity markers in the
+      Truelove and Witts definition of acute severe colitis. Normal lower limits by sex
+      and pregnancy follow the WHO anaemia thresholds for people aged 15 and over.
+    fields:
+      measure: Hb
+      unit: g/dL
+      threshold: 10.5
+      comparator: lt
+      synonyms: [haemoglobin, hemoglobin]
+    referenceRanges:
+      - {sex: female, ageBand: "15+", low: 12, unit: g/dL}
+      - {sex: female, ageBand: "15+", pregnancy: true, low: 11, unit: g/dL}
+      - {sex: male, ageBand: "15+", low: 13, unit: g/dL}
+    sourceIds: [IBD-S2, IBD-S11]
+    column: findings
+  - nodeId: IBD-N5
+    type: metric
+    label: Faecal calprotectin above 50 ug/g
+    content: >-
+      Faecal calprotectin above 50 micrograms per gram supports referral to look for
+      inflammatory bowel disease in adults with recent-onset lower gastrointestinal
+      symptoms when cancer is not suspected.
+    fields:
+      measure: calprotectin
+      unit: ug/g
+      threshold: 50
+      comparator: gt
+      synonyms: [faecal calprotectin, fecal calprotectin]
+    sourceIds: [IBD-S10]
+    column: findings
+  - nodeId: IBD-N6
+    type: metric
+    label: Six or more bloody stools a day
+    content: >-
+      Six or more bloody stools a day, together with at least one sign of systemic
+      toxicity, defines acute severe ulcerative colitis by the Truelove and Witts
+      criteria.
+    fields:
+      measure: stool frequency
+      unit: per day
+      threshold: 6
+      comparator: ge
+      synonyms: [stools per day, bowel movements per day]
+    sourceIds: [IBD-S2, IBD-S1]
+    column: findings
+  - nodeId: IBD-N7
+    type: metric
+    label: C-reactive protein above 45 mg/L
+    content: >-
+      On day 3 of intravenous steroids, a CRP above 45 mg/L with three to eight stools a
+      day predicts a high chance of needing colectomy (the Oxford criteria).
+    fields:
+      measure: CRP
+      unit: mg/L
+      threshold: 45
+      comparator: gt
+      synonyms: [c-reactive protein]
+    sourceIds: [IBD-S2]
+    column: findings
+  - nodeId: IBD-N8
+    type: symptom
+    label: Weight loss
+    content: >-
+      Unintended weight loss alongside bowel symptoms raises concern for Crohn's disease
+      and for malnutrition, which should be assessed.
+    fields:
+      name: weight loss
+      synonyms: [losing weight, unintentional weight loss]
+    sourceIds: [IBD-S6, IBD-S14]
+    column: findings
+
+  # ---------------------------------------------------------------- diagnoses
+  - nodeId: IBD-N10
+    type: diagnosis
+    label: Suspected inflammatory bowel disease
+    content: >-
+      Inflammatory bowel disease is suspected from symptoms and raised inflammatory
+      markers. The diagnosis rests on clinical, laboratory, endoscopic and histological
+      findings together, after infection has been excluded.
+    fields:
+      name: inflammatory bowel disease
+    sourceIds: [IBD-S8, IBD-S2]
+    column: diagnosis
+  - nodeId: IBD-N11
+    type: diagnosis
+    label: Ulcerative colitis
+    content: >-
+      Ulcerative colitis is continuous mucosal inflammation that starts in the rectum and
+      extends a variable distance up the colon. Its extent and severity guide treatment.
+    fields:
+      name: ulcerative colitis
+      code: K51
+    sourceIds: [IBD-S1, IBD-S8]
+    column: diagnosis
+  - nodeId: IBD-N12
+    type: diagnosis
+    label: Crohn's disease
+    content: >-
+      Crohn's disease is patchy transmural inflammation that can affect any part of the
+      gut. Location, behaviour and activity guide treatment.
+    fields:
+      name: crohn's disease
+      code: K50
+    sourceIds: [IBD-S5, IBD-S8]
+    column: diagnosis
+  - nodeId: IBD-N13
+    type: diagnosis
+    label: Infectious colitis (alternative to consider)
+    content: >-
+      Bacterial infection, including Clostridioides difficile, can mimic a first
+      presentation or a flare of inflammatory bowel disease and must be excluded with
+      stool testing.
+    fields:
+      name: infectious colitis
+    sourceIds: [IBD-S18, IBD-S8]
+    column: diagnosis
+    alternative: true
+
+  # ---------------------------------------------------------------- tests
+  - nodeId: IBD-N20
+    type: test
+    label: Stool culture and C. difficile testing
+    content: >-
+      Stool should be sent for bacterial culture and Clostridioides difficile toxin
+      testing in suspected IBD and in every flare, to exclude infection.
+    fields:
+      name: stool culture
+      synonyms: [stool microbiology, stool culture and c. difficile testing]
+      resultOptions: [negative, positive]
+    sourceIds: [IBD-S2, IBD-S8]
+    column: tests
+  - nodeId: IBD-N21
+    type: test
+    label: Ileocolonoscopy with biopsies
+    content: >-
+      Ileocolonoscopy with biopsies from the terminal ileum and each colonic segment is
+      the key test to establish the diagnosis and to tell ulcerative colitis from Crohn's
+      disease.
+    fields:
+      name: colonoscopy with biopsy
+      synonyms: [ileocolonoscopy, colonoscopy]
+      resultOptions: [ulcerative colitis, crohn's disease, normal]
+    sourceIds: [IBD-S8]
+    column: tests
+  - nodeId: IBD-N22
+    type: test
+    label: Extent of ulcerative colitis (Montreal E1 to E3)
+    content: >-
+      The Montreal classification groups ulcerative colitis by maximal extent - E1
+      proctitis, E2 left-sided disease up to the splenic flexure, E3 extensive disease
+      beyond it.
+    fields:
+      name: disease extent
+      synonyms: [uc extent, montreal extent]
+      resultOptions: [E1, E2, E3]
+    sourceIds: [IBD-S9]
+    column: tests
+  - nodeId: IBD-N23
+    type: test
+    label: Severity of ulcerative colitis (Truelove and Witts)
+    content: >-
+      Truelove and Witts grades activity as mild, moderate or severe from stool
+      frequency, blood, pulse, temperature, haemoglobin and ESR. Severe disease needs
+      hospital admission.
+    fields:
+      name: truelove and witts severity
+      synonyms: [uc severity, truelove witts]
+      resultOptions: [mild, moderate, severe]
+    sourceIds: [IBD-S2, IBD-S1]
+    column: tests
+  - nodeId: IBD-N24
+    type: test
+    label: Location of Crohn's disease (Montreal L1 to L3)
+    content: >-
+      The Montreal classification records Crohn's location as L1 ileal, L2 colonic or L3
+      ileocolonic, with an upper gastrointestinal modifier when present.
+    fields:
+      name: crohn's location
+      synonyms: [montreal location]
+      resultOptions: [L1, L2, L3]
+    sourceIds: [IBD-S9]
+    column: tests
+  - nodeId: IBD-N25
+    type: test
+    label: Behaviour of Crohn's disease (Montreal B1 to B3)
+    content: >-
+      The Montreal classification records behaviour as B1 non-stricturing and
+      non-penetrating, B2 stricturing or B3 penetrating, with a perianal modifier.
+    fields:
+      name: crohn's behaviour
+      synonyms: [montreal behaviour, crohn's behavior]
+      resultOptions: [B1, B2, B3]
+    sourceIds: [IBD-S9]
+    column: tests
+  - nodeId: IBD-N26
+    type: test
+    label: Activity of Crohn's disease
+    content: >-
+      Clinical activity is graded as mild, moderate or severe from symptoms, systemic
+      features and inflammatory markers, and guides the choice of induction therapy.
+    fields:
+      name: crohn's activity
+      synonyms: [crohn's severity]
+      resultOptions: [mild, moderate, severe]
+    sourceIds: [IBD-S6, IBD-S5]
+    column: tests
+
+  # ---------------------------------------------------------------- sub-types
+  - nodeId: IBD-N30
+    type: subtype
+    label: Ulcerative proctitis (E1)
+    content: Inflammation limited to the rectum.
+    fields: {name: ulcerative proctitis, extent: E1}
+    sourceIds: [IBD-S9]
+    column: subtype
+  - nodeId: IBD-N31
+    type: subtype
+    label: Left-sided ulcerative colitis (E2)
+    content: Inflammation extending no further than the splenic flexure.
+    fields: {name: left-sided ulcerative colitis, extent: E2}
+    sourceIds: [IBD-S9]
+    column: subtype
+  - nodeId: IBD-N32
+    type: subtype
+    label: Extensive ulcerative colitis, pancolitis (E3)
+    content: Inflammation extending beyond the splenic flexure, including pancolitis.
+    fields: {name: extensive ulcerative colitis, extent: E3}
+    sourceIds: [IBD-S9]
+    column: subtype
+  - nodeId: IBD-N33
+    type: subtype
+    label: Ulcerative colitis, mild to moderate activity
+    content: >-
+      Mild to moderate ulcerative colitis is usually managed as an outpatient, with an
+      aminosalicylate as first-line therapy.
+    fields: {name: mild to moderate ulcerative colitis, severity: mild to moderate}
+    sourceIds: [IBD-S4, IBD-S1]
+    column: subtype
+  - nodeId: IBD-N34
+    type: subtype
+    label: Acute severe ulcerative colitis
+    content: >-
+      Acute severe ulcerative colitis is a medical emergency. It needs admission,
+      intravenous steroids, joint medical and surgical care, and an early decision on
+      rescue therapy.
+    fields: {name: acute severe ulcerative colitis, severity: severe}
+    sourceIds: [IBD-S2, IBD-S1, IBD-S3]
+    column: subtype
+  - nodeId: IBD-N35
+    type: subtype
+    label: Ileal Crohn's disease (L1)
+    content: Crohn's disease confined to the terminal ileum, with or without caecal spill-over.
+    fields: {name: ileal crohn's disease, extent: L1}
+    sourceIds: [IBD-S9]
+    column: subtype
+  - nodeId: IBD-N36
+    type: subtype
+    label: Colonic Crohn's disease (L2)
+    content: Crohn's disease affecting the colon only.
+    fields: {name: colonic crohn's disease, extent: L2}
+    sourceIds: [IBD-S9]
+    column: subtype
+  - nodeId: IBD-N37
+    type: subtype
+    label: Ileocolonic Crohn's disease (L3)
+    content: Crohn's disease affecting both the terminal ileum and the colon.
+    fields: {name: ileocolonic crohn's disease, extent: L3}
+    sourceIds: [IBD-S9]
+    column: subtype
+  - nodeId: IBD-N38
+    type: subtype
+    label: Stricturing Crohn's disease (B2)
+    content: Crohn's disease with a fixed narrowing of the bowel.
+    fields: {name: stricturing crohn's disease, severity: B2}
+    sourceIds: [IBD-S9, IBD-S7]
+    column: subtype
+  - nodeId: IBD-N39
+    type: subtype
+    label: Penetrating Crohn's disease (B3)
+    content: Crohn's disease with fistulas, inflammatory masses or abscesses.
+    fields: {name: penetrating crohn's disease, severity: B3}
+    sourceIds: [IBD-S9, IBD-S7]
+    column: subtype
+
+  # ---------------------------------------------------------------- treatment tiers
+  - nodeId: IBD-N40
+    type: treatment_tier
+    label: "UC Tier 1: oral mesalamine"
+    content: >-
+      For mild to moderate ulcerative colitis, standard-dose oral mesalamine is
+      preferred over low dose, and once-daily dosing is acceptable.
+    fields:
+      tier: 1
+      entryCriteria: Mild to moderately active ulcerative colitis
+      drugNodeIds: [IBD-N50]
+    sourceIds: [IBD-S4, IBD-S1]
+    column: treatment
+  - nodeId: IBD-N41
+    type: treatment_tier
+    label: "UC Tier 2: intravenous corticosteroids"
+    content: >-
+      Acute severe ulcerative colitis is treated in hospital with intravenous
+      hydrocortisone or methylprednisolone, with response formally assessed on day 3.
+    fields:
+      tier: 2
+      entryCriteria: >-
+        Acute severe ulcerative colitis - six or more bloody stools a day plus at least
+        one sign of systemic toxicity (Truelove and Witts)
+      drugNodeIds: [IBD-N51, IBD-N52]
+    sourceIds: [IBD-S2, IBD-S1, IBD-S3]
+    column: treatment
+  - nodeId: IBD-N42
+    type: treatment_tier
+    label: "UC Tier 3: rescue or advanced therapy"
+    content: >-
+      If intravenous steroids fail by day 3, rescue therapy with infliximab (or
+      ciclosporin) or colectomy is considered. Ustekinumab is an option for moderate to
+      severe disease outside the acute rescue setting.
+    fields:
+      tier: 3
+      entryCriteria: >-
+        No adequate response to intravenous steroids by day 3, or moderate to severe
+        disease not controlled by conventional therapy
+      drugNodeIds: [IBD-N53, IBD-N54]
+    sourceIds: [IBD-S1, IBD-S2, IBD-S19]
+    column: treatment
+  - nodeId: IBD-N43
+    type: treatment_tier
+    label: "Crohn's Tier 1: oral budesonide"
+    content: >-
+      Controlled-release budesonide is used to induce remission in mild to moderate
+      Crohn's disease of the ileum or ileocaecal region.
+    fields:
+      tier: 1
+      entryCriteria: Mild to moderate ileal or ileocaecal Crohn's disease
+      drugNodeIds: [IBD-N55]
+    sourceIds: [IBD-S5, IBD-S6]
+    column: treatment
+  - nodeId: IBD-N44
+    type: treatment_tier
+    label: "Crohn's Tier 2: anti-TNF therapy"
+    content: >-
+      Anti-TNF therapy such as infliximab is used for moderate to severe Crohn's disease
+      and when conventional therapy has failed.
+    fields:
+      tier: 2
+      entryCriteria: Moderate to severe Crohn's disease, or failure of first-line therapy
+      drugNodeIds: [IBD-N53]
+    sourceIds: [IBD-S5, IBD-S6]
+    column: treatment
+  - nodeId: IBD-N45
+    type: treatment_tier
+    label: "Crohn's Tier 3: ustekinumab"
+    content: >-
+      Ustekinumab is an option for moderate to severe Crohn's disease with an inadequate
+      response to, or intolerance of, anti-TNF therapy.
+    fields:
+      tier: 3
+      entryCriteria: >-
+        Moderate to severe Crohn's disease with inadequate response to, or intolerance
+        of, anti-TNF therapy
+      drugNodeIds: [IBD-N54]
+    sourceIds: [IBD-S5]
+    column: treatment
+
+  # ---------------------------------------------------------------- drugs
+  - nodeId: IBD-N50
+    type: drug
+    label: Mesalamine, oral, standard dose
+    content: >-
+      Oral mesalamine at a standard dose of 2 to 3 g a day induces and maintains
+      remission in mild to moderate ulcerative colitis. A once-daily regimen is
+      acceptable.
+    fields:
+      drug: mesalamine
+      synonyms: [mesalazine, 5-asa, 5-aminosalicylic acid]
+      drugClass: aminosalicylate
+      route: oral
+      doseValue: 2
+      doseUnit: g
+      doseBasis: absolute
+      rounding: standard-dose range is 2 to 3 g a day
+      frequency: once daily
+      duration: continue as maintenance once remission is achieved
+      contraindications: [salicylate hypersensitivity, severe renal impairment]
+    sourceIds: [IBD-S4]
+    column: treatment
+  - nodeId: IBD-N51
+    type: drug
+    label: Hydrocortisone 100 mg IV four times daily
+    content: >-
+      Intravenous hydrocortisone 100 mg four times a day is a first-line steroid regimen
+      for acute severe ulcerative colitis, with response reviewed on day 3.
+    fields:
+      drug: hydrocortisone
+      synonyms: [iv hydrocortisone]
+      drugClass: corticosteroid
+      route: intravenous
+      doseValue: 100
+      doseUnit: mg
+      doseBasis: absolute
+      rounding: not applicable (fixed dose)
+      frequency: four times daily
+      duration: until response is assessed on day 3
+      contraindications: [untreated systemic infection]
+    sourceIds: [IBD-S2]
+    column: treatment
+  - nodeId: IBD-N52
+    type: drug
+    label: Methylprednisolone 60 mg IV once daily
+    content: >-
+      Intravenous methylprednisolone 60 mg once every 24 hours is an alternative steroid
+      regimen for acute severe ulcerative colitis, with response reviewed on day 3.
+    fields:
+      drug: methylprednisolone
+      synonyms: [iv methylprednisolone, solumedrol]
+      drugClass: corticosteroid
+      route: intravenous
+      doseValue: 60
+      doseUnit: mg
+      doseBasis: absolute
+      rounding: not applicable (fixed dose)
+      frequency: once daily
+      duration: until response is assessed on day 3
+      contraindications: [untreated systemic infection]
+    sourceIds: [IBD-S2]
+    column: treatment
+  - nodeId: IBD-N53
+    type: drug
+    label: Infliximab 5 mg/kg IV
+    content: >-
+      Infliximab is given intravenously at 5 mg per kg at weeks 0, 2 and 6, then every
+      8 weeks as maintenance. A single infusion is used as rescue in acute severe
+      ulcerative colitis. Screen for tuberculosis and hepatitis B first.
+    fields:
+      drug: infliximab
+      synonyms: [remicade, anti-tnf infliximab]
+      drugClass: anti-TNF monoclonal antibody
+      route: intravenous
+      doseValue: 5
+      doseUnit: mg/kg
+      doseBasis: per_kg
+      rounding: none specified by the cited guidelines
+      frequency: weeks 0, 2 and 6, then every 8 weeks
+      duration: maintenance continued while the patient responds
+      contraindications:
+        - active tuberculosis or other serious infection
+        - moderate to severe heart failure
+    sourceIds: [IBD-S1, IBD-S5, IBD-S6]
+    column: treatment
+  - nodeId: IBD-N54
+    type: drug
+    label: Ustekinumab 90 mg SC maintenance
+    content: >-
+      Ustekinumab starts with one weight-based intravenous induction dose of about 6 mg
+      per kg, then 90 mg is given under the skin every 8 weeks as maintenance.
+    fields:
+      drug: ustekinumab
+      synonyms: [stelara]
+      drugClass: anti-IL-12/23 monoclonal antibody
+      route: subcutaneous
+      doseValue: 90
+      doseUnit: mg
+      doseBasis: absolute
+      rounding: not applicable (fixed maintenance dose)
+      frequency: every 8 weeks after a single weight-based intravenous induction dose
+      duration: maintenance continued while the patient responds
+      contraindications: [clinically important active infection, active tuberculosis]
+    sourceIds: [IBD-S5, IBD-S19]
+    column: treatment
+  - nodeId: IBD-N55
+    type: drug
+    label: Budesonide 9 mg oral once daily
+    content: >-
+      Controlled-release budesonide 9 mg once a day induces remission in mild to
+      moderate ileocaecal Crohn's disease. It is not recommended for maintenance.
+    fields:
+      drug: budesonide
+      synonyms: [controlled ileal release budesonide, entocort]
+      drugClass: corticosteroid
+      route: oral
+      doseValue: 9
+      doseUnit: mg
+      doseBasis: absolute
+      rounding: not applicable (fixed dose)
+      frequency: once daily
+      duration: induction course only; not recommended for maintenance of remission
+      contraindications: [untreated systemic infection]
+    sourceIds: [IBD-S6, IBD-S5]
+    column: treatment
+  - nodeId: IBD-N56
+    type: drug
+    label: Levothyroxine (comorbidity medicine)
+    content: >-
+      For full replacement in hypothyroidism the usual levothyroxine dose is about 1.6
+      micrograms per kg a day, started lower in older adults or those with heart
+      disease. It is taken on an empty stomach, apart from calcium and iron.
+    fields:
+      drug: levothyroxine
+      synonyms: [thyroxine, l-thyroxine]
+      drugClass: thyroid hormone
+      route: oral
+      doseValue: 1.6
+      doseUnit: ug/kg
+      doseBasis: per_kg
+      rounding: none specified by the cited guideline
+      frequency: once daily
+      duration: long-term replacement
+      contraindications: [untreated adrenal insufficiency, untreated thyrotoxicosis]
+    sourceIds: [IBD-S16]
+    column: treatment
+
+  # ---------------------------------------------------------------- diet
+  - nodeId: IBD-N60
+    type: diet
+    label: Diet in ulcerative colitis
+    content: >-
+      No particular diet has been shown to induce or maintain remission in ulcerative
+      colitis. Screen for malnutrition and give individual dietary advice.
+    fields:
+      advice: >-
+        Screen for malnutrition and give individual advice; no specific diet is proven to
+        control ulcerative colitis
+    sourceIds: [IBD-S14]
+    column: treatment
+  - nodeId: IBD-N61
+    type: diet
+    label: Exclusive enteral nutrition in Crohn's disease
+    content: >-
+      Exclusive enteral nutrition is a first-line way to induce remission in children
+      with active Crohn's disease and can be considered in adults.
+    fields:
+      advice: >-
+        Consider exclusive enteral nutrition to induce remission, especially in children
+    sourceIds: [IBD-S14]
+    column: treatment
+
+  # ---------------------------------------------------------------- monitoring
+  - nodeId: IBD-N70
+    type: monitoring
+    label: Stool frequency on intravenous steroids
+    content: >-
+      Record stool frequency every day on intravenous steroids. More than 8 stools a day
+      on day 3 predicts that colectomy is likely.
+    fields:
+      measure: stool frequency
+      unit: per day
+      threshold: 8
+      comparator: gt
+      interval: daily, with formal review on day 3
+    sourceIds: [IBD-S2]
+    column: monitor
+  - nodeId: IBD-N71
+    type: monitoring
+    label: CRP on intravenous steroids
+    content: >-
+      Check CRP during intravenous steroid treatment. On day 3, a CRP above 45 mg/L with
+      three to eight stools a day predicts that colectomy is likely.
+    fields:
+      measure: CRP
+      unit: mg/L
+      threshold: 45
+      comparator: gt
+      interval: daily, with formal review on day 3
+    sourceIds: [IBD-S2]
+    column: monitor
+  - nodeId: IBD-N72
+    type: monitoring
+    label: Infliximab trough level
+    content: >-
+      When an anti-TNF stops working, a trough level helps decide the next step. For
+      infliximab, a trough of at least 5 micrograms per mL is the suggested target.
+    fields:
+      measure: infliximab trough level
+      unit: ug/mL
+      threshold: 5
+      comparator: ge
+      interval: reactive testing when response is lost
+    sourceIds: [IBD-S13]
+    column: monitor
+
+  # ---------------------------------------------------------------- response criteria
+  - nodeId: IBD-N80
+    type: response_criterion
+    label: "Day 3 on IV steroids: more than 8 stools a day"
+    content: >-
+      More than 8 stools a day on day 3 of intravenous steroids means the patient is not
+      responding, and rescue therapy or surgery should be discussed.
+    fields:
+      tier: 2
+      measure: stool frequency
+      unit: per day
+      threshold: 8
+      comparator: gt
+      verdict: not_responding
+    sourceIds: [IBD-S2]
+    column: monitor
+  - nodeId: IBD-N81
+    type: response_criterion
+    label: "Day 3 on IV steroids: CRP above 45 mg/L"
+    content: >-
+      A CRP above 45 mg/L on day 3 with three to eight stools a day means the patient is
+      not responding, and rescue therapy or surgery should be discussed.
+    fields:
+      tier: 2
+      measure: CRP
+      unit: mg/L
+      threshold: 45
+      comparator: gt
+      verdict: not_responding
+    sourceIds: [IBD-S2]
+    column: monitor
+  - nodeId: IBD-N82
+    type: response_criterion
+    label: "UC Tier 1 target: calprotectin 250 ug/g or below"
+    content: >-
+      A fall in faecal calprotectin to an acceptable range, up to 250 micrograms per
+      gram, is an intermediate treatment target.
+    fields:
+      tier: 1
+      measure: calprotectin
+      unit: ug/g
+      threshold: 250
+      comparator: le
+      verdict: responding
+    sourceIds: [IBD-S12]
+    column: monitor
+  - nodeId: IBD-N83
+    type: response_criterion
+    label: "UC Tier 3 target: calprotectin 250 ug/g or below"
+    content: >-
+      A fall in faecal calprotectin to an acceptable range, up to 250 micrograms per
+      gram, is an intermediate treatment target.
+    fields:
+      tier: 3
+      measure: calprotectin
+      unit: ug/g
+      threshold: 250
+      comparator: le
+      verdict: responding
+    sourceIds: [IBD-S12]
+    column: monitor
+  - nodeId: IBD-N84
+    type: response_criterion
+    label: "Crohn's Tier 1 target: calprotectin 250 ug/g or below"
+    content: >-
+      A fall in faecal calprotectin to an acceptable range, up to 250 micrograms per
+      gram, is an intermediate treatment target.
+    fields:
+      tier: 1
+      measure: calprotectin
+      unit: ug/g
+      threshold: 250
+      comparator: le
+      verdict: responding
+    sourceIds: [IBD-S12]
+    column: monitor
+  - nodeId: IBD-N85
+    type: response_criterion
+    label: "Crohn's Tier 2 target: calprotectin 250 ug/g or below"
+    content: >-
+      A fall in faecal calprotectin to an acceptable range, up to 250 micrograms per
+      gram, is an intermediate treatment target.
+    fields:
+      tier: 2
+      measure: calprotectin
+      unit: ug/g
+      threshold: 250
+      comparator: le
+      verdict: responding
+    sourceIds: [IBD-S12]
+    column: monitor
+  - nodeId: IBD-N86
+    type: response_criterion
+    label: "Crohn's Tier 3 target: calprotectin 250 ug/g or below"
+    content: >-
+      A fall in faecal calprotectin to an acceptable range, up to 250 micrograms per
+      gram, is an intermediate treatment target.
+    fields:
+      tier: 3
+      measure: calprotectin
+      unit: ug/g
+      threshold: 250
+      comparator: le
+      verdict: responding
+    sourceIds: [IBD-S12]
+    column: monitor
+
+  # ---------------------------------------------------------------- watch-outs
+  - nodeId: IBD-N90
+    type: watch_out
+    label: Toxic megacolon
+    content: >-
+      Colonic dilatation with systemic toxicity in acute severe colitis is a surgical
+      emergency that needs urgent joint medical and surgical review.
+    fields:
+      sign: colonic dilatation on abdominal imaging with systemic toxicity
+      action: urgent joint medical and surgical review
+    sourceIds: [IBD-S2, IBD-S1]
+    column: monitor
+  - nodeId: IBD-N91
+    type: watch_out
+    label: Venous thromboembolism risk in hospital
+    content: >-
+      Active inflammatory bowel disease raises the risk of clots. Inpatients should get
+      pharmacological thromboprophylaxis unless there is a contraindication, even with
+      rectal bleeding.
+    fields:
+      sign: hospital admission with active inflammatory bowel disease
+      action: give low-molecular-weight heparin prophylaxis unless contraindicated
+    sourceIds: [IBD-S2]
+    column: monitor
+  - nodeId: IBD-N92
+    type: watch_out
+    label: Screen for infection before biologics
+    content: >-
+      Before anti-TNF or other biologic therapy, screen for latent tuberculosis and for
+      hepatitis B, and review vaccination status.
+    fields:
+      sign: planned anti-TNF or other biologic therapy
+      action: screen for latent tuberculosis and hepatitis B before the first dose
+    sourceIds: [IBD-S15]
+    column: monitor
+  - nodeId: IBD-N93
+    type: watch_out
+    label: Abscess in penetrating Crohn's disease
+    content: >-
+      An intra-abdominal abscess should be drained or treated before anti-TNF therapy is
+      started, using imaging-guided drainage where possible.
+    fields:
+      sign: penetrating Crohn's disease with suspected intra-abdominal abscess
+      action: drain or treat the abscess before starting anti-TNF therapy
+    sourceIds: [IBD-S7]
+    column: monitor
+  - nodeId: IBD-N94
+    type: watch_out
+    label: Exclude infection at presentation and in flares
+    content: >-
+      New or worsening bloody diarrhoea needs stool tests for bacterial pathogens and
+      Clostridioides difficile before IBD treatment is escalated.
+    fields:
+      sign: new or worsening bloody diarrhoea
+      action: send stool tests for bacterial pathogens and C. difficile toxin
+    sourceIds: [IBD-S2, IBD-S8]
+    column: monitor
+
+  # ---------------------------------------------------------------- surgery triggers
+  - nodeId: IBD-N95
+    type: escalation
+    label: No response to rescue therapy
+    content: >-
+      If rescue therapy does not bring improvement within 4 to 7 days, colectomy should
+      be recommended rather than further delay.
+    fields:
+      trigger: no improvement within 4 to 7 days of rescue therapy
+      action: discuss colectomy with a colorectal surgeon
+    sourceIds: [IBD-S1, IBD-S2]
+    column: monitor
+  - nodeId: IBD-N96
+    type: escalation
+    label: Emergency colectomy triggers
+    content: >-
+      Toxic megacolon that does not settle, perforation or major bleeding in acute
+      severe colitis are reasons for emergency colectomy.
+    fields:
+      trigger: toxic megacolon not settling, perforation or major haemorrhage
+      action: emergency colectomy
+    sourceIds: [IBD-S2]
+    column: monitor
+  - nodeId: IBD-N97
+    type: escalation
+    label: Symptomatic Crohn's stricture
+    content: >-
+      A short, accessible stricture causing symptoms can be treated by endoscopic balloon
+      dilation. Longer or complex strictures need surgical resection or stricturoplasty.
+    fields:
+      trigger: symptomatic stricture despite medical therapy
+      action: endoscopic balloon dilation for short strictures, otherwise surgery
+    sourceIds: [IBD-S7]
+    column: monitor
+  - nodeId: IBD-N98
+    type: escalation
+    label: Limited ileocaecal Crohn's disease
+    content: >-
+      For limited ileocaecal Crohn's disease without response to conventional therapy,
+      laparoscopic ileocaecal resection is a reasonable alternative to biologic therapy.
+    fields:
+      trigger: limited ileocaecal disease not responding to conventional therapy
+      action: discuss laparoscopic ileocaecal resection as an alternative to biologics
+    sourceIds: [IBD-S7]
+    column: monitor
+
+  # ---------------------------------------------------------------- safety
+  - nodeId: IBD-N100
+    type: interaction
+    label: Levothyroxine with calcium or iron salts
+    content: >-
+      Calcium and iron preparations reduce levothyroxine absorption, so the doses should
+      be taken separately.
+    fields:
+      a: levothyroxine
+      b: calcium or iron salts
+      severity: moderate
+    sourceIds: [IBD-S16]
+    column: monitor
+  - nodeId: IBD-N101
+    type: allergy_cross_reactivity
+    label: Penicillin allergy
+    content: >-
+      With a penicillin allergy label, avoid penicillins until the allergy has been
+      assessed. Cross-reactivity with cephalosporins is low, especially when their side
+      chains differ.
+    fields:
+      allergenClass: penicillin
+      conflictingDrugClasses: [penicillin]
+    sourceIds: [IBD-S17]
+    column: monitor
+
+  # ------------------------------------- ulcerative colitis after anti-TNF failure (v1.1)
+  - nodeId: IBD-N46
+    type: treatment_tier
+    label: "UC after anti-TNF failure: check levels, then switch"
+    content: >-
+      When an anti-TNF gives no primary response, loses its effect or is not tolerated,
+      check the drug trough level and anti-drug antibodies to guide the next step. With
+      adequate levels, change to another class: ustekinumab, vedolizumab or a JAK
+      inhibitor such as tofacitinib. Low levels or antibodies after a loss of response
+      can instead support optimising or changing to a second anti-TNF.
+    fields:
+      tier: 3
+      entryCriteria: Ulcerative colitis with primary non-response, loss of response or intolerance to anti-TNF therapy
+      drugNodeIds: [IBD-N54, IBD-N57, IBD-N58]
+    sourceIds: [IBD-S1, IBD-S13, IBD-S19]
+    column: treatment
+  - nodeId: IBD-N57
+    type: drug
+    label: Vedolizumab 300 mg IV
+    content: >-
+      Vedolizumab is a gut-selective anti-integrin antibody. It is infused at 300 mg at
+      weeks 0, 2 and 6, then every 8 weeks, and is an option after anti-TNF failure,
+      although it may take longer to work.
+    fields:
+      drug: vedolizumab
+      synonyms: [entyvio]
+      drugClass: anti-integrin monoclonal antibody
+      route: intravenous
+      doseValue: 300
+      doseUnit: mg
+      doseBasis: absolute
+      rounding: not applicable (fixed dose)
+      frequency: weeks 0, 2 and 6, then every 8 weeks
+      duration: maintenance continued while the patient responds
+      contraindications:
+        - active severe infection, such as tuberculosis or sepsis
+        - opportunistic infection, such as progressive multifocal leukoencephalopathy
+    sourceIds: [IBD-S1, IBD-S19]
+    column: treatment
+  - nodeId: IBD-N58
+    type: drug
+    label: Tofacitinib 10 mg oral twice daily (induction)
+    content: >-
+      Tofacitinib is an oral JAK inhibitor for moderate to severe ulcerative colitis,
+      including after anti-TNF failure. Induction is 10 mg twice daily for 8 weeks,
+      followed by a lower maintenance dose once the colitis responds.
+    fields:
+      drug: tofacitinib
+      synonyms: [xeljanz]
+      drugClass: JAK inhibitor
+      route: oral
+      doseValue: 10
+      doseUnit: mg
+      doseBasis: absolute
+      rounding: not applicable (fixed dose)
+      frequency: twice daily
+      duration: 8 weeks of induction, then a lower maintenance dose (5 mg twice daily)
+      contraindications:
+        - active serious infection, including tuberculosis
+        - severe hepatic impairment
+        - pregnancy or breastfeeding
+    sourceIds: [IBD-S1, IBD-S19, IBD-S20]
+    column: treatment
+  - nodeId: IBD-N99
+    type: escalation
+    label: Steroid-refractory colitis after anti-TNF failure
+    content: >-
+      When the colitis does not respond to corticosteroids and anti-TNF therapy has
+      already failed, discuss colectomy with a colorectal surgeon early, alongside any
+      further medical option.
+    fields:
+      trigger: no response to corticosteroids after anti-TNF failure
+      action: early joint review with a colorectal surgeon to discuss colectomy
+    sourceIds: [IBD-S1, IBD-S2]
+    column: monitor
+  - nodeId: IBD-N102
+    type: watch_out
+    label: Steroids only as a bridge when switching
+    content: >-
+      When the colitis responds to corticosteroids, use them only as a short bridge
+      until the new maintenance treatment takes effect, then taper them off. They are
+      not a long-term maintenance therapy.
+    fields:
+      sign: colitis responding to corticosteroids during the switch
+      action: use corticosteroids only as a short bridge to the new maintenance treatment, then taper them off
+    sourceIds: [IBD-S1, IBD-S2]
+    column: monitor
+  - nodeId: IBD-N103
+    type: watch_out
+    label: "Before a JAK inhibitor: clot and heart risk"
+    content: >-
+      Before tofacitinib, review the risk of venous thromboembolism and of major
+      cardiovascular events, especially in people aged 50 or over with risk factors,
+      and consider shingles vaccination.
+    fields:
+      sign: planned tofacitinib or another JAK inhibitor
+      action: review thrombosis and cardiovascular risk and herpes zoster vaccination before starting
+    sourceIds: [IBD-S20, IBD-S1]
+    column: monitor
+
+edges:
+  # findings to suspected IBD
+  - {edgeId: IBD-E1, fromNodeId: IBD-N1, toNodeId: IBD-N10, relation: suggests}
+  - {edgeId: IBD-E2, fromNodeId: IBD-N2, toNodeId: IBD-N10, relation: suggests}
+  - {edgeId: IBD-E3, fromNodeId: IBD-N8, toNodeId: IBD-N10, relation: suggests}
+  - edgeId: IBD-E4
+    fromNodeId: IBD-N5
+    toNodeId: IBD-N10
+    relation: suggests
+    condition: {finding: calprotectin, comparator: gt, value: 50, unit: ug/g}
+  # tests and the infectious alternative
+  - {edgeId: IBD-E5, fromNodeId: IBD-N10, toNodeId: IBD-N20, relation: confirmed_by}
+  - {edgeId: IBD-E6, fromNodeId: IBD-N10, toNodeId: IBD-N21, relation: confirmed_by}
+  - {edgeId: IBD-E7, fromNodeId: IBD-N10, toNodeId: IBD-N13, relation: alternative_to}
+  - {edgeId: IBD-E8, fromNodeId: IBD-N13, toNodeId: IBD-N20, relation: confirmed_by}
+  - edgeId: IBD-E9
+    fromNodeId: IBD-N10
+    toNodeId: IBD-N11
+    relation: refines_to
+    condition: {test: colonoscopy with biopsy, comparator: eq, value: ulcerative colitis}
+  - edgeId: IBD-E10
+    fromNodeId: IBD-N10
+    toNodeId: IBD-N12
+    relation: refines_to
+    condition: {test: colonoscopy with biopsy, comparator: eq, value: crohn's disease}
+  # ulcerative colitis: extent and severity
+  - {edgeId: IBD-E11, fromNodeId: IBD-N11, toNodeId: IBD-N22, relation: confirmed_by}
+  - {edgeId: IBD-E12, fromNodeId: IBD-N11, toNodeId: IBD-N23, relation: confirmed_by}
+  - edgeId: IBD-E13
+    fromNodeId: IBD-N11
+    toNodeId: IBD-N30
+    relation: refines_to
+    condition: {test: disease extent, comparator: eq, value: E1}
+  - edgeId: IBD-E14
+    fromNodeId: IBD-N11
+    toNodeId: IBD-N31
+    relation: refines_to
+    condition: {test: disease extent, comparator: eq, value: E2}
+  - edgeId: IBD-E15
+    fromNodeId: IBD-N11
+    toNodeId: IBD-N32
+    relation: refines_to
+    condition: {test: disease extent, comparator: eq, value: E3}
+  - edgeId: IBD-E16
+    fromNodeId: IBD-N30
+    toNodeId: IBD-N33
+    relation: refines_to
+    condition: {test: truelove and witts severity, comparator: eq, value: mild}
+  - edgeId: IBD-E17
+    fromNodeId: IBD-N30
+    toNodeId: IBD-N33
+    relation: refines_to
+    condition: {test: truelove and witts severity, comparator: eq, value: moderate}
+  - edgeId: IBD-E18
+    fromNodeId: IBD-N30
+    toNodeId: IBD-N34
+    relation: refines_to
+    condition: {test: truelove and witts severity, comparator: eq, value: severe}
+  - edgeId: IBD-E19
+    fromNodeId: IBD-N31
+    toNodeId: IBD-N33
+    relation: refines_to
+    condition: {test: truelove and witts severity, comparator: eq, value: mild}
+  - edgeId: IBD-E20
+    fromNodeId: IBD-N31
+    toNodeId: IBD-N33
+    relation: refines_to
+    condition: {test: truelove and witts severity, comparator: eq, value: moderate}
+  - edgeId: IBD-E21
+    fromNodeId: IBD-N31
+    toNodeId: IBD-N34
+    relation: refines_to
+    condition: {test: truelove and witts severity, comparator: eq, value: severe}
+  - edgeId: IBD-E22
+    fromNodeId: IBD-N32
+    toNodeId: IBD-N33
+    relation: refines_to
+    condition: {test: truelove and witts severity, comparator: eq, value: mild}
+  - edgeId: IBD-E23
+    fromNodeId: IBD-N32
+    toNodeId: IBD-N33
+    relation: refines_to
+    condition: {test: truelove and witts severity, comparator: eq, value: moderate}
+  - edgeId: IBD-E24
+    fromNodeId: IBD-N32
+    toNodeId: IBD-N34
+    relation: refines_to
+    condition: {test: truelove and witts severity, comparator: eq, value: severe}
+  - edgeId: IBD-E25
+    fromNodeId: IBD-N3
+    toNodeId: IBD-N34
+    relation: suggests
+    condition: {finding: Hb, comparator: lt, value: 10.5, unit: g/dL}
+  - edgeId: IBD-E26
+    fromNodeId: IBD-N6
+    toNodeId: IBD-N34
+    relation: suggests
+    condition: {finding: stool frequency, comparator: ge, value: 6, unit: per day}
+  # ulcerative colitis: tiers, drugs, response, monitoring, safety, surgery
+  - {edgeId: IBD-E27, fromNodeId: IBD-N33, toNodeId: IBD-N40, relation: first_line}
+  - {edgeId: IBD-E28, fromNodeId: IBD-N34, toNodeId: IBD-N41, relation: first_line}
+  - {edgeId: IBD-E29, fromNodeId: IBD-N40, toNodeId: IBD-N50, relation: offers_drug}
+  - {edgeId: IBD-E30, fromNodeId: IBD-N41, toNodeId: IBD-N51, relation: offers_drug}
+  - {edgeId: IBD-E31, fromNodeId: IBD-N41, toNodeId: IBD-N52, relation: offers_drug}
+  - {edgeId: IBD-E32, fromNodeId: IBD-N42, toNodeId: IBD-N53, relation: offers_drug}
+  - {edgeId: IBD-E33, fromNodeId: IBD-N42, toNodeId: IBD-N54, relation: offers_drug}
+  - edgeId: IBD-E34
+    fromNodeId: IBD-N41
+    toNodeId: IBD-N42
+    relation: escalate_to
+    condition: {finding: stool frequency, comparator: gt, value: 8, unit: per day}
+  - edgeId: IBD-E35
+    fromNodeId: IBD-N41
+    toNodeId: IBD-N42
+    relation: escalate_to
+    condition: {finding: CRP, comparator: gt, value: 45, unit: mg/L}
+  - {edgeId: IBD-E36, fromNodeId: IBD-N40, toNodeId: IBD-N82, relation: responds_if}
+  - {edgeId: IBD-E37, fromNodeId: IBD-N41, toNodeId: IBD-N80, relation: responds_if}
+  - {edgeId: IBD-E38, fromNodeId: IBD-N41, toNodeId: IBD-N81, relation: responds_if}
+  - {edgeId: IBD-E39, fromNodeId: IBD-N42, toNodeId: IBD-N83, relation: responds_if}
+  - {edgeId: IBD-E40, fromNodeId: IBD-N41, toNodeId: IBD-N70, relation: monitor_with}
+  - {edgeId: IBD-E41, fromNodeId: IBD-N41, toNodeId: IBD-N71, relation: monitor_with}
+  - {edgeId: IBD-E42, fromNodeId: IBD-N42, toNodeId: IBD-N72, relation: monitor_with}
+  - {edgeId: IBD-E43, fromNodeId: IBD-N11, toNodeId: IBD-N60, relation: diet}
+  - {edgeId: IBD-E44, fromNodeId: IBD-N41, toNodeId: IBD-N90, relation: watch_for}
+  - {edgeId: IBD-E45, fromNodeId: IBD-N41, toNodeId: IBD-N91, relation: watch_for}
+  - {edgeId: IBD-E46, fromNodeId: IBD-N42, toNodeId: IBD-N92, relation: watch_for}
+  - {edgeId: IBD-E47, fromNodeId: IBD-N42, toNodeId: IBD-N95, relation: surgery_if}
+  - {edgeId: IBD-E48, fromNodeId: IBD-N41, toNodeId: IBD-N96, relation: surgery_if}
+  - {edgeId: IBD-E49, fromNodeId: IBD-N10, toNodeId: IBD-N94, relation: watch_for}
+  # Crohn's disease: location, behaviour, activity
+  - {edgeId: IBD-E50, fromNodeId: IBD-N12, toNodeId: IBD-N24, relation: confirmed_by}
+  - {edgeId: IBD-E51, fromNodeId: IBD-N12, toNodeId: IBD-N25, relation: confirmed_by}
+  - {edgeId: IBD-E52, fromNodeId: IBD-N12, toNodeId: IBD-N26, relation: confirmed_by}
+  - edgeId: IBD-E53
+    fromNodeId: IBD-N12
+    toNodeId: IBD-N35
+    relation: refines_to
+    condition: {test: crohn's location, comparator: eq, value: L1}
+  - edgeId: IBD-E54
+    fromNodeId: IBD-N12
+    toNodeId: IBD-N36
+    relation: refines_to
+    condition: {test: crohn's location, comparator: eq, value: L2}
+  - edgeId: IBD-E55
+    fromNodeId: IBD-N12
+    toNodeId: IBD-N37
+    relation: refines_to
+    condition: {test: crohn's location, comparator: eq, value: L3}
+  - edgeId: IBD-E56
+    fromNodeId: IBD-N12
+    toNodeId: IBD-N38
+    relation: refines_to
+    condition: {test: crohn's behaviour, comparator: eq, value: B2}
+  - edgeId: IBD-E57
+    fromNodeId: IBD-N12
+    toNodeId: IBD-N39
+    relation: refines_to
+    condition: {test: crohn's behaviour, comparator: eq, value: B3}
+  # Crohn's disease: tiers by location and activity
+  - edgeId: IBD-E58
+    fromNodeId: IBD-N35
+    toNodeId: IBD-N43
+    relation: first_line
+    condition: {test: crohn's activity, comparator: eq, value: mild}
+  - edgeId: IBD-E59
+    fromNodeId: IBD-N35
+    toNodeId: IBD-N43
+    relation: first_line
+    condition: {test: crohn's activity, comparator: eq, value: moderate}
+  - edgeId: IBD-E60
+    fromNodeId: IBD-N37
+    toNodeId: IBD-N43
+    relation: first_line
+    condition: {test: crohn's activity, comparator: eq, value: mild}
+  - edgeId: IBD-E61
+    fromNodeId: IBD-N37
+    toNodeId: IBD-N43
+    relation: first_line
+    condition: {test: crohn's activity, comparator: eq, value: moderate}
+  - edgeId: IBD-E62
+    fromNodeId: IBD-N35
+    toNodeId: IBD-N44
+    relation: first_line
+    condition: {test: crohn's activity, comparator: eq, value: severe}
+  - edgeId: IBD-E63
+    fromNodeId: IBD-N36
+    toNodeId: IBD-N44
+    relation: first_line
+    condition: {test: crohn's activity, comparator: eq, value: moderate}
+  - edgeId: IBD-E64
+    fromNodeId: IBD-N36
+    toNodeId: IBD-N44
+    relation: first_line
+    condition: {test: crohn's activity, comparator: eq, value: severe}
+  - edgeId: IBD-E65
+    fromNodeId: IBD-N37
+    toNodeId: IBD-N44
+    relation: first_line
+    condition: {test: crohn's activity, comparator: eq, value: severe}
+  - {edgeId: IBD-E66, fromNodeId: IBD-N43, toNodeId: IBD-N44, relation: escalate_to}
+  - {edgeId: IBD-E67, fromNodeId: IBD-N44, toNodeId: IBD-N45, relation: escalate_to}
+  - {edgeId: IBD-E68, fromNodeId: IBD-N43, toNodeId: IBD-N55, relation: offers_drug}
+  - {edgeId: IBD-E69, fromNodeId: IBD-N44, toNodeId: IBD-N53, relation: offers_drug}
+  - {edgeId: IBD-E70, fromNodeId: IBD-N45, toNodeId: IBD-N54, relation: offers_drug}
+  - {edgeId: IBD-E71, fromNodeId: IBD-N43, toNodeId: IBD-N84, relation: responds_if}
+  - {edgeId: IBD-E72, fromNodeId: IBD-N44, toNodeId: IBD-N85, relation: responds_if}
+  - {edgeId: IBD-E73, fromNodeId: IBD-N45, toNodeId: IBD-N86, relation: responds_if}
+  - {edgeId: IBD-E74, fromNodeId: IBD-N44, toNodeId: IBD-N72, relation: monitor_with}
+  - {edgeId: IBD-E75, fromNodeId: IBD-N44, toNodeId: IBD-N92, relation: watch_for}
+  - {edgeId: IBD-E76, fromNodeId: IBD-N45, toNodeId: IBD-N92, relation: watch_for}
+  - {edgeId: IBD-E77, fromNodeId: IBD-N39, toNodeId: IBD-N93, relation: watch_for}
+  - {edgeId: IBD-E78, fromNodeId: IBD-N38, toNodeId: IBD-N97, relation: surgery_if}
+  - {edgeId: IBD-E79, fromNodeId: IBD-N35, toNodeId: IBD-N98, relation: surgery_if}
+  - {edgeId: IBD-E80, fromNodeId: IBD-N12, toNodeId: IBD-N61, relation: diet}
+  # comorbidity safety
+  - {edgeId: IBD-E81, fromNodeId: IBD-N56, toNodeId: IBD-N100, relation: watch_for}
+  # ulcerative colitis after anti-TNF failure (v1.1): treatment-history edges
+  - edgeId: IBD-E82
+    fromNodeId: IBD-N42
+    toNodeId: IBD-N46
+    relation: escalate_to
+    condition: {therapy: anti-TNF monoclonal antibody, comparator: eq, value: failed}
+  - edgeId: IBD-E83
+    fromNodeId: IBD-N42
+    toNodeId: IBD-N46
+    relation: escalate_to
+    condition: {therapy: anti-TNF monoclonal antibody, comparator: eq, value: lost_response}
+  - edgeId: IBD-E84
+    fromNodeId: IBD-N42
+    toNodeId: IBD-N46
+    relation: escalate_to
+    condition: {therapy: anti-TNF monoclonal antibody, comparator: eq, value: intolerant}
+  - {edgeId: IBD-E85, fromNodeId: IBD-N46, toNodeId: IBD-N54, relation: offers_drug}
+  - {edgeId: IBD-E86, fromNodeId: IBD-N46, toNodeId: IBD-N57, relation: offers_drug}
+  - {edgeId: IBD-E87, fromNodeId: IBD-N46, toNodeId: IBD-N58, relation: offers_drug}
+  - {edgeId: IBD-E88, fromNodeId: IBD-N46, toNodeId: IBD-N72, relation: monitor_with}
+  - {edgeId: IBD-E89, fromNodeId: IBD-N46, toNodeId: IBD-N83, relation: responds_if}
+  - {edgeId: IBD-E90, fromNodeId: IBD-N46, toNodeId: IBD-N92, relation: watch_for}
+  - {edgeId: IBD-E91, fromNodeId: IBD-N46, toNodeId: IBD-N103, relation: watch_for}
+  - edgeId: IBD-E92
+    fromNodeId: IBD-N46
+    toNodeId: IBD-N102
+    relation: watch_for
+    condition: {therapy: corticosteroid, comparator: eq, value: responded}
+  - edgeId: IBD-E93
+    fromNodeId: IBD-N46
+    toNodeId: IBD-N99
+    relation: surgery_if
+    condition: {therapy: corticosteroid, comparator: eq, value: failed}

@@ -1,0 +1,19 @@
+{
+  "replies": [
+    {
+      "match": "Current node (JSON)",
+      "text": "{\"status\": \"updated\", \"content\": \"Ustekinumab is given under the skin as maintenance therapy at the interval described in the cited page, after the intravenous induction dose.\"}",
+      "inputTokens": 400,
+      "outputTokens": 60
+    },
+    {
+      "match": "https://",
+      "text": "{\"action\": \"draft\", \"questions\": [], \"targets\": [{\"nodeId\": \"IBD-N54\", \"instruction\": \"update the maintenance wording from the cited page\", \"url\": null}], \"summary\": \"Refresh the ustekinumab maintenance wording from the cited page.\"}",
+      "inputTokens": 900,
+      "outputTokens": 80
+    }
+  ],
+  "text": "{\"action\": \"ask\", \"questions\": [\"Which source URL supports the change to ustekinumab maintenance? Paste a link, for example a guideline page.\"], \"targets\": []}",
+  "inputTokens": 900,
+  "outputTokens": 40
+}

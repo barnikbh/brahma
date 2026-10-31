@@ -1,0 +1,137 @@
+# Brahma urology stub pack v0.1. Decision support, not diagnosis.
+# A small cited path that shows the model is specialty-agnostic (BR1.6, BR3.4).
+# Paraphrased, drafted with Claude for clinical review. Contains no patient data.
+pack:
+  code: URO
+  name: Urology (stub)
+  specialty: Urology
+version: "0.1"
+changeSummary: Urology stub with one walkable ureteric stone path
+
+sources:
+  - sourceId: URO-S1
+    title: "Skolarikos A, et al. EAU Guidelines on Urolithiasis. European Association of Urology"
+    year: 2024
+    section: Diagnostic imaging in acute flank pain; decompression of the obstructed infected kidney
+  - sourceId: URO-S2
+    title: "Assimos D, et al. Surgical Management of Stones: AUA/Endourological Society Guideline. J Urol"
+    year: 2016
+    section: Ureteral stones - observation and medical expulsive therapy
+
+nodes:
+  - nodeId: URO-N1
+    type: symptom
+    label: Renal colic
+    content: >-
+      Severe colicky pain from the loin towards the groin suggests a stone passing down
+      the ureter.
+    fields:
+      name: renal colic
+      synonyms: [ureteric colic, loin to groin pain, flank pain]
+    sourceIds: [URO-S1]
+    column: findings
+  - nodeId: URO-N2
+    type: diagnosis
+    label: Suspected ureteric stone
+    content: >-
+      A ureteric stone is suspected from typical pain and needs imaging to confirm it and
+      to judge its size and position.
+    fields:
+      name: ureteric stone
+    sourceIds: [URO-S1]
+    column: diagnosis
+  - nodeId: URO-N3
+    type: test
+    label: Non-contrast CT of the urinary tract
+    content: >-
+      Non-contrast CT is the preferred test to confirm a stone in adults with acute flank
+      pain, after initial ultrasound where appropriate.
+    fields:
+      name: non-contrast ct kub
+      synonyms: [ct kub, non-contrast ct]
+      resultOptions: [ureteric stone, no stone]
+    sourceIds: [URO-S1]
+    column: tests
+  - nodeId: URO-N4
+    type: metric
+    label: Stone size 10 mm or smaller
+    content: >-
+      Stones of 10 mm or less in the distal ureter have a good chance of passing without
+      intervention.
+    fields:
+      measure: stone size
+      unit: mm
+      threshold: 10
+      comparator: le
+    sourceIds: [URO-S2]
+    column: findings
+  - nodeId: URO-N5
+    type: subtype
+    label: Uncomplicated distal ureteric stone, 10 mm or smaller
+    content: >-
+      A distal ureteric stone of 10 mm or less with controlled pain, no infection and
+      adequate kidney function.
+    fields:
+      name: uncomplicated distal ureteric stone
+      severity: uncomplicated
+    sourceIds: [URO-S2]
+    column: subtype
+  - nodeId: URO-N6
+    type: treatment_tier
+    label: "Tier 1: observation with medical expulsive therapy"
+    content: >-
+      For an uncomplicated distal ureteric stone of 10 mm or less, offer a trial of
+      observation and medical expulsive therapy with an alpha-blocker, with follow-up
+      imaging.
+    fields:
+      tier: 1
+      entryCriteria: >-
+        Uncomplicated distal ureteric stone of 10 mm or less, with controlled pain, no
+        infection and adequate kidney function
+      drugNodeIds: []
+    sourceIds: [URO-S2]
+    column: treatment
+  - nodeId: URO-N7
+    type: escalation
+    label: Obstructed infected kidney
+    content: >-
+      Fever or sepsis with an obstructing stone needs urgent drainage of the kidney with
+      a ureteric stent or a nephrostomy. Definitive stone treatment waits until the
+      infection has settled.
+    fields:
+      trigger: fever or sepsis with an obstructing stone
+      action: urgent decompression by ureteric stent or percutaneous nephrostomy
+    sourceIds: [URO-S1]
+    column: monitor
+  - nodeId: URO-N8
+    type: escalation
+    label: Stone not passing
+    content: >-
+      If the stone does not pass, pain is not controlled or kidney function worsens,
+      refer for active stone removal.
+    fields:
+      trigger: stone not passing, uncontrolled pain or worsening kidney function
+      action: refer for ureteroscopy or shock wave lithotripsy
+    sourceIds: [URO-S2]
+    column: monitor
+
+edges:
+  - {edgeId: URO-E1, fromNodeId: URO-N1, toNodeId: URO-N2, relation: suggests}
+  - {edgeId: URO-E2, fromNodeId: URO-N2, toNodeId: URO-N3, relation: confirmed_by}
+  - edgeId: URO-E3
+    fromNodeId: URO-N2
+    toNodeId: URO-N5
+    relation: refines_to
+    condition: {test: non-contrast ct kub, comparator: eq, value: ureteric stone}
+  - edgeId: URO-E4
+    fromNodeId: URO-N5
+    toNodeId: URO-N6
+    relation: first_line
+    condition: {finding: stone size, comparator: le, value: 10, unit: mm}
+  - edgeId: URO-E5
+    fromNodeId: URO-N4
+    toNodeId: URO-N5
+    relation: suggests
+    condition: {finding: stone size, comparator: le, value: 10, unit: mm}
+  - {edgeId: URO-E6, fromNodeId: URO-N6, toNodeId: URO-N7, relation: watch_for}
+  - {edgeId: URO-E7, fromNodeId: URO-N6, toNodeId: URO-N8, relation: surgery_if}

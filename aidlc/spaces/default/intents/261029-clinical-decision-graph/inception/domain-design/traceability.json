@@ -1,0 +1,25 @@
+{
+  "stage": "domain-design",
+  "upstream_ids": ["US7.1", "US1.1", "US1.2", "US2.1", "US3.1", "US3.2", "US3.3", "US3.4", "US3.5", "US3.6", "US4.1", "US4.2", "US5.1", "US6.1", "US7.2", "US8.1", "US8.2", "US8.3", "US9.1"],
+  "coverage": [
+    { "id": "US1.1", "status": "OK", "target": "Identity, DoctorWebApp" },
+    { "id": "US1.2", "status": "OK", "target": "Identity, DisclaimerAcceptance, DoctorWebApp" },
+    { "id": "US2.1", "status": "OK", "target": "Cases, Patient, Case, DoctorWebApp" },
+    { "id": "US3.1", "status": "OK", "target": "ConsultAgent, Cases, Finding" },
+    { "id": "US3.2", "status": "OK", "target": "ConsultAgent, GroundingGuard, KnowledgeGraph, ModelGateway, Walk" },
+    { "id": "US3.3", "status": "OK", "target": "ConsultAgent, Cases" },
+    { "id": "US3.4", "status": "OK", "target": "ConsultAgent, ModelGateway, DoctorWebApp" },
+    { "id": "US3.5", "status": "OK", "target": "DoctorWebApp, KnowledgeGraph" },
+    { "id": "US3.6", "status": "OK", "target": "ConsultAgent, ExploreLane" },
+    { "id": "US4.1", "status": "OK", "target": "TreatmentSafety, KnowledgeGraph" },
+    { "id": "US4.2", "status": "OK", "target": "TreatmentSafety, TreatmentEdit" },
+    { "id": "US5.1", "status": "OK", "target": "Prescriptions, Prescription, PrescriptionLine" },
+    { "id": "US6.1", "status": "OK", "target": "FollowUp, Visit, MeasureResult" },
+    { "id": "US7.1", "status": "OK", "target": "Audit, AuditEntry, SessionRecord, GroundingGuard" },
+    { "id": "US7.2", "status": "OK", "target": "Audit, DoctorWebApp" },
+    { "id": "US8.1", "status": "OK", "target": "KnowledgeUpdates, Proposal, LinkedSource" },
+    { "id": "US8.2", "status": "OK", "target": "KnowledgeUpdates, KnowledgeGraph, PackVersion" },
+    { "id": "US8.3", "status": "OK", "target": "KnowledgeUpdates, SourceCheckRun" },
+    { "id": "US9.1", "status": "OK", "target": "KnowledgeGraph, Pack, ConsultAgent" }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "stage": "infrastructure-design",
+  "unit": "u5-knowledge-updates",
+  "upstream_ids": ["NFR5.1", "NFR7.1", "NFR7.2", "NFR8.1", "NFR8.2", "NFR8.3", "NFR8.4"],
+  "coverage": [
+    { "id": "NFR5.1", "status": "OK", "target": "CI uses the recorded provider; no keys" },
+    { "id": "NFR7.1", "status": "OK", "target": "CI step 3 audit tests" },
+    { "id": "NFR7.2", "status": "OK", "target": "CI step 3 role tests" },
+    { "id": "NFR8.1", "status": "OK", "target": "CI step 3 fetch refusal tests (faked resolver)" },
+    { "id": "NFR8.2", "status": "OK", "target": "CI step 3 drafter schema tests" },
+    { "id": "NFR8.3", "status": "OK", "target": "CI step 3 copy-check tests" },
+    { "id": "NFR8.4", "status": "OK", "target": "CI step 3 error-mapping and scheduler tests" }
+  ]
+}

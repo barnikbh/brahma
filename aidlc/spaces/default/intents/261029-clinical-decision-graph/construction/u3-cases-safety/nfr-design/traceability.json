@@ -1,0 +1,12 @@
+{
+  "stage": "nfr-design",
+  "unit": "u3-cases-safety",
+  "upstream_ids": ["NFR5.1", "NFR6.1", "NFR7.1", "NFR8.1", "NFR8.2"],
+  "coverage": [
+    { "id": "NFR5.1", "status": "N/A", "target": "U3 holds no secrets" },
+    { "id": "NFR6.1", "status": "OK", "target": "new_case_id and synthetic flag (security-design.md)" },
+    { "id": "NFR7.1", "status": "OK", "target": "one transaction for the cs_ write and the C2 append" },
+    { "id": "NFR8.1", "status": "OK", "target": "CaseError with log_label; no patient values in logs" },
+    { "id": "NFR8.2", "status": "OK", "target": "SafetyResult validator rejects ok without node_ids" }
+  ]
+}

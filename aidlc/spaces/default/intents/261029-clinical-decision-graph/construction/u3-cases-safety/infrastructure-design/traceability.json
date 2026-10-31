@@ -1,0 +1,12 @@
+{
+  "stage": "infrastructure-design",
+  "unit": "u3-cases-safety",
+  "upstream_ids": ["NFR5.1", "NFR6.1", "NFR7.1", "NFR8.1", "NFR8.2"],
+  "coverage": [
+    { "id": "NFR5.1", "status": "OK", "target": "CI uses no keys" },
+    { "id": "NFR6.1", "status": "OK", "target": "CI step 2 synthetic ID tests" },
+    { "id": "NFR7.1", "status": "OK", "target": "CI step 2 audit rollback tests" },
+    { "id": "NFR8.1", "status": "OK", "target": "CI step 2 error tests" },
+    { "id": "NFR8.2", "status": "OK", "target": "CI step 2 not-checked tests" }
+  ]
+}

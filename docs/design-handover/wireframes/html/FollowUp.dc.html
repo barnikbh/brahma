@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Follow-up visit and trends</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#4338ca}a:hover{color:#312e81}
+</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #171717; background: #f1f4f0; min-height: 100vh; display: flex; flex-direction: column">
+  <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 10px 24px; background: #ffffff; border-bottom: 1px solid #d4d4d4">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <div aria-hidden="true" style="width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px; font-family: Georgia, 'Times New Roman', serif">B</div>
+      <span style="display: flex; flex-direction: column; line-height: 1.15"><span style="font-weight: 700; font-size: 18px; letter-spacing: 0.03em; color: #312e81; font-family: Georgia, 'Times New Roman', serif">Brahma</span><span style="font-size: 11px; color: #4f5f52">Clinical decision graph</span></span>
+    </div>
+    <nav aria-label="Main" style="display: flex; gap: 4px; flex-wrap: wrap">
+      <a href="Patients.dc.html" aria-current="page" style="padding: 10px 12px; border-radius: 6px; background: #312e81; color: #ffffff; text-decoration: none; font-size: 14px">Patients</a>
+      <a href="History.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">History</a>
+      <a href="Knowledge.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">Knowledge</a>
+      <a href="Benchmark.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">Benchmark</a>
+    </nav>
+    <div style="margin-left: auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 13px">
+      <span style="padding: 4px 10px; border: 1px solid #a3a3a3; border-radius: 999px; font-family: ui-monospace, Menlo, monospace; font-size: 12px">IBD pack · Knowledge v1.3</span>
+      <span style="color: #525252">Dr. Maya (demo)</span>
+      <a href="Main.dc.html" style="padding: 10px 4px">Sign out</a>
+    </div>
+  </header>
+  <div role="note" style="display: flex; align-items: center; gap: 10px; padding: 8px 24px; background: #e6eee4; border-bottom: 1px solid #bfcdbb; color: #2f4034; font-size: 13px; flex-wrap: wrap">
+    <strong>Decision support, not diagnosis.</strong>
+    <span>Synthetic patients only. Trends compare against ranges picked from the patient card.</span>
+  </div>
+
+  <section aria-label="Patient card" style="position: sticky; top: 0; z-index: 5; background: #ffffff; border-bottom: 1px solid #d4d4d4; padding: 10px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+    <span aria-hidden="true" style="width: 36px; height: 36px; border-radius: 50%; background: #e5e5e5; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">LR</span>
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap">
+        <strong style="font-size: 16px">Lakshmi R.</strong>
+        <span style="font-size: 14px">34 y · Female · 58 kg</span>
+        <span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #525252">P-1042 · synthetic</span>
+      </div>
+      <div style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 12px">
+        <span style="padding: 2px 8px; border: 1px solid #a3a3a3; border-radius: 999px">UC · pancolitis (E3) · severe</span>
+        <span style="padding: 2px 8px; border: 1px solid #4338ca; color: #312e81; border-radius: 999px">On Tier 2 · methylprednisolone IV since 29 Oct</span>
+        <span style="padding: 2px 8px; border: 1.5px solid #b91c1c; color: #b91c1c; background: #fef2f2; border-radius: 999px; font-weight: 600">⚠ Allergy: Penicillin</span>
+      </div>
+    </div>
+    <div style="margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+      <span style="font-size: 13px; font-weight: 600; padding: 6px 10px; border-radius: 6px; background: #eef2ff; color: #312e81">◷ Visit 3 · day 14 · 12 Nov 2026</span>
+      <a href="Patients.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 6px; border: 1px solid #a3a3a3; color: #171717; text-decoration: none; font-size: 13px">Exit case</a>
+    </div>
+  </section>
+
+  <main style="flex: 1; display: flex; flex-wrap: wrap; gap: 16px; padding: 16px 24px 32px; align-items: flex-start">
+    <section aria-label="Chat with Brahma" style="flex: 1 1 420px; max-width: 600px; min-width: 0; background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; display: flex; flex-direction: column">
+      <div style="padding: 10px 16px; border-bottom: 1px solid #e5e5e5"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Follow-up chat</h2></div>
+      <div role="log" aria-label="Conversation" style="padding: 16px; display: flex; flex-direction: column; gap: 16px; background: #fafafa">
+        <div style="display: flex; gap: 10px; align-items: flex-start">
+          <div aria-hidden="true" style="flex: none; width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; font-family: Georgia, 'Times New Roman', serif">B</div>
+          <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 12px; color: #525252">Brahma</span>
+            <div style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 2px 12px 12px 12px; padding: 12px 14px; font-size: 14px; line-height: 1.5">Welcome back. This is Lakshmi's day-14 review on Tier 2 (IV methylprednisolone). The pack judges response on calprotectin, Hb, stool frequency and bleeding <span style="font-family: ui-monospace, Menlo, monospace; font-size: 11px; padding: 1px 5px; border: 1px solid #4338ca; color: #4338ca; border-radius: 4px">N14–15</span>. Enter today's results and I'll compare them with the last two visits.</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: flex-start">
+          <div aria-hidden="true" style="flex: none; width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; font-family: Georgia, 'Times New Roman', serif">B</div>
+          <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 12px; color: #525252">{{formWho}}</span>
+            <div style="{{formStyle}}">
+              <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+                <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                  <label for="hb" style="font-size: 13px; font-weight: 500">Haemoglobin (g/dL)</label>
+                  <input id="hb" value="{{v.hb}}" onChange="{{onHb}}" style="min-height: 44px; padding: 0 10px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                  <label for="cal" style="font-size: 13px; font-weight: 500">Faecal calprotectin (µg/g)</label>
+                  <input id="cal" value="{{v.cal}}" onChange="{{onCal}}" style="min-height: 44px; padding: 0 10px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                  <label for="sf" style="font-size: 13px; font-weight: 500">Stool frequency (per day)</label>
+                  <input id="sf" value="{{v.sf}}" onChange="{{onSf}}" style="min-height: 44px; padding: 0 10px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                  <label for="bl" style="font-size: 13px; font-weight: 500">Rectal bleeding</label>
+                  <select id="bl" value="{{v.bleed}}" onChange="{{onBl}}" style="min-height: 44px; padding: 0 8px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px; background: #ffffff">
+                    <option value="none">None</option>
+                    <option value="some">Streaks, less than half the time</option>
+                    <option value="most">Most of the time</option>
+                  </select>
+                </div>
+              </div>
+              <sc-if value="{{notSent}}" hint-placeholder-val="{{true}}">
+                <button type="button" onClick="{{send}}" style="align-self: flex-start; min-height: 44px; padding: 0 16px; border-radius: 6px; border: 1px solid #312e81; background: #312e81; color: #ffffff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Send results</button>
+              </sc-if>
+              <sc-if value="{{sent}}" hint-placeholder-val="{{false}}">
+                <button type="button" onClick="{{reopen}}" style="align-self: flex-start; min-height: 44px; padding: 0 8px; border: 0; background: transparent; color: #4338ca; text-decoration: underline; font: inherit; font-size: 13px; cursor: pointer">Change results</button>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+
+        <sc-if value="{{sent}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; gap: 10px; align-items: flex-start">
+            <div aria-hidden="true" style="flex: none; width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; font-family: Georgia, 'Times New Roman', serif">B</div>
+            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 12px; color: #525252">Brahma · assessment</span>
+              <div style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 2px 12px 12px 12px; display: flex; flex-direction: column">
+                <div style="{{verdictStyle}}">
+                  <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em">Response to Tier 2 at day 14</span>
+                  <strong style="font-size: 17px">{{verdict}}</strong>
+                </div>
+                <ul style="margin: 0; padding: 12px 14px 4px 32px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.5">
+                  <sc-for list="{{reasons}}" as="r" hint-placeholder-count="3"><li>{{r}}</li></sc-for>
+                </ul>
+                <div style="padding: 8px 14px 12px; display: flex; flex-direction: column; gap: 6px">
+                  <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #525252">Next step per the pack <span style="font-family: ui-monospace, Menlo, monospace; text-transform: none; font-weight: 400; padding: 1px 5px; border: 1px solid #4338ca; color: #4338ca; border-radius: 4px">{{nextCite}}</span></span>
+                  <span style="font-size: 14px; line-height: 1.5">{{nextStep}}</span>
+                </div>
+                <div style="padding: 12px 14px; border-top: 1px solid #e5e5e5; display: flex; gap: 8px; flex-wrap: wrap">
+                  <a href="Prescription.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 6px; background: #312e81; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600">{{rxLabel}}</a>
+                  <a href="WS-Detail.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #a3a3a3; color: #171717; text-decoration: none; font-size: 13px">Open the case map</a>
+                </div>
+                <div style="padding: 0 14px 12px; font-size: 12px; color: #525252">Decision support, not diagnosis · saved to the audit as visit 3 · S-0151</div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+      <div style="padding: 12px 16px; border-top: 1px solid #e5e5e5; display: flex; flex-direction: column; gap: 6px">
+        <label for="composer" style="font-size: 13px; font-weight: 500">Message Brahma</label>
+        <div style="display: flex; gap: 8px; align-items: flex-end">
+          <textarea id="composer" rows="2" placeholder="e.g. “she reports less urgency”, “compare with visit 1”, “generate prescription”" style="flex: 1; min-width: 0; font: inherit; font-size: 14px; padding: 10px 12px; border: 1px solid #a3a3a3; border-radius: 6px; resize: vertical"></textarea>
+          <button type="button" style="min-height: 44px; padding: 0 18px; border-radius: 6px; border: 1px solid #312e81; background: #312e81; color: #ffffff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Send</button>
+        </div>
+      </div>
+    </section>
+
+    <section aria-label="Trends" style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+      <div style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 600">Treatment timeline</h2>
+        <ol style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+          <li style="display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 1px solid #c7d2fe; background: #eef2ff; border-radius: 6px; font-size: 12px"><strong style="color: #312e81">✓ 29 Oct · Visit 1</strong><span>Diagnosis · Tier 2 started</span></li>
+          <li style="display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 1px solid #c7d2fe; background: #eef2ff; border-radius: 6px; font-size: 12px"><strong style="color: #312e81">✓ 1 Nov · Day 3</strong><span>IV steroid response check</span></li>
+          <li style="display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 1px solid #c7d2fe; background: #eef2ff; border-radius: 6px; font-size: 12px"><strong style="color: #312e81">✓ 5 Nov · Visit 2</strong><span>Partial response</span></li>
+          <li style="display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 2px solid #312e81; background: #ffffff; border-radius: 6px; font-size: 12px"><strong style="color: #312e81">● 12 Nov · Visit 3</strong><span>Day-14 review · today</span></li>
+        </ol>
+      </div>
+
+      <sc-for list="{{charts}}" as="c" hint-placeholder-count="3">
+        <div style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap">
+            <h3 style="margin: 0; font-size: 15px; font-weight: 600">{{c.title}}</h3>
+            <span style="{{c.statusStyle}}">{{c.status}}</span>
+          </div>
+          <span style="font-size: 12px; color: #525252">{{c.refText}}</span>
+          <svg role="img" aria-label="{{c.aria}}" width="100%" viewBox="0 0 560 150" style="display: block; max-width: 640px">
+            <rect x="48" y="{{c.bandY}}" width="480" height="{{c.bandH}}" fill="#f0fdf4" stroke="#86efac" stroke-dasharray="4 3"></rect>
+            <text x="526" y="{{c.bandLabelY}}" text-anchor="end" font-size="11" fill="#15803d">{{c.bandLabel}}</text>
+            <line x1="48" y1="130" x2="528" y2="130" stroke="#d4d4d4"></line>
+            <polyline points="{{c.pts}}" fill="none" stroke="#4338ca" stroke-width="2.5"></polyline>
+            <sc-for list="{{c.dots}}" as="d" hint-placeholder-count="3">
+              <g>
+                <circle cx="{{d.x}}" cy="{{d.y}}" r="5" fill="{{d.fill}}" stroke="#4338ca" stroke-width="2"></circle>
+                <text x="{{d.x}}" y="{{d.ly}}" text-anchor="middle" font-size="12" font-weight="600" fill="#171717">{{d.v}}</text>
+                <text x="{{d.x}}" y="146" text-anchor="middle" font-size="11" fill="#525252">{{d.date}}</text>
+              </g>
+            </sc-for>
+          </svg>
+        </div>
+      </sc-for>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+var DATES = ['29 Oct', '5 Nov', '12 Nov (today)'];
+var XS = [80, 290, 500];
+function chart(title, unit, vals, ymin, ymax, band, bandLabel, refText, goodLow, aria) {
+  var Y = function (v) { return 125 - (Math.min(Math.max(v, ymin), ymax) - ymin) / (ymax - ymin) * 105; };
+  var pts = vals.map(function (v, i) { return isNaN(v) ? null : XS[i] + ',' + Y(v).toFixed(1); }).filter(Boolean).join(' ');
+  var last = vals[2], prev = vals[1];
+  var inBand = !isNaN(last) && last >= band[0] && last <= band[1];
+  var better = !isNaN(last) && (goodLow ? last < prev : last > prev);
+  var status = isNaN(last) ? '? Today not entered' : inBand ? '✓ In range' : (better ? (goodLow ? '↓ Improving · still above target' : '↑ Improving · still below range') : '! Not improving');
+  var tone = isNaN(last) ? 'background: #fffbeb; color: #92400e; border: 1px dashed #b45309;' : inBand ? 'background: #f0fdf4; color: #15803d; border: 1px solid #86efac;' : 'background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5;';
+  var by = Y(band[1]), bh = Math.max(4, Y(band[0]) - Y(band[1]));
+  return {
+    title: title, refText: refText, status: status, aria: aria,
+    statusStyle: 'font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 4px; ' + tone,
+    pts: pts, bandY: by.toFixed(1), bandH: bh.toFixed(1), bandLabel: bandLabel, bandLabelY: (by - 4).toFixed(1),
+    dots: vals.map(function (v, i) { return { x: XS[i], y: isNaN(v) ? 125 : Y(v).toFixed(1), ly: isNaN(v) ? 118 : (Y(v) - 10).toFixed(1), v: isNaN(v) ? '?' : v + ' ' + unit, date: DATES[i], fill: i === 2 ? '#ffffff' : '#4338ca' }; })
+  };
+}
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var v = Object.assign({ hb: '11.4', cal: '310', sf: '4', bleed: 'some' }, this.state.v || {});
+    var sent = !!this.state.sent;
+    var hb = parseFloat(v.hb), cal = parseFloat(v.cal), sf = parseFloat(v.sf);
+    var shown = sent ? [hb, cal, sf] : [NaN, NaN, NaN];
+    var set = function (k) { return function (e) { var n = Object.assign({}, v); n[k] = e.target.value; self.setState({ v: n }); }; };
+    var drop = (850 - cal) / 850;
+    var verdict, cite, next, rx, tone, reasons;
+    if (cal < 250 && sf <= 3 && v.bleed === 'none') {
+      verdict = '✓ Responding'; cite = 'N12 · N14';
+      next = 'Continue Tier 2 and start the steroid taper and maintenance plan per [source]. Recheck calprotectin at [interval].';
+      rx = '℞ Update prescription (taper)'; tone = 'background: #f0fdf4; color: #14532d; border-bottom: 1px solid #86efac;';
+    } else if (drop >= 0.5 || sf <= 5) {
+      verdict = '◐ Partial response'; cite = 'N12 · N13';
+      next = 'Continue Tier 2 and recheck at day [n]. If there is no further improvement by then, Tier 3 (biologics) entry criteria are met.';
+      rx = '℞ Renew current prescription'; tone = 'background: #fffbeb; color: #78350f; border-bottom: 1px solid #fcd34d;';
+    } else {
+      verdict = '✕ Not responding · steroid-refractory'; cite = 'N13 · N18';
+      next = 'Escalate to Tier 3 · biologics. Pre-start: TB and hepatitis B screening. Ask for a surgical opinion if she deteriorates.';
+      rx = '℞ Draft Tier 3 prescription'; tone = 'background: #fef2f2; color: #7f1d1d; border-bottom: 1px solid #fca5a5;';
+    }
+    reasons = [
+      'Calprotectin ' + v.cal + ' µg/g: ' + (isNaN(drop) ? '—' : Math.round(drop * 100) + '% lower than at diagnosis (850), target < 50.'),
+      'Haemoglobin ' + v.hb + ' g/dL: ' + (hb >= 12 ? 'back in the female range (12.0–15.5).' : 'rising but still below the female range (12.0–15.5).'),
+      'Stool frequency ' + v.sf + '/day (from 8); bleeding: ' + ({ none: 'none', some: 'streaks, less than half the time', most: 'most of the time' })[v.bleed] + '.'
+    ];
+    return {
+      v: v, sent: sent, notSent: !sent,
+      formWho: sent ? 'Brahma · form submitted' : 'Brahma · form · needs your input',
+      formStyle: 'background: #ffffff; border: ' + (sent ? '1px solid #d4d4d4' : '2px solid #171717') + '; border-radius: 2px 12px 12px 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px',
+      onHb: set('hb'), onCal: set('cal'), onSf: set('sf'), onBl: set('bleed'),
+      send: function () { self.setState({ sent: true }); },
+      reopen: function () { self.setState({ sent: false }); },
+      verdict: verdict, nextCite: cite, nextStep: next, rxLabel: rx, reasons: reasons,
+      verdictStyle: 'display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 2px 12px 0 0; ' + tone,
+      charts: [
+        chart('Faecal calprotectin', 'µg/g', [850, 520, shown[1]], 0, 900, [0, 50], 'target < 50', 'Target < 50 µg/g [per source] · lower is better', true, 'Calprotectin falling from 850 to ' + (sent ? v.cal : 'not yet entered')),
+        chart('Haemoglobin', 'g/dL', [10.2, 10.8, shown[0]], 8, 16, [12.0, 15.5], 'female 12.0–15.5', 'Range 12.0–15.5 g/dL for female, picked from the patient card · higher is better', false, 'Haemoglobin rising from 10.2 to ' + (sent ? v.hb : 'not yet entered')),
+        chart('Stool frequency', '/day', [8, 5, shown[2]], 0, 10, [0, 3], 'target ≤ 3', 'Target ≤ 3 per day [per source] · lower is better', true, 'Stool frequency falling from 8 to ' + (sent ? v.sf : 'not yet entered'))
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

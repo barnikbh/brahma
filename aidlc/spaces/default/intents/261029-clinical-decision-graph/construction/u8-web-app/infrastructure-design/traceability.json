@@ -1,0 +1,16 @@
+{
+  "stage": "infrastructure-design",
+  "unit": "u8-web-app",
+  "upstream_ids": ["NFR1.5", "NFR1.6", "NFR4.4", "NFR2.2", "NFR5.2", "NFR6.2", "NFR8.6", "NFR3.1", "FR15.1"],
+  "coverage": [
+    { "id": "NFR1.5", "status": "N/A", "target": "application-level; no infrastructure" },
+    { "id": "NFR1.6", "status": "N/A", "target": "application-level; no infrastructure" },
+    { "id": "NFR4.4", "status": "OK", "target": "CI step 4 build targets" },
+    { "id": "NFR2.2", "status": "OK", "target": "CI step 3 reducer tests" },
+    { "id": "NFR5.2", "status": "OK", "target": "same-origin serving from U4 (infrastructure-specification.md)" },
+    { "id": "NFR6.2", "status": "N/A", "target": "application-level; no infrastructure" },
+    { "id": "NFR8.6", "status": "OK", "target": "CI step 2 ESLint rule" },
+    { "id": "NFR3.1", "status": "OK", "target": "CI step 3 accessibility tests" },
+    { "id": "FR15.1", "status": "OK", "target": "CI step 3 AppShell test" }
+  ]
+}

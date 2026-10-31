@@ -1,0 +1,18 @@
+{
+  "stage": "code-generation",
+  "unit": "u4-grounded-agent",
+  "version": 1,
+  "writes": [
+    { "path": "src/brahma/agent/" },
+    { "path": "src/brahma/server/" },
+    { "path": "tests/agent/" },
+    { "path": "tests/server/" },
+    { "path": "README.md" },
+    { "path": "pyproject.toml" },
+    { "path": ".env.example" },
+    { "path": ".github/workflows/ci.yml" },
+    { "path": "src/brahma/platform/audit/models.py" },
+    { "path": "src/brahma/platform/models/schemas.py" },
+    { "path": "src/brahma/platform/models/adapters.py" }
+  ]
+}

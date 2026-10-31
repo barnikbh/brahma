@@ -1,0 +1,82 @@
+# Small inline pack for U3 tests: node shapes the IBD pack lacks (a metric with a
+# plausible range, a penicillin-class drug, a drug with no safety nodes, a per-kg dose
+# with a rounding rule). Test content only, not clinical guidance.
+pack:
+  code: TSF
+  name: Safety test pack
+  specialty: Testing
+version: "1.0"
+changeSummary: Initial safety test pack
+sources:
+  - sourceId: TSF-S1
+    title: Test safety guideline
+    year: 2022
+    section: Section 1
+nodes:
+  - nodeId: TSF-N1
+    type: metric
+    label: Haemoglobin below 10.5 g/dL
+    content: Low haemoglobin, with a plausible range.
+    fields:
+      measure: Hb
+      unit: g/dL
+      threshold: 10.5
+      comparator: lt
+      synonyms: [haemoglobin, hemoglobin]
+    plausibleRange: {low: 3, high: 25, unit: g/dL}
+    sourceIds: [TSF-S1]
+    column: findings
+  - nodeId: TSF-N2
+    type: drug
+    label: Amoxicillin 500 mg oral
+    content: A test penicillin-class drug.
+    fields:
+      drug: amoxicillin
+      synonyms: [amoxil]
+      drugClass: penicillin
+      route: oral
+      doseValue: 500
+      doseUnit: mg
+      doseBasis: absolute
+      rounding: not applicable
+      frequency: three times daily
+      duration: five days
+      contraindications: [penicillin allergy]
+    sourceIds: [TSF-S1]
+    column: treatment
+  - nodeId: TSF-N3
+    type: drug
+    label: Testamab 2.5 mg/kg IV
+    content: A test drug with no safety nodes and a rounding rule.
+    fields:
+      drug: testamab
+      synonyms: []
+      drugClass: test antibody
+      route: intravenous
+      doseValue: 2.5
+      doseUnit: mg/kg
+      doseBasis: per_kg
+      rounding: round to the nearest 10 mg
+      frequency: once
+      duration: single dose
+      contraindications: []
+    sourceIds: [TSF-S1]
+    column: treatment
+  - nodeId: TSF-N4
+    type: allergy_cross_reactivity
+    label: Penicillin allergy
+    content: Avoid penicillin-class drugs with a penicillin allergy label.
+    fields:
+      allergenClass: penicillin
+      conflictingDrugClasses: [penicillin]
+    sourceIds: [TSF-S1]
+    column: monitor
+  - nodeId: TSF-N5
+    type: diagnosis
+    label: Test diagnosis
+    content: A test diagnosis that is not a drug.
+    fields:
+      name: Test diagnosis
+    sourceIds: [TSF-S1]
+    column: diagnosis
+edges: []

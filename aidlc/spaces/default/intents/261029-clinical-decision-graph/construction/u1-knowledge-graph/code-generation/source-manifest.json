@@ -1,0 +1,18 @@
+{
+  "stage": "code-generation",
+  "unit": "u1-knowledge-graph",
+  "version": 1,
+  "writes": [
+    { "path": ".gitignore" },
+    { "path": "pyproject.toml" },
+    { "path": ".github/workflows/ci.yml" },
+    { "path": "src/brahma/__init__.py" },
+    { "path": "src/brahma/py.typed" },
+    { "path": "src/brahma/knowledge/" },
+    { "path": "content/ibd.yaml" },
+    { "path": "content/urology.yaml" },
+    { "path": "scripts/check_copy.py" },
+    { "path": "tests/__init__.py" },
+    { "path": "tests/knowledge/" }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "stage": "functional-design",
+  "unit": "u2-platform",
+  "upstream_ids": ["AC1.1.1", "AC1.1.2", "AC1.2.1", "AC1.2.2", "AC1.2.3", "AC3.4.1", "AC3.4.2", "AC7.1.1", "AC7.1.2", "AC7.1.3", "AC7.2.1", "AC7.2.2", "AC7.2.3"],
+  "coverage": [
+    { "id": "AC1.1.1", "status": "OK", "target": "BR2.1" },
+    { "id": "AC1.1.2", "status": "N/A", "target": "delivered by u8-web-app (disclaimer and pack version on every screen)" },
+    { "id": "AC1.2.1", "status": "N/A", "target": "delivered by u8-web-app (disabled button until both ticked)" },
+    { "id": "AC1.2.2", "status": "OK", "target": "BR2.2" },
+    { "id": "AC1.2.3", "status": "N/A", "target": "delivered by u8-web-app (tour skip)" },
+    { "id": "AC3.4.1", "status": "N/A", "target": "delivered by u4-grounded-agent (no grounded answer)" },
+    { "id": "AC3.4.2", "status": "OK", "target": "BR3.2, BR3.3" },
+    { "id": "AC7.1.1", "status": "OK", "target": "BR1.2" },
+    { "id": "AC7.1.2", "status": "N/A", "target": "delivered by u4-grounded-agent (why sentences checked before recording)" },
+    { "id": "AC7.1.3", "status": "OK", "target": "BR1.1" },
+    { "id": "AC7.2.1", "status": "OK", "target": "BR1.3" },
+    { "id": "AC7.2.2", "status": "N/A", "target": "delivered by u4-grounded-agent and u8-web-app (replay map on the recorded version)" },
+    { "id": "AC7.2.3", "status": "OK", "target": "BR1.4" }
+  ],
+  "reverse": [
+    { "id": "BR2.3", "status": "N/A", "target": "FR10.4 reviewer role check, used by u5 (US8.2)" },
+    { "id": "BR3.1", "status": "N/A", "target": "FR14.1, FR14.2 provider configuration (requirements-only, no story)" },
+    { "id": "BR3.4", "status": "N/A", "target": "FR14.1 structured output for extraction and drafting, used by u4 and u5" }
+  ]
+}

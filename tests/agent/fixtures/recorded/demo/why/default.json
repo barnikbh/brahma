@@ -1,0 +1,6 @@
+{
+  "_note": "Synthetic recorded 'why' for the demo walk, one sentence per line, paraphrased from the pack's nodes.",
+  "text": "{\"lines\": [{\"text\": \"Bloody diarrhoea with calprotectin above 50 ug/g pointed to inflammatory bowel disease.\", \"nodeIds\": [\"IBD-N1\", \"IBD-N5\", \"IBD-N10\"], \"claims\": [{\"kind\": \"threshold\", \"value\": \"50\", \"unit\": \"ug/g\"}, {\"kind\": \"diagnosis\", \"value\": \"inflammatory bowel disease\"}]}, {\"text\": \"Colonoscopy with biopsy confirmed ulcerative colitis.\", \"nodeIds\": [\"IBD-N21\", \"IBD-N11\"], \"claims\": [{\"kind\": \"test\", \"value\": \"colonoscopy with biopsy\"}, {\"kind\": \"diagnosis\", \"value\": \"ulcerative colitis\"}]}, {\"text\": \"Extent E3 and severe activity refined it to acute severe ulcerative colitis.\", \"nodeIds\": [\"IBD-N22\", \"IBD-N23\", \"IBD-N34\"], \"claims\": [{\"kind\": \"diagnosis\", \"value\": \"acute severe ulcerative colitis\"}]}, {\"text\": \"A haemoglobin below 10.5 g/dL is a sign of systemic toxicity that supports the severe grade.\", \"nodeIds\": [\"IBD-N3\"], \"claims\": [{\"kind\": \"threshold\", \"value\": \"10.5\", \"unit\": \"g/dL\"}]}]}",
+  "inputTokens": 1400,
+  "outputTokens": 140
+}

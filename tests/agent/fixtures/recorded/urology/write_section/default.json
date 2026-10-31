@@ -1,0 +1,29 @@
+{
+  "_note": "Synthetic recorded replies for the urology stub walk, paraphrased from the pack's nodes.",
+  "replies": [
+    {
+      "match": "<section id=\"findings\"",
+      "text": "{\"lines\": [{\"text\": \"Colicky loin to groin pain suggests a stone moving down the ureter.\", \"nodeIds\": [\"URO-N1\"], \"claims\": []}, {\"text\": \"A stone of 10 mm or smaller in the distal ureter often passes by itself.\", \"nodeIds\": [\"URO-N4\"], \"claims\": [{\"kind\": \"threshold\", \"value\": \"10\", \"unit\": \"mm\"}]}]}"
+    },
+    {
+      "match": "<section id=\"diagnosis\"",
+      "text": "{\"lines\": [{\"text\": \"The working diagnosis is a suspected ureteric stone.\", \"nodeIds\": [\"URO-N2\"], \"claims\": [{\"kind\": \"diagnosis\", \"value\": \"ureteric stone\"}]}]}"
+    },
+    {
+      "match": "<section id=\"tests\"",
+      "text": "{\"lines\": [{\"text\": \"Non-contrast CT confirms the stone and shows its size and position.\", \"nodeIds\": [\"URO-N3\"], \"claims\": [{\"kind\": \"test\", \"value\": \"non-contrast ct\"}]}]}"
+    },
+    {
+      "match": "<section id=\"subtype\"",
+      "text": "{\"lines\": [{\"text\": \"This is an uncomplicated distal ureteric stone with controlled pain.\", \"nodeIds\": [\"URO-N5\"], \"claims\": [{\"kind\": \"diagnosis\", \"value\": \"uncomplicated distal ureteric stone\"}]}]}"
+    },
+    {
+      "match": "<section id=\"treatment\"",
+      "text": "{\"lines\": [{\"text\": \"Entry point is Tier 1: observation with medical expulsive therapy and follow-up imaging.\", \"nodeIds\": [\"URO-N6\"], \"claims\": [{\"kind\": \"tier\", \"value\": \"1\"}]}]}"
+    },
+    {
+      "match": "<section id=\"watch_outs\"",
+      "text": "{\"lines\": [{\"text\": \"Fever or sepsis with an obstructing stone needs urgent drainage of the kidney.\", \"nodeIds\": [\"URO-N7\"], \"claims\": []}, {\"text\": \"If the stone does not pass, refer for active removal.\", \"nodeIds\": [\"URO-N8\"], \"claims\": []}]}"
+    }
+  ]
+}

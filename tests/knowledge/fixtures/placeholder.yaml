@@ -1,0 +1,24 @@
+# Refused: a bracketed placeholder left in a drug field (BR3.5).
+pack: {code: TST, name: Test pack, specialty: Testing}
+version: "1.0"
+sources:
+  - {sourceId: TST-S1, title: Test guideline, year: 2022, section: Section 1}
+nodes:
+  - nodeId: TST-N1
+    type: drug
+    label: Methylprednisolone
+    content: A test drug.
+    fields:
+      drug: methylprednisolone
+      synonyms: []
+      drugClass: corticosteroid
+      route: intravenous
+      doseValue: 60
+      doseUnit: mg
+      doseBasis: absolute
+      rounding: not applicable
+      frequency: "[60 mg] once daily"
+      duration: until review
+      contraindications: []
+    sourceIds: [TST-S1]
+    column: treatment

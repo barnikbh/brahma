@@ -1,0 +1,28 @@
+{
+  "stage": "nfr-design",
+  "unit": "u4-grounded-agent",
+  "upstream_ids": ["NFR1.1", "NFR1.2", "NFR1.3", "NFR1.4", "NFR2.1", "NFR4.1", "NFR4.2", "NFR4.3", "NFR5.1", "NFR6.1", "NFR7.1", "NFR7.2", "NFR8.1", "NFR8.2", "NFR8.3", "NFR8.4", "NFR8.5", "NFR11.1", "NFR11.2", "NFR11.3", "FR15.1"],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md" },
+    { "id": "NFR1.3", "status": "OK", "target": "performance-design.md" },
+    { "id": "NFR1.4", "status": "OK", "target": "performance-design.md" },
+    { "id": "NFR2.1", "status": "OK", "target": "security-design.md Guard" },
+    { "id": "NFR4.1", "status": "OK", "target": "scalability-design.md" },
+    { "id": "NFR4.2", "status": "OK", "target": "scalability-design.md" },
+    { "id": "NFR4.3", "status": "OK", "target": "scalability-design.md" },
+    { "id": "NFR5.1", "status": "OK", "target": "security-design.md ServerConfig" },
+    { "id": "NFR6.1", "status": "OK", "target": "no import route (logical-components.md)" },
+    { "id": "NFR7.1", "status": "OK", "target": "security-design.md audit" },
+    { "id": "NFR7.2", "status": "OK", "target": "security-design.md session" },
+    { "id": "NFR8.1", "status": "OK", "target": "security-design.md input" },
+    { "id": "NFR8.2", "status": "OK", "target": "reliability-design.md; security-design.md prompts" },
+    { "id": "NFR8.3", "status": "OK", "target": "reliability-design.md" },
+    { "id": "NFR8.4", "status": "OK", "target": "reliability-design.md" },
+    { "id": "NFR8.5", "status": "OK", "target": "reliability-design.md" },
+    { "id": "NFR11.1", "status": "OK", "target": "observability-design.md" },
+    { "id": "NFR11.2", "status": "OK", "target": "observability-design.md" },
+    { "id": "NFR11.3", "status": "OK", "target": "observability-design.md" },
+    { "id": "FR15.1", "status": "OK", "target": "security-design.md" }
+  ]
+}

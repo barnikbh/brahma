@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Session history and audit</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#4338ca}a:hover{color:#312e81}
+</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #171717; background: #f1f4f0; min-height: 100vh; display: flex; flex-direction: column">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 10px 24px; background: #ffffff; border-bottom: 1px solid #d4d4d4">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <div aria-hidden="true" style="width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px; font-family: Georgia, 'Times New Roman', serif">B</div>
+      <span style="display: flex; flex-direction: column; line-height: 1.15"><span style="font-weight: 700; font-size: 18px; letter-spacing: 0.03em; color: #312e81; font-family: Georgia, 'Times New Roman', serif">Brahma</span><span style="font-size: 11px; color: #4f5f52">Clinical decision graph</span></span>
+    </div>
+    <nav aria-label="Main" style="display: flex; gap: 4px; flex-wrap: wrap">
+      <a href="Patients.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">Patients</a>
+      <a href="History.dc.html" aria-current="page" style="padding: 10px 12px; border-radius: 6px; background: #312e81; color: #ffffff; text-decoration: none; font-size: 14px">History</a>
+      <a href="Knowledge.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">Knowledge</a>
+      <a href="Benchmark.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">Benchmark</a>
+    </nav>
+    <div style="margin-left: auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 13px">
+      <span style="padding: 4px 10px; border: 1px solid #a3a3a3; border-radius: 999px; font-family: ui-monospace, Menlo, monospace; font-size: 12px">IBD pack · Knowledge v1.3</span>
+      <span style="color: #525252">Dr. Maya (demo)</span>
+      <a href="Main.dc.html" style="padding: 10px 4px">Sign out</a>
+    </div>
+  </header>
+  <div role="note" style="display: flex; align-items: center; gap: 10px; padding: 8px 24px; background: #e6eee4; border-bottom: 1px solid #bfcdbb; color: #2f4034; font-size: 13px; flex-wrap: wrap">
+    <strong>Decision support, not diagnosis.</strong>
+    <span>Synthetic patients only. Audit records are read-only.</span>
+  </div>
+
+  <main style="flex: 1; display: flex; flex-wrap: wrap; gap: 16px; padding: 16px 24px 32px; align-items: flex-start">
+    <section aria-labelledby="hl" style="flex: 1 1 380px; max-width: 480px; min-width: 0; background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; display: flex; flex-direction: column">
+      <div style="padding: 14px 16px; border-bottom: 1px solid #e5e5e5; display: flex; flex-direction: column; gap: 10px">
+        <h1 id="hl" style="margin: 0; font-size: 18px; font-weight: 600">Session history</h1>
+        <label for="q" style="font-size: 13px; color: #525252">Search sessions</label>
+        <input id="q" type="search" placeholder="Finding, diagnosis or session ID" style="min-height: 44px; padding: 0 12px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px">
+        <div role="group" aria-label="Filter by outcome" style="display: flex; gap: 6px; flex-wrap: wrap">
+          <sc-for list="{{filters}}" as="f" hint-placeholder-count="4">
+            <button type="button" onClick="{{f.pick}}" aria-pressed="{{f.on}}" style="{{f.style}}">{{f.label}}</button>
+          </sc-for>
+        </div>
+      </div>
+      <ul style="list-style: none; margin: 0; padding: 8px; display: flex; flex-direction: column; gap: 6px">
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+          <li>
+            <button type="button" onClick="{{r.pick}}" aria-pressed="{{r.on}}" style="{{r.style}}">
+              <span style="display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: #525252">
+                <span style="font-family: ui-monospace, Menlo, monospace">{{r.id}}</span>
+                <span>{{r.date}}</span>
+              </span>
+              <span style="font-size: 14px; font-weight: 600">{{r.patient}}</span>
+              <span style="font-size: 13px">{{r.outcome}}</span>
+              <span style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 12px">
+                <span style="padding: 2px 8px; border: 1px solid #171717; border-radius: 4px">{{r.statusIcon}} {{r.status}}</span>
+                <span style="padding: 2px 8px; border: 1px solid #a3a3a3; border-radius: 4px; font-family: ui-monospace, Menlo, monospace">{{r.kg}}</span>
+              </span>
+            </button>
+          </li>
+        </sc-for>
+      </ul>
+    </section>
+
+    <article aria-labelledby="dt" style="flex: 999 1 560px; min-width: 0; background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; display: flex; flex-direction: column">
+      <div style="padding: 16px 20px; border-bottom: 1px solid #e5e5e5; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; justify-content: space-between">
+        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+          <span style="font-size: 12px; color: #525252; font-family: ui-monospace, Menlo, monospace">{{s.id}} · {{s.date}} · {{s.who}} · {{s.kg}}</span>
+          <h2 id="dt" style="margin: 0; font-size: 20px; font-weight: 600">{{s.outcome}}</h2>
+          <span style="font-size: 13px; font-weight: 600">{{s.statusIcon}} {{s.status}} · {{s.cited}}</span>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap">
+          <a href="WS-Answered.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #312e81; background: #312e81; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600">Replay on canvas</a>
+          <button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 14px; cursor: pointer">Export audit record</button>
+        </div>
+      </div>
+
+      <div style="padding: 16px 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+        <section style="display: flex; flex-direction: column; gap: 8px; min-width: 0">
+          <h3 style="margin: 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #525252">1 · Inputs</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.5; padding: 10px 12px; background: #fafafa; border: 1px solid #e5e5e5; border-radius: 6px">“{{s.text}}”</p>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap">
+            <sc-for list="{{s.chips}}" as="c" hint-placeholder-count="4">
+              <span style="padding: 4px 10px; border: 1px solid #a3a3a3; border-radius: 999px; font-size: 13px">{{c}}</span>
+            </sc-for>
+          </div>
+        </section>
+        <section style="display: flex; flex-direction: column; gap: 8px; min-width: 0">
+          <h3 style="margin: 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #525252">2 · Plain-language why</h3>
+          <p style="margin: 0; font-size: 14px; line-height: 1.6">{{s.why}}</p>
+        </section>
+      </div>
+
+      <section style="padding: 0 20px 16px; display: flex; flex-direction: column; gap: 8px">
+        <h3 style="margin: 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #525252">3 · Path walked</h3>
+        <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center">
+          <sc-for list="{{s.path}}" as="p" hint-placeholder-count="6">
+            <li style="display: flex; align-items: center; gap: 6px">
+              <span style="padding: 6px 10px; border: 2px solid #4338ca; background: #eef2ff; color: #1e1b4b; border-radius: 6px; font-size: 13px"><span style="font-family: ui-monospace, Menlo, monospace; font-size: 11px">{{p.cite}}</span> {{p.label}}</span>
+              <span aria-hidden="true" style="color: #525252">{{p.arrow}}</span>
+            </li>
+          </sc-for>
+        </ol>
+      </section>
+
+      <section style="padding: 0 20px 16px; display: flex; flex-direction: column; gap: 8px">
+        <h3 style="margin: 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #525252">4 · Answer as given</h3>
+        <ul style="margin: 0; padding: 0 0 0 18px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; line-height: 1.5">
+          <sc-for list="{{s.answer}}" as="a" hint-placeholder-count="4">
+            <li>{{a}}</li>
+          </sc-for>
+        </ul>
+      </section>
+
+      <section style="padding: 0 20px 20px; display: flex; flex-direction: column; gap: 8px">
+        <h3 style="margin: 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #525252">5 · Sources used</h3>
+        <div style="overflow-x: auto; border: 1px solid #e5e5e5; border-radius: 6px">
+          <table style="width: 100%; border-collapse: collapse; font-size: 13px; min-width: 520px">
+            <thead>
+              <tr style="background: #fafafa; text-align: left">
+                <th scope="col" style="padding: 8px 10px; font-weight: 600">Source</th>
+                <th scope="col" style="padding: 8px 10px; font-weight: 600">Nodes cited</th>
+                <th scope="col" style="padding: 8px 10px; font-weight: 600">Version at time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{s.sources}}" as="src" hint-placeholder-count="3">
+                <tr style="border-top: 1px solid #e5e5e5">
+                  <td style="padding: 8px 10px">{{src.name}}</td>
+                  <td style="padding: 8px 10px; font-family: ui-monospace, Menlo, monospace">{{src.nodes}}</td>
+                  <td style="padding: 8px 10px; font-family: ui-monospace, Menlo, monospace">{{src.ver}}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div style="padding: 12px 20px; border-top: 1px solid #e5e5e5; font-size: 12px; color: #525252">Decision support, not diagnosis · Record is immutable · Signed to {{s.who}}</div>
+    </article>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+var SESSIONS = [
+  { id: 'S-0143', date: '29 Oct 2026 · 10:42', who: 'Dr. Maya', kg: 'IBD v1.3', status: 'Answered', statusIcon: '✓', key: 'answered',
+    patient: '34 y · bloody stool 6 mo · Hb 10.2 · calprotectin 850',
+    outcome: 'UC · pancolitis (E3) · severe → Tier 2', cited: '18 of 18 lines cited',
+    text: '34-year-old, bloody stool on and off for 6 months, Hb 10.2 g/dL, faecal calprotectin 850 µg/g',
+    chips: ['Age 34 years', 'Bloody stool 6 months', 'Haemoglobin 10.2 g/dL', 'Faecal calprotectin 850 µg/g', 'Colonoscopy: UC pattern', 'Extent E3', 'Severity: severe'],
+    why: 'Six months of bloody stool with a high calprotectin and low haemoglobin matched the IBD entry pattern. Colonoscopy showed continuous inflammation from the rectum, which is the ulcerative colitis branch. The whole colon was involved and severity scored severe, so the plan starts at Tier 2 (steroids) rather than Tier 1, with biologics as the next step if steroids fail.',
+    path: [['N1–3', 'Findings'], ['N4', 'IBD'], ['N5–8', 'Tests'], ['N9', 'Ulcerative colitis'], ['N10', 'E3 · severe'], ['N12', 'Tier 2 · steroids'], ['N13', 'Tier 3 · biologics'], ['N14–18', 'Monitor · diet · watch-outs']],
+    answer: ['Working diagnosis: IBD', 'Refined: ulcerative colitis, pancolitis (E3), severe', 'Enter treatment at Tier 2 (corticosteroids); escalate to biologics if steroid-refractory', 'Monitor calprotectin, Hb, stool frequency against [thresholds]', 'Surgery review if no response to IV steroids by day [n]'],
+    sources: [{ name: '[IBD diagnostic consensus, year]', nodes: 'N3–N10', ver: 'v1.3' }, { name: '[UC management guideline, year]', nodes: 'N8, N11–N18', ver: 'v1.3' }, { name: '[Lab reference ranges]', nodes: 'N2', ver: 'v1.2' }] },
+  { id: 'S-0139', date: '27 Oct 2026 · 16:05', who: 'Dr. Maya', kg: 'IBD v1.3', status: 'Needs more data', statusIcon: '?', key: 'needs',
+    patient: '41 y · diarrhoea 8 wk · calprotectin 420',
+    outcome: 'IBD (working) — awaiting colonoscopy', cited: '8 of 8 lines cited',
+    text: '41-year-old, loose stool for 8 weeks, faecal calprotectin 420 µg/g',
+    chips: ['Age 41 years', 'Diarrhoea 8 weeks', 'Faecal calprotectin 420 µg/g'],
+    why: 'Chronic diarrhoea with a raised calprotectin matched the IBD entry pattern. The graph cannot narrow further until colonoscopy with biopsy, extent and severity results are entered, so the walk paused there.',
+    path: [['N1–3', 'Findings'], ['N4', 'IBD'], ['N5–8', 'Tests (pending)']],
+    answer: ['Working diagnosis: IBD', 'Needs: colonoscopy + biopsy, extent mapping, severity score'],
+    sources: [{ name: '[IBD diagnostic consensus, year]', nodes: 'N1–N8', ver: 'v1.3' }] },
+  { id: 'S-0131', date: '22 Oct 2026 · 11:18', who: 'Dr. Maya', kg: 'IBD v1.3', status: 'Out of knowledge', statusIcon: '⊘', key: 'ook',
+    patient: '52 y · headache 3 wk · visual aura',
+    outcome: 'No grounded answer — outside IBD pack', cited: '0 lines · nothing guessed',
+    text: '52-year-old, headache for 3 weeks with visual aura',
+    chips: ['Age 52 years', 'Headache 3 weeks', 'Visual aura'],
+    why: 'No entry node in the IBD pack matched these findings. The system does not answer from model memory, so it returned no recommendation and logged the gap.',
+    path: [['—', 'No entry node matched']],
+    answer: ['No recommendation. Findings outside the knowledge pack.'],
+    sources: [{ name: 'None', nodes: '—', ver: 'v1.3' }] },
+  { id: 'S-0124', date: '18 Oct 2026 · 09:30', who: 'Demo urologist', kg: 'Urology stub v0.1', status: 'Answered', statusIcon: '✓', key: 'answered',
+    patient: '63 y · urinary frequency · [PSA value]',
+    outcome: 'Urology stub · [stub pathway outcome]', cited: '6 of 6 lines cited',
+    text: '63-year-old, urinary frequency and nocturia for [duration], PSA [value]',
+    chips: ['Age 63 years', 'Urinary frequency', 'Nocturia', 'PSA [value]'],
+    why: 'Same model, second specialty: the urology stub walked findings → working diagnosis → tests → [stub treatment tier]. Shown to prove the graph generalises beyond IBD.',
+    path: [['N1–2', 'Findings'], ['N3', '[Working diagnosis]'], ['N4', '[Test]'], ['N5–6', '[Treatment tier]']],
+    answer: ['[Stub pathway lines from urology pack]'],
+    sources: [{ name: '[Urology guideline, year]', nodes: 'N1–N6', ver: 'v0.1' }] }
+];
+var FILTERS = [['all', 'All'], ['answered', '✓ Answered'], ['needs', '? Needs data'], ['ook', '⊘ Out of knowledge']];
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var f = this.state.f || 'all';
+    var selId = this.state.sel || 'S-0143';
+    var list = SESSIONS.filter(function (s) { return f === 'all' || s.key === f; });
+    var cur = SESSIONS.filter(function (s) { return s.id === selId; })[0] || SESSIONS[0];
+    var s = Object.assign({}, cur, {
+      path: cur.path.map(function (p, i) { return { cite: p[0], label: p[1], arrow: i < cur.path.length - 1 ? '→' : '' }; })
+    });
+    return {
+      filters: FILTERS.map(function (x) {
+        var on = f === x[0];
+        return { label: x[1], on: on, pick: function () { self.setState({ f: x[0] }); },
+          style: 'min-height: 44px; padding: 0 14px; border-radius: 999px; font: inherit; font-size: 13px; cursor: pointer; ' + (on ? 'background: #312e81; color: #ffffff; border: 1px solid #171717;' : 'background: #ffffff; color: #171717; border: 1px solid #a3a3a3;') };
+      }),
+      rows: list.map(function (r) {
+        var on = r.id === cur.id;
+        return Object.assign({}, r, { on: on, pick: function () { self.setState({ sel: r.id }); },
+          style: 'width: 100%; box-sizing: border-box; text-align: left; display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 6px; font: inherit; color: #171717; cursor: pointer; ' + (on ? 'background: #eef2ff; border: 2px solid #4338ca;' : 'background: #ffffff; border: 1px solid #d4d4d4;') });
+      }),
+      s: s
+    };
+  }
+}
+</script>
+</body>
+</html>

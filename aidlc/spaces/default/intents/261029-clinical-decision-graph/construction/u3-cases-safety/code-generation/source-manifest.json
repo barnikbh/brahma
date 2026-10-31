@@ -1,0 +1,10 @@
+{
+  "stage": "code-generation",
+  "unit": "u3-cases-safety",
+  "version": 1,
+  "writes": [
+    { "path": "src/brahma/cases/" },
+    { "path": "tests/cases/" },
+    { "path": ".github/workflows/ci.yml" }
+  ]
+}

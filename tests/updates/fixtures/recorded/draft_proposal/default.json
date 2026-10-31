@@ -1,0 +1,5 @@
+{
+  "text": "{\"changes\": [{\"nodeId\": \"IBD-N36\", \"content\": \"Crohn's disease limited to the colon, with the small bowel spared.\", \"label\": null}], \"summary\": \"Clarify that colonic Crohn's disease spares the small bowel (synthetic test draft).\"}",
+  "inputTokens": 900,
+  "outputTokens": 60
+}

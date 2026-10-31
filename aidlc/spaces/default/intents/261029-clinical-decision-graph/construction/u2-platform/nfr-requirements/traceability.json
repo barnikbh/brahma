@@ -1,0 +1,19 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "u2-platform",
+  "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8", "NFR9", "NFR10", "NFR11", "NFR12"],
+  "coverage": [
+    { "id": "NFR1", "status": "OK", "target": "NFR1.1, NFR1.2" },
+    { "id": "NFR2", "status": "N/A", "target": "groundedness is delivered by u1 (claim matching) and u4 (claim check); U2 only carries calls" },
+    { "id": "NFR3", "status": "N/A", "target": "accessibility is delivered by u8-web-app; U2 has no UI" },
+    { "id": "NFR4", "status": "N/A", "target": "browser platform is delivered by u8-web-app" },
+    { "id": "NFR5", "status": "OK", "target": "NFR5.1, NFR5.2" },
+    { "id": "NFR6", "status": "OK", "target": "NFR6.1, NFR6.2" },
+    { "id": "NFR7", "status": "OK", "target": "NFR7.1, NFR7.2, NFR7.3" },
+    { "id": "NFR8", "status": "OK", "target": "NFR8.1, NFR8.2, NFR8.3" },
+    { "id": "NFR9", "status": "OK", "target": "NFR9.1" },
+    { "id": "NFR10", "status": "OK", "target": "NFR10.1" },
+    { "id": "NFR11", "status": "OK", "target": "NFR11.1" },
+    { "id": "NFR12", "status": "OK", "target": "NFR12.1" }
+  ]
+}

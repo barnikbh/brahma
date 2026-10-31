@@ -1,0 +1,283 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Benchmark.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "is_interactive": true,
+      "title": "6 · Benchmark results",
+      "w": 1440,
+      "x": 3040,
+      "y": 4400
+    },
+    "History.dc.html": {
+      "expand": "fill",
+      "h": 1200,
+      "is_interactive": true,
+      "title": "4 · Session history / audit",
+      "w": 1440,
+      "x": 0,
+      "y": 4400
+    },
+    "Knowledge.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "is_interactive": true,
+      "title": "5 · Knowledge update + versions",
+      "w": 1440,
+      "x": 1520,
+      "y": 4400
+    },
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 900,
+      "is_interactive": true,
+      "title": "1 · Sign-in (doctors only)",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "WS-Answered.dc.html": {
+      "expand": "fill",
+      "h": 2400,
+      "is_interactive": true,
+      "title": "3d · Answered — full pathway",
+      "w": 1440,
+      "x": 4560,
+      "y": 1400
+    },
+    "WS-Confirm.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "is_interactive": true,
+      "title": "3a · Confirm what was understood",
+      "w": 1440,
+      "x": 0,
+      "y": 1400
+    },
+    "WS-Detail.dc.html": {
+      "expand": "fill",
+      "h": 2500,
+      "is_interactive": true,
+      "title": "3e · Treatment detail (node panel)",
+      "w": 1440,
+      "x": 6080,
+      "y": 1400
+    },
+    "WS-Error.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "is_interactive": true,
+      "title": "3g · Error",
+      "w": 1440,
+      "x": 9120,
+      "y": 1400
+    },
+    "WS-NeedsData.dc.html": {
+      "expand": "fill",
+      "h": 1800,
+      "is_interactive": true,
+      "title": "3c · Needs more data",
+      "w": 1440,
+      "x": 3040,
+      "y": 1400
+    },
+    "WS-OutOfKnowledge.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "is_interactive": true,
+      "title": "3f · Out of knowledge",
+      "w": 1440,
+      "x": 7600,
+      "y": 1400
+    },
+    "WS-Working.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "is_interactive": true,
+      "title": "3b · Working — path lights up",
+      "w": 1440,
+      "x": 1520,
+      "y": 1400
+    },
+    "Workspace.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "is_interactive": true,
+      "title": "2 · Workspace — New patient (empty)",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "Patients.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "is_interactive": true,
+      "title": "1b · Patients — find or create",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Graph-A-Spine.dc.html": {
+      "x": 0,
+      "y": 8100,
+      "w": 880,
+      "h": 1000,
+      "title": "A · Decision spine (top-down)",
+      "is_interactive": true
+    },
+    "Graph-B-Metro.dc.html": {
+      "x": 960,
+      "y": 8100,
+      "w": 880,
+      "h": 1000,
+      "title": "B · Metro line",
+      "is_interactive": true
+    },
+    "Graph-C-Focus.dc.html": {
+      "x": 1920,
+      "y": 8100,
+      "w": 880,
+      "h": 1000,
+      "title": "C · Focus + neighbours",
+      "is_interactive": true
+    },
+    "Graph-D-Outline.dc.html": {
+      "x": 2880,
+      "y": 8100,
+      "w": 880,
+      "h": 1000,
+      "title": "D · Outline tree",
+      "is_interactive": true
+    },
+    "Graph-E-Network.dc.html": {
+      "x": 3840,
+      "y": 8100,
+      "w": 880,
+      "h": 1000,
+      "title": "E · Network map (node-link)",
+      "is_interactive": true
+    },
+    "WS-Explore.dc.html": {
+      "expand": "fill",
+      "h": 2500,
+      "is_interactive": true,
+      "title": "3h · Exploring a side pathway",
+      "w": 1440,
+      "x": 10640,
+      "y": 1400
+    },
+    "WS-TreatmentEdit.dc.html": {
+      "expand": "fill",
+      "h": 2600,
+      "is_interactive": true,
+      "title": "3i · Edit treatment via chat form · card expanded",
+      "w": 1440,
+      "x": 12160,
+      "y": 1400
+    },
+    "Onboarding.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "is_interactive": true,
+      "title": "1a · First sign-in · disclaimer + tour",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Prescription.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "is_interactive": true,
+      "title": "7 · Generate prescription",
+      "w": 1440,
+      "x": 0,
+      "y": 6300
+    },
+    "FollowUp.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "is_interactive": true,
+      "title": "8 · Follow-up visit + trends",
+      "w": 1440,
+      "x": 1520,
+      "y": 6300
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-29T10:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "row1": {
+      "kind": "title1",
+      "maxW": 6000,
+      "text": "Entry · sign in, accept, find or create a patient",
+      "w": 240,
+      "x": 0,
+      "y": -260
+    },
+    "row2": {
+      "kind": "title1",
+      "maxW": 8000,
+      "text": "Consultation workspace · chat with the agent, every state",
+      "w": 240,
+      "x": 0,
+      "y": 1140
+    },
+    "row3": {
+      "kind": "title1",
+      "maxW": 4480,
+      "text": "Secondary screens · audit, knowledge, proof",
+      "w": 240,
+      "x": 0,
+      "y": 4140
+    },
+    "row4": {
+      "kind": "title1",
+      "text": "Graph view options · E chosen and now in the workspace",
+      "x": 0,
+      "y": 7840,
+      "maxW": 4640
+    },
+    "row5": {
+      "kind": "title1",
+      "text": "After the consult · prescription and follow-up",
+      "x": 0,
+      "y": 6040,
+      "maxW": 2960
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Onboarding.dc.html",
+    "Patients.dc.html",
+    "Workspace.dc.html",
+    "WS-Confirm.dc.html",
+    "WS-Working.dc.html",
+    "WS-NeedsData.dc.html",
+    "WS-Answered.dc.html",
+    "WS-Detail.dc.html",
+    "WS-OutOfKnowledge.dc.html",
+    "WS-Error.dc.html",
+    "WS-Explore.dc.html",
+    "WS-TreatmentEdit.dc.html",
+    "History.dc.html",
+    "Knowledge.dc.html",
+    "Benchmark.dc.html",
+    "Prescription.dc.html",
+    "FollowUp.dc.html",
+    "Graph-A-Spine.dc.html",
+    "Graph-B-Metro.dc.html",
+    "Graph-C-Focus.dc.html",
+    "Graph-D-Outline.dc.html",
+    "Graph-E-Network.dc.html"
+  ],
+  "pages": [],
+  "title": "Brahma — Wireframes"
+}

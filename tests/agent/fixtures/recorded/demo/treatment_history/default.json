@@ -1,0 +1,30 @@
+{
+  "_note": "Synthetic recorded treatment-history replies for the follow-up turn, chosen by the doctor's text.",
+  "replies": [
+    {
+      "match": "Remicade failed",
+      "text": "{\"therapies\": [{\"drug\": \"infliximab\", \"response\": \"failed\"}, {\"drug\": \"corticosteroid\", \"response\": \"responded\"}]}",
+      "inputTokens": 90,
+      "outputTokens": 40
+    },
+    {
+      "match": "steroids did not work",
+      "text": "{\"therapies\": [{\"drug\": \"infliximab\", \"response\": \"lost_response\"}, {\"drug\": \"corticosteroid\", \"response\": \"failed\"}]}",
+      "inputTokens": 90,
+      "outputTokens": 40
+    },
+    {
+      "match": "Humira",
+      "text": "{\"therapies\": [{\"drug\": \"adalimumab\", \"response\": \"failed\"}]}",
+      "inputTokens": 80,
+      "outputTokens": 20
+    },
+    {
+      "match": "mesalamine failed",
+      "text": "{\"therapies\": [{\"drug\": \"mesalamine\", \"response\": \"failed\"}]}",
+      "inputTokens": 80,
+      "outputTokens": 20
+    }
+  ],
+  "text": "{\"therapies\": []}"
+}

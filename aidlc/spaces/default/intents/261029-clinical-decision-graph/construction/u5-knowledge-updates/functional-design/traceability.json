@@ -1,0 +1,20 @@
+{
+  "stage": "functional-design",
+  "unit": "u5-knowledge-updates",
+  "upstream_ids": ["AC8.1.1", "AC8.1.2", "AC8.1.3", "AC8.2.1", "AC8.2.2", "AC8.2.3", "AC8.3.1", "AC8.3.2"],
+  "coverage": [
+    { "id": "AC8.1.1", "status": "OK", "target": "BR1.1, BR1.2" },
+    { "id": "AC8.1.2", "status": "OK", "target": "BR3.1, BR3.2, BR2.3" },
+    { "id": "AC8.1.3", "status": "OK", "target": "BR2.1, BR2.2" },
+    { "id": "AC8.2.1", "status": "OK", "target": "BR2.4" },
+    { "id": "AC8.2.2", "status": "OK", "target": "BR1.5, BR1.7" },
+    { "id": "AC8.2.3", "status": "OK", "target": "BR1.4" },
+    { "id": "AC8.3.1", "status": "OK", "target": "BR4.1" },
+    { "id": "AC8.3.2", "status": "OK", "target": "BR4.1" }
+  ],
+  "reverse": [
+    { "id": "BR1.3", "status": "N/A", "target": "FR10.4 reviewer role (US8.2 publish path)" },
+    { "id": "BR1.6", "status": "N/A", "target": "FR10.4 reject with comment" },
+    { "id": "BR4.2", "status": "N/A", "target": "FR10.7 schedule configuration (requirements-only)" }
+  ]
+}

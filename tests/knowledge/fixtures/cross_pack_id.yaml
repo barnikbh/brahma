@@ -1,0 +1,13 @@
+# Refused: a node ID with another pack's prefix (BR1.2).
+pack: {code: TST, name: Test pack, specialty: Testing}
+version: "1.0"
+sources:
+  - {sourceId: TST-S1, title: Test guideline, year: 2022, section: Section 1}
+nodes:
+  - nodeId: IBD-N1
+    type: diagnosis
+    label: Diagnosis
+    content: A diagnosis.
+    fields: {name: Diagnosis}
+    sourceIds: [TST-S1]
+    column: diagnosis

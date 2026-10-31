@@ -1,0 +1,116 @@
+# Repo-wide CI. Later units add their own steps or jobs here (cicd-pipeline.md).
+# Runs on every push to main with read-only permissions. No secrets or API keys are used.
+name: CI
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Ruff lint and format check
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Type check (knowledge graph)
+        run: mypy --strict src/brahma/knowledge
+
+      - name: Tests with coverage (knowledge graph, 80% floor)
+        run: pytest tests/knowledge --cov=brahma.knowledge --cov-report=term-missing --cov-fail-under=80
+
+      - name: Validate knowledge packs
+        run: python -m brahma.knowledge.validate content/ibd.yaml content/urology.yaml
+
+      # U2 platform (cicd-pipeline.md). The recorded provider needs no key and no network.
+      - name: Type check (platform)
+        run: mypy --strict src/brahma/platform
+
+      - name: Tests with coverage (platform, 80% floor; timing tests run locally)
+        env:
+          BRAHMA_MODEL_PROVIDER: recorded
+        run: pytest tests/platform -m "not timing" --cov=brahma.platform --cov-report=term-missing --cov-fail-under=80
+
+      # U3 cases and safety (cicd-pipeline.md). Real IBD pack, temporary SQLite, no keys.
+      - name: Type check (cases)
+        run: mypy --strict src/brahma/cases
+
+      - name: Tests with coverage (cases, 80% floor)
+        run: pytest tests/cases --cov=brahma.cases --cov-report=term-missing --cov-fail-under=80
+
+      # U5 knowledge updates (cicd-pipeline.md). Fake DNS, respx HTTP, recorded model: no
+      # network and no keys.
+      - name: Type check (knowledge updates)
+        run: mypy --strict src/brahma/updates
+
+      - name: Tests with coverage (knowledge updates, 80% floor)
+        env:
+          BRAHMA_MODEL_PROVIDER: recorded
+        run: pytest tests/updates --cov=brahma.updates --cov-report=term-missing --cov-fail-under=80
+
+      # U4 grounded agent and backend server (cicd-pipeline.md). Recorded model replies,
+      # temporary SQLite, real packs: no network and no keys. Timing tests run locally.
+      - name: Type check (grounded agent and server)
+        run: mypy --strict src/brahma/agent src/brahma/server
+
+      - name: Tests with coverage (grounded agent and server, 80% floor)
+        env:
+          BRAHMA_MODEL_PROVIDER: recorded
+        run: pytest tests/agent tests/server -m "not timing" --cov=brahma.agent --cov=brahma.server --cov-report=term-missing --cov-fail-under=80
+
+      - name: Check .env.example lists every variable with empty values
+        run: python scripts/check_env_example.py
+
+      - name: Scan tracked files for key patterns
+        run: python scripts/check_secrets.py
+
+  # U8 doctor web app (cicd-pipeline.md). Model calls and the server are faked in unit
+  # tests; the Playwright smoke test (npm run e2e) runs locally only.
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint, types and format
+        run: |
+          npm run lint
+          npm run typecheck
+          npx prettier --check .
+
+      - name: Unit tests with coverage (80% line floor)
+        run: npm run test -- --coverage
+
+      - name: Build
+        run: npm run build

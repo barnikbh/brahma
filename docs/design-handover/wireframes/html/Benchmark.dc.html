@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Benchmark results</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#4338ca}a:hover{color:#312e81}
+</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #171717; background: #f1f4f0; min-height: 100vh; display: flex; flex-direction: column">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 10px 24px; background: #ffffff; border-bottom: 1px solid #d4d4d4">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <div aria-hidden="true" style="width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px; font-family: Georgia, 'Times New Roman', serif">B</div>
+      <span style="display: flex; flex-direction: column; line-height: 1.15"><span style="font-weight: 700; font-size: 18px; letter-spacing: 0.03em; color: #312e81; font-family: Georgia, 'Times New Roman', serif">Brahma</span><span style="font-size: 11px; color: #4f5f52">Clinical decision graph</span></span>
+    </div>
+    <nav aria-label="Main" style="display: flex; gap: 4px; flex-wrap: wrap">
+      <a href="Patients.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">Patients</a>
+      <a href="History.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">History</a>
+      <a href="Knowledge.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">Knowledge</a>
+      <a href="Benchmark.dc.html" aria-current="page" style="padding: 10px 12px; border-radius: 6px; background: #312e81; color: #ffffff; text-decoration: none; font-size: 14px">Benchmark</a>
+    </nav>
+    <div style="margin-left: auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 13px">
+      <span style="padding: 4px 10px; border: 1px solid #a3a3a3; border-radius: 999px; font-family: ui-monospace, Menlo, monospace; font-size: 12px">IBD v1.3 · Urology stub v0.1</span>
+      <a href="Main.dc.html" style="padding: 10px 4px">Sign out</a>
+    </div>
+  </header>
+  <div role="note" style="display: flex; align-items: center; gap: 10px; padding: 8px 24px; background: #e6eee4; border-bottom: 1px solid #bfcdbb; color: #2f4034; font-size: 13px; flex-wrap: wrap">
+    <strong>Decision support, not diagnosis.</strong>
+    <span>20 synthetic cases. A recommendation counts as grounded only if it links to a graph node and its source.</span>
+  </div>
+
+  <main style="flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 16px 24px 32px">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <h1 style="margin: 0; font-size: 22px; font-weight: 600">Grounding benchmark</h1>
+        <p style="margin: 0; font-size: 14px; color: #525252">Graph-grounded agent vs. the same model with no graph · run [run ID] · [date]</p>
+      </div>
+      <span style="font-size: 12px; font-weight: 600; padding: 4px 10px; border: 1.5px dashed #171717; border-radius: 4px">SAMPLE DATA — replace with the real run</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+      <div style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+        <span style="font-size: 12px; color: #525252">Cases</span>
+        <span style="font-size: 30px; font-weight: 700">20</span>
+        <span style="font-size: 13px; color: #525252">16 IBD · 4 urology stub</span>
+      </div>
+      <div style="background: #ffffff; border: 2px solid #4338ca; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+        <span style="font-size: 12px; color: #525252">Grounded · with graph</span>
+        <span style="font-size: 30px; font-weight: 700; color: #4338ca">{{toolPct}}%</span>
+        <span style="font-size: 13px; color: #525252">{{toolG}} of {{recs}} recommendations</span>
+      </div>
+      <div style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+        <span style="font-size: 12px; color: #525252">Grounded · plain model</span>
+        <span style="font-size: 30px; font-weight: 700">{{plainPct}}%</span>
+        <span style="font-size: 13px; color: #525252">{{plainG}} of {{recs}} recommendations</span>
+      </div>
+      <div style="background: #ffffff; border: 2px solid #171717; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+        <span style="font-size: 12px; color: #525252">Target ≥ 95% grounded</span>
+        <span style="font-size: 30px; font-weight: 700">{{verdict}}</span>
+        <span style="font-size: 13px; color: #525252">{{ungrounded}} ungrounded lines vs {{plainUngrounded}} for plain model</span>
+      </div>
+    </div>
+
+    <section aria-labelledby="cmp" style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px">
+      <h2 id="cmp" style="margin: 0; font-size: 16px; font-weight: 600">Overall grounded share</h2>
+      <div style="display: grid; grid-template-columns: 140px minmax(0, 1fr) 60px; gap: 10px 12px; align-items: center; font-size: 13px">
+        <span>With graph</span>
+        <div style="position: relative; height: 22px; background: #f1f4f0; border-radius: 4px">
+          <div style="{{toolBar}}"></div>
+          <div aria-hidden="true" style="position: absolute; left: 95%; top: -4px; bottom: -4px; border-left: 2px dashed #171717"></div>
+        </div>
+        <span style="font-weight: 600">{{toolPct}}%</span>
+        <span>Plain model</span>
+        <div style="position: relative; height: 22px; background: #f1f4f0; border-radius: 4px">
+          <div style="{{plainBar}}"></div>
+          <div aria-hidden="true" style="position: absolute; left: 95%; top: -4px; bottom: -4px; border-left: 2px dashed #171717"></div>
+        </div>
+        <span style="font-weight: 600">{{plainPct}}%</span>
+      </div>
+      <span style="font-size: 12px; color: #525252">Dashed line = 95% target</span>
+    </section>
+
+    <section aria-labelledby="pc" style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; display: flex; flex-direction: column">
+      <div style="padding: 14px 18px; border-bottom: 1px solid #e5e5e5; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center">
+        <h2 id="pc" style="margin: 0; font-size: 16px; font-weight: 600">Per case</h2>
+        <div role="group" aria-label="Filter by specialty" style="display: flex; gap: 6px; flex-wrap: wrap">
+          <sc-for list="{{filters}}" as="f" hint-placeholder-count="3">
+            <button type="button" onClick="{{f.pick}}" aria-pressed="{{f.on}}" style="{{f.style}}">{{f.label}}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="overflow-x: auto">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px; min-width: 820px">
+          <thead>
+            <tr style="background: #fafafa; text-align: left">
+              <th scope="col" style="padding: 10px 18px; font-weight: 600">Case</th>
+              <th scope="col" style="padding: 10px; font-weight: 600">Specialty</th>
+              <th scope="col" style="padding: 10px; font-weight: 600">Recs</th>
+              <th scope="col" style="padding: 10px; font-weight: 600; width: 32%">Grounded: graph (dark) vs plain (light)</th>
+              <th scope="col" style="padding: 10px; font-weight: 600">Graph</th>
+              <th scope="col" style="padding: 10px; font-weight: 600">Plain</th>
+              <th scope="col" style="padding: 10px 18px; font-weight: 600">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+              <tr style="border-top: 1px solid #e5e5e5">
+                <td style="padding: 8px 18px; font-family: ui-monospace, Menlo, monospace">{{r.id}}</td>
+                <td style="padding: 8px 10px">{{r.spec}}</td>
+                <td style="padding: 8px 10px">{{r.recs}}</td>
+                <td style="padding: 8px 10px">
+                  <div style="display: flex; flex-direction: column; gap: 3px">
+                    <div style="height: 8px; background: #f1f4f0; border-radius: 2px"><div style="{{r.toolBar}}"></div></div>
+                    <div style="height: 8px; background: #f1f4f0; border-radius: 2px"><div style="{{r.plainBar}}"></div></div>
+                  </div>
+                </td>
+                <td style="padding: 8px 10px; font-weight: 600">{{r.toolPct}}%</td>
+                <td style="padding: 8px 10px">{{r.plainPct}}%</td>
+                <td style="padding: 8px 18px"><span style="{{r.badge}}">{{r.result}}</span></td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+      <div style="padding: 12px 18px; border-top: 1px solid #e5e5e5; font-size: 12px; color: #525252">Click a case ID to replay it in the workspace (not wired in wireframe) · Method: [how grounding is scored]</div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+var RECS = [12, 14, 10, 16, 12, 18, 11, 13, 15, 12, 14, 10, 17, 12, 13, 16, 6, 7, 5, 6];
+var TOOL = [12, 14, 10, 16, 11, 18, 11, 13, 15, 12, 14, 10, 16, 12, 13, 16, 6, 7, 4, 6];
+var PLAIN = [5, 6, 3, 7, 4, 8, 5, 4, 6, 5, 7, 3, 6, 5, 4, 7, 2, 3, 2, 2];
+function pct(a, b) { return Math.round((a / b) * 1000) / 10; }
+function sum(a) { return a.reduce(function (x, y) { return x + y; }, 0); }
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var f = this.state.f || 'all';
+    var recs = sum(RECS), tg = sum(TOOL), pg = sum(PLAIN);
+    var tp = pct(tg, recs), pp = pct(pg, recs);
+    var rows = RECS.map(function (r, i) {
+      var uro = i >= 16;
+      var t = pct(TOOL[i], r), p = pct(PLAIN[i], r);
+      var pass = t >= 95;
+      return {
+        id: uro ? 'U-0' + (i - 15) : 'B-' + (i < 9 ? '0' : '') + (i + 1),
+        spec: uro ? 'Urology stub' : 'IBD', uroKey: uro ? 'uro' : 'ibd',
+        recs: r, toolPct: t, plainPct: p,
+        toolBar: 'height: 8px; border-radius: 2px; background: #4338ca; width: ' + t + '%;',
+        plainBar: 'height: 8px; border-radius: 2px; background: #a3a3a3; width: ' + p + '%;',
+        result: pass ? '✓ Pass' : '✕ Below 95%',
+        badge: 'font-size: 12px; padding: 2px 8px; border-radius: 4px; white-space: nowrap; ' + (pass ? 'border: 1.5px solid #4338ca; color: #4338ca;' : 'border: 1.5px dashed #171717; color: #171717; font-weight: 600;')
+      };
+    }).filter(function (r) { return f === 'all' || r.uroKey === f; });
+    return {
+      recs: recs, toolG: tg, plainG: pg, toolPct: tp, plainPct: pp,
+      verdict: tp >= 95 ? '✓ PASS' : '✕ FAIL',
+      ungrounded: recs - tg, plainUngrounded: recs - pg,
+      toolBar: 'position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: #4338ca; width: ' + tp + '%;',
+      plainBar: 'position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: #a3a3a3; width: ' + pp + '%;',
+      rows: rows,
+      filters: [['all', 'All 20'], ['ibd', 'IBD'], ['uro', 'Urology stub']].map(function (x) {
+        var on = f === x[0];
+        return { label: x[1], on: on, pick: function () { self.setState({ f: x[0] }); },
+          style: 'min-height: 44px; padding: 0 14px; border-radius: 999px; font: inherit; font-size: 13px; cursor: pointer; ' + (on ? 'background: #312e81; color: #ffffff; border: 1px solid #171717;' : 'background: #ffffff; color: #171717; border: 1px solid #a3a3a3;') };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

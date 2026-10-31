@@ -1,0 +1,11 @@
+{
+  "_note": "AC3.2.3: the treatment section with a deliberately wrong dose. 'Methylprednisolone 120 mg' cites IBD-N52, which says 60 mg, so the guard must reject that line. Other sections fall back to the demo fixtures.",
+  "replies": [
+    {
+      "match": "<section id=\"treatment\"",
+      "text": "{\"lines\": [{\"text\": \"Entry point is Tier 2: intravenous corticosteroids in hospital.\", \"nodeIds\": [\"IBD-N41\"], \"claims\": [{\"kind\": \"tier\", \"value\": \"2\"}]}, {\"text\": \"Hydrocortisone 100 mg intravenously four times daily.\", \"nodeIds\": [\"IBD-N51\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"hydrocortisone\"}, {\"kind\": \"dose\", \"value\": \"100\", \"unit\": \"mg\"}, {\"kind\": \"frequency\", \"value\": \"four times daily\"}]}, {\"text\": \"Methylprednisolone 120 mg intravenously once daily is the alternative regimen.\", \"nodeIds\": [\"IBD-N52\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"methylprednisolone\"}, {\"kind\": \"frequency\", \"value\": \"once daily\"}]}, {\"text\": \"Without an adequate response by day 3, Tier 3 rescue therapy is the next step.\", \"nodeIds\": [\"IBD-N42\"], \"claims\": [{\"kind\": \"tier\", \"value\": \"3\"}]}]}",
+      "inputTokens": 1100,
+      "outputTokens": 160
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "u8-web-app",
+  "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8", "NFR9", "NFR10", "NFR11", "NFR12"],
+  "coverage": [
+    { "id": "NFR1", "status": "OK", "target": "NFR1.5, NFR1.6" },
+    { "id": "NFR2", "status": "OK", "target": "NFR2.2" },
+    { "id": "NFR3", "status": "OK", "target": "NFR3.1" },
+    { "id": "NFR4", "status": "OK", "target": "NFR4.4" },
+    { "id": "NFR5", "status": "OK", "target": "NFR5.2" },
+    { "id": "NFR6", "status": "OK", "target": "NFR6.2" },
+    { "id": "NFR7", "status": "N/A", "target": "audit is delivered by u2 and u4" },
+    { "id": "NFR8", "status": "OK", "target": "NFR8.6" },
+    { "id": "NFR9", "status": "OK", "target": "tech-stack-decisions.md (Vitest, Playwright)" },
+    { "id": "NFR10", "status": "OK", "target": "tech-stack-decisions.md (one build, served by U4)" },
+    { "id": "NFR11", "status": "N/A", "target": "observability is delivered by u4" },
+    { "id": "NFR12", "status": "OK", "target": "tech-stack-decisions.md (ESLint, Prettier, TS strict)" }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "text": "{\"findings\": [{\"name\": \"faecal calprotectin\", \"value\": 450, \"unit\": \"µg/g\"}]}",
+  "inputTokens": 120,
+  "outputTokens": 24
+}

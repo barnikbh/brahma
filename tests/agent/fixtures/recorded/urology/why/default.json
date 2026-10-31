@@ -1,0 +1,4 @@
+{
+  "_note": "Synthetic recorded 'why' for the urology stub walk.",
+  "text": "{\"lines\": [{\"text\": \"Renal colic pointed to a suspected ureteric stone.\", \"nodeIds\": [\"URO-N1\", \"URO-N2\"], \"claims\": [{\"kind\": \"diagnosis\", \"value\": \"ureteric stone\"}]}, {\"text\": \"A stone of 10 mm or smaller is suited to a trial of passage.\", \"nodeIds\": [\"URO-N4\", \"URO-N6\"], \"claims\": [{\"kind\": \"threshold\", \"value\": \"10\", \"unit\": \"mm\"}]}]}"
+}

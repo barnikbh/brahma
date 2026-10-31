@@ -1,0 +1,155 @@
+# Minimal valid pack used by the unit tests. Test content only, not clinical guidance.
+pack:
+  code: TST
+  name: Test pack
+  specialty: Testing
+version: "1.0"
+changeSummary: Initial test pack
+sources:
+  - sourceId: TST-S1
+    title: Test guideline
+    year: 2022
+    section: Section 1
+  - sourceId: TST-S2
+    title: Second test guideline
+    year: 2019
+    section: Section 2
+    url: https://example.org/guideline
+nodes:
+  - nodeId: TST-N1
+    type: symptom
+    label: Bloody diarrhoea
+    content: Diarrhoea with visible blood.
+    fields:
+      name: bloody diarrhoea
+      synonyms: [bloody stool, blood in stool]
+    sourceIds: [TST-S1]
+    column: findings
+  - nodeId: TST-N2
+    type: symptom
+    label: Abdominal pain lasting six weeks or more
+    content: Persistent abdominal pain.
+    fields:
+      name: abdominal pain
+      synonyms: [tummy pain]
+      durationMin: {value: 6, unit: weeks}
+    sourceIds: [TST-S1]
+    column: findings
+  - nodeId: TST-N3
+    type: metric
+    label: Haemoglobin below 10.5 g/dL
+    content: Low haemoglobin.
+    fields:
+      measure: Hb
+      unit: g/dL
+      threshold: 10.5
+      comparator: lt
+      synonyms: [haemoglobin, hemoglobin]
+    plausibleRange: {low: 3, high: 25, unit: g/dL}
+    referenceRanges:
+      - {sex: female, low: 12, unit: g/dL}
+      - {sex: male, low: 13, unit: g/dL}
+      - {sex: female, pregnancy: true, low: 11, unit: g/dL}
+      - {sex: any, ageBand: "0-4", low: 11, unit: g/dL}
+    sourceIds: [TST-S1]
+    column: findings
+  - nodeId: TST-N4
+    type: diagnosis
+    label: Ulcerative colitis
+    content: A test diagnosis.
+    fields:
+      name: Ulcerative colitis
+      code: K51
+    sourceIds: [TST-S1]
+    column: diagnosis
+  - nodeId: TST-N5
+    type: diagnosis
+    label: Infectious colitis
+    content: A test alternative.
+    fields:
+      name: Infectious colitis
+    sourceIds: [TST-S1]
+    column: diagnosis
+    alternative: true
+  - nodeId: TST-N6
+    type: test
+    label: Stool culture
+    content: A test test.
+    fields:
+      name: stool culture
+      resultOptions: [positive, negative]
+    sourceIds: [TST-S1]
+    column: tests
+  - nodeId: TST-N7
+    type: treatment_tier
+    label: Tier 2
+    content: A test tier.
+    fields:
+      tier: 2
+      entryCriteria: Severe disease
+      drugNodeIds: [TST-N8, TST-N9]
+    sourceIds: [TST-S1]
+    column: treatment
+  - nodeId: TST-N8
+    type: drug
+    label: Methylprednisolone 60 mg IV daily
+    content: A test drug with an absolute dose.
+    fields:
+      drug: methylprednisolone
+      synonyms: [solumedrol, methylpred]
+      drugClass: corticosteroid
+      route: intravenous
+      doseValue: 60
+      doseUnit: mg
+      doseBasis: absolute
+      rounding: not applicable
+      frequency: once daily
+      duration: until day 3 review
+      contraindications: [untreated systemic infection]
+    sourceIds: [TST-S1, TST-S2]
+    column: treatment
+  - nodeId: TST-N9
+    type: drug
+    label: Infliximab 5 mg/kg
+    content: A test drug with a per-kg dose.
+    fields:
+      drug: infliximab
+      synonyms: [remicade]
+      drugClass: anti-TNF
+      route: intravenous
+      doseValue: 5
+      doseUnit: mg/kg
+      doseBasis: per_kg
+      rounding: none specified
+      frequency: weeks 0, 2 and 6, then every 8 weeks
+      duration: maintenance while responding
+      contraindications: [active tuberculosis]
+    sourceIds: [TST-S2]
+    column: treatment
+  - nodeId: TST-N10
+    type: metric
+    label: Faecal calprotectin above 50 ug/g
+    content: Raised calprotectin.
+    fields:
+      measure: calprotectin
+      unit: ug/g
+      threshold: 50
+      comparator: gt
+    sourceIds: [TST-S2]
+    column: findings
+edges:
+  - {edgeId: TST-E1, fromNodeId: TST-N1, toNodeId: TST-N4, relation: suggests}
+  - {edgeId: TST-E2, fromNodeId: TST-N4, toNodeId: TST-N6, relation: confirmed_by}
+  - {edgeId: TST-E3, fromNodeId: TST-N4, toNodeId: TST-N5, relation: alternative_to}
+  - edgeId: TST-E4
+    fromNodeId: TST-N4
+    toNodeId: TST-N7
+    relation: first_line
+    condition: {test: stool culture, comparator: eq, value: negative}
+  - edgeId: TST-E5
+    fromNodeId: TST-N3
+    toNodeId: TST-N4
+    relation: suggests
+    condition: {finding: haemoglobin, comparator: lt, value: 10.5, unit: g/dL}
+  - {edgeId: TST-E6, fromNodeId: TST-N7, toNodeId: TST-N8, relation: offers_drug}
+  - {edgeId: TST-E7, fromNodeId: TST-N7, toNodeId: TST-N9, relation: offers_drug}

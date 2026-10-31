@@ -1,0 +1,154 @@
+"""The grounding guard and claim scanner (plan Step 11; BR1, AC3.2.3, AC7.1.2, FR4.10)."""
+
+from __future__ import annotations
+
+import pytest
+
+from brahma.agent.guard import Guard
+from brahma.agent.scanner import ClaimScanner, merge_claims, scan_numbers
+from brahma.cases import Case, CaseService, NewPatient
+from brahma.knowledge import Claim, KnowledgeService, PackVersionRef
+from tests.agent.conftest import DOCTOR
+
+IBD = PackVersionRef(pack="IBD", number="1.1")
+
+
+@pytest.fixture
+def guard(knowledge: KnowledgeService, cases: CaseService) -> Guard:
+    return Guard(knowledge, cases)
+
+
+def _reasons(result: object) -> set[str]:
+    return {f.reason for f in result.failures}  # type: ignore[attr-defined]
+
+
+def test_an_exact_dose_passes(guard: Guard, demo_case: Case) -> None:
+    result = guard.check_line(
+        "Hydrocortisone 100 mg intravenously four times daily.",
+        ["IBD-N51"],
+        IBD,
+        demo_case.case_id,
+        declared=[Claim(kind="frequency", value="four times daily")],
+    )
+    assert result.passed, result.failures
+    assert {(c.kind, c.value) for c in result.claims} >= {
+        ("dose", "100"),
+        ("drug", "hydrocortisone"),
+        ("frequency", "four times daily"),
+    }
+
+
+def test_a_declared_wrong_dose_fails(guard: Guard, demo_case: Case) -> None:
+    result = guard.check_line(
+        "Methylprednisolone 120 mg intravenously once daily.",
+        ["IBD-N52"],
+        IBD,
+        demo_case.case_id,
+        declared=[Claim(kind="dose", value="120", unit="mg")],
+    )
+    assert not result.passed
+    assert [(f.claim.value if f.claim else None, f.reason) for f in result.failures] == [
+        ("120", "value_differs")
+    ]
+
+
+def test_a_dose_scanned_but_not_declared_still_fails(guard: Guard, demo_case: Case) -> None:
+    result = guard.check_line(
+        "Methylprednisolone 120 mg once daily.",
+        ["IBD-N52"],
+        IBD,
+        demo_case.case_id,
+        declared=[Claim(kind="drug", value="methylprednisolone")],
+    )
+    assert not result.passed
+    assert result.failures[0].claim == Claim(kind="dose", value="120", unit="mg")
+
+
+def test_a_per_kg_dose_passes_as_written_or_as_computed(guard: Guard, demo_case: Case) -> None:
+    per_kg = guard.check_line("Infliximab 5 mg/kg IV.", ["IBD-N53"], IBD, demo_case.case_id)
+    computed = guard.check_line(
+        "Infliximab 290 mg for this patient.", ["IBD-N53"], IBD, demo_case.case_id
+    )
+    wrong = guard.check_line("Infliximab 300 mg.", ["IBD-N53"], IBD, demo_case.case_id)
+    assert per_kg.passed and computed.passed  # 5 mg/kg x 58 kg = 290 mg
+    assert not wrong.passed
+
+
+def test_a_per_kg_dose_without_a_weight_fails(guard: Guard, cases: CaseService) -> None:
+    case = cases.create_case(
+        NewPatient(synthetic_name="No Weight (synthetic)", age=40, sex="male"), DOCTOR
+    )
+    result = guard.check_line("Infliximab 290 mg.", ["IBD-N53"], IBD, case.case_id)
+    assert not result.passed
+
+
+def test_a_line_must_cite_a_walked_node_of_the_version(guard: Guard, demo_case: Case) -> None:
+    none = guard.check_line("Rest and fluids.", [], IBD, demo_case.case_id)
+    unknown = guard.check_line("Rest and fluids.", ["IBD-N999"], IBD, demo_case.case_id)
+    not_walked = guard.check_line(
+        "Diet advice.", ["IBD-N60"], IBD, demo_case.case_id, allowed_node_ids=["IBD-N61"]
+    )
+    no_claims = guard.check_line("Diet advice.", ["IBD-N60"], IBD, demo_case.case_id)
+    assert _reasons(none) == {"no_cited_node"}
+    assert _reasons(unknown) == {"node_not_in_version", "no_cited_node"}
+    assert "node_not_walked" in _reasons(not_walked)
+    assert no_claims.passed
+
+
+def test_a_name_claim_must_match_a_cited_node(guard: Guard, demo_case: Case) -> None:
+    result = guard.check_line(
+        "Consider infliximab now.", ["IBD-N51"], IBD, demo_case.case_id
+    )  # the cited node is hydrocortisone
+    assert not result.passed
+    assert result.failures[0].claim == Claim(kind="drug", value="infliximab")
+
+
+def test_a_guard_exception_fails_the_line(
+    guard: Guard, demo_case: Case, monkeypatch: pytest.MonkeyPatch, knowledge: KnowledgeService
+) -> None:
+    def broken(*_args: object) -> None:
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(knowledge, "match_claims", broken)
+    monkeypatch.setattr(knowledge, "sources", broken)
+    result = guard.check_line("Hydrocortisone 100 mg.", ["IBD-N51"], IBD, demo_case.case_id)
+    assert not result.passed
+    assert result.error == "RuntimeError"
+    assert _reasons(result) == {"guard_error"}
+    by_source = guard.check_line_by_source("Hydrocortisone 100 mg.", ["IBD-S2"], IBD, None)
+    assert by_source.error == "RuntimeError"
+
+
+def test_check_line_by_source_passes_and_fails(guard: Guard, demo_case: Case) -> None:
+    ok = guard.check_line_by_source(
+        "Methylprednisolone 60 mg IV once daily.", ["IBD-S2"], IBD, demo_case.case_id
+    )
+    wrong = guard.check_line_by_source(
+        "Methylprednisolone 120 mg IV once daily.", ["IBD-S2"], IBD, demo_case.case_id
+    )
+    unknown = guard.check_line_by_source("Rest.", ["XYZ-S1"], IBD, demo_case.case_id)
+    none = guard.check_line_by_source("Rest.", [], IBD, demo_case.case_id)
+    no_claims = guard.check_line_by_source("Rest and review.", ["IBD-S2"], IBD, None)
+    per_kg = guard.check_line_by_source("Infliximab 290 mg.", ["IBD-S1"], IBD, demo_case.case_id)
+    assert ok.passed and no_claims.passed and per_kg.passed
+    assert _reasons(wrong) == {"no_supporting_node"}
+    assert _reasons(unknown) == {"source_not_in_pack"}
+    assert _reasons(none) == {"no_cited_source"}
+
+
+def test_scanner_finds_numbers_and_longest_names(knowledge: KnowledgeService) -> None:
+    scanner = ClaimScanner(knowledge)
+    claims = scanner.scan(
+        "Acute severe ulcerative colitis: methylprednisolone 60 mg/day, CRP above 45 mg/L, "
+        "infliximab 5 mg/kg; 5-ASA is not used.",
+        IBD,
+    )
+    found = {(c.kind, c.value, c.unit) for c in claims}
+    assert ("diagnosis", "acute severe ulcerative colitis", None) in found
+    assert ("diagnosis", "ulcerative colitis", None) not in found
+    assert {("dose", "60", "mg/day"), ("threshold", "45", "mg/L"), ("dose", "5", "mg/kg")} <= found
+    assert ("drug", "5-asa", None) in found
+    assert scanner.vocabulary(IBD) is scanner.vocabulary(IBD)  # cached per version
+    assert scan_numbers("day 3, 4 to 7 days") == []
+    merged = merge_claims([Claim(kind="dose", value="60", unit="mg")], scan_numbers("60 MG"))
+    assert len(merged) == 1

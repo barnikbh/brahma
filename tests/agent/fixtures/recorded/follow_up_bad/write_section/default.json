@@ -1,0 +1,11 @@
+{
+  "_note": "Synthetic follow-up reply with one wrong dose and one citation outside the walked nodes: both must be held back by the guard.",
+  "replies": [
+    {
+      "match": "\"nodeId\": \"IBD-N46\"",
+      "text": "{\"lines\": [{\"text\": \"Start here: after anti-TNF failure, change to another drug class (Tier 3).\", \"nodeIds\": [\"IBD-N46\"], \"claims\": [{\"kind\": \"tier\", \"value\": \"3\"}]}, {\"text\": \"Vedolizumab 600 mg is infused at weeks 0, 2 and 6.\", \"nodeIds\": [\"IBD-N57\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"vedolizumab\"}, {\"kind\": \"dose\", \"value\": \"600\", \"unit\": \"mg\"}]}, {\"text\": \"Hydrocortisone 100 mg intravenously four times daily.\", \"nodeIds\": [\"IBD-N51\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"hydrocortisone\"}]}]}",
+      "inputTokens": 500,
+      "outputTokens": 80
+    }
+  ]
+}

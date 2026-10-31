@@ -1,0 +1,14 @@
+{
+  "stage": "nfr-design",
+  "unit": "u5-knowledge-updates",
+  "upstream_ids": ["NFR5.1", "NFR7.1", "NFR7.2", "NFR8.1", "NFR8.2", "NFR8.3", "NFR8.4"],
+  "coverage": [
+    { "id": "NFR5.1", "status": "N/A", "target": "no secrets in U5" },
+    { "id": "NFR7.1", "status": "OK", "target": "audit on publish and reject" },
+    { "id": "NFR7.2", "status": "OK", "target": "router require_role on session profile" },
+    { "id": "NFR8.1", "status": "OK", "target": "SafeFetcher" },
+    { "id": "NFR8.2", "status": "OK", "target": "Drafter data block, strict schema, dry-run validation" },
+    { "id": "NFR8.3", "status": "OK", "target": "CopyChecker 26-gram" },
+    { "id": "NFR8.4", "status": "OK", "target": "router exception handler; scheduler per-source log" }
+  ]
+}

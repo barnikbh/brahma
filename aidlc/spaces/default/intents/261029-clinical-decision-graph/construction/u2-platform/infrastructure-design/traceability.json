@@ -1,0 +1,23 @@
+{
+  "stage": "infrastructure-design",
+  "unit": "u2-platform",
+  "upstream_ids": ["NFR5.1", "NFR5.2", "NFR7.1", "NFR7.2", "NFR7.3", "NFR6.1", "NFR6.2", "NFR8.1", "NFR8.2", "NFR8.3", "NFR10.1", "NFR11.1", "NFR1.1", "NFR1.2", "NFR9.1", "NFR12.1"],
+  "coverage": [
+    { "id": "NFR5.1", "status": "OK", "target": "CI sets no keys; recorded provider; key-free log tests in step 3" },
+    { "id": "NFR5.2", "status": "OK", "target": "CI step 4 .env.example check" },
+    { "id": "NFR7.1", "status": "OK", "target": "CI step 3 trigger tests" },
+    { "id": "NFR7.2", "status": "N/A", "target": "application-level validation; no infrastructure" },
+    { "id": "NFR7.3", "status": "N/A", "target": "application-level role check; no infrastructure" },
+    { "id": "NFR6.1", "status": "OK", "target": "CI step 3 log-capture tests" },
+    { "id": "NFR6.2", "status": "OK", "target": "CI step 3 PDF export test" },
+    { "id": "NFR8.1", "status": "OK", "target": "CI step 3 fake-provider retry tests" },
+    { "id": "NFR8.2", "status": "OK", "target": "CI step 3 structured-output tests" },
+    { "id": "NFR8.3", "status": "N/A", "target": "start-up config check; no infrastructure" },
+    { "id": "NFR10.1", "status": "OK", "target": "CI step 1 install and step 3 with the recorded provider" },
+    { "id": "NFR11.1", "status": "N/A", "target": "standard logger; file placement owned by u4; no log infrastructure" },
+    { "id": "NFR1.1", "status": "OK", "target": "CI step 3 timing test" },
+    { "id": "NFR1.2", "status": "OK", "target": "CI step 3 timing test" },
+    { "id": "NFR9.1", "status": "OK", "target": "CI step 3 coverage floor of 80%" },
+    { "id": "NFR12.1", "status": "OK", "target": "CI step 2 Ruff and mypy --strict" }
+  ]
+}

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Graph view D — Outline tree</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 880px; min-height: 1000px; box-sizing: border-box; background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; font-family: Inter, system-ui, sans-serif; color: #171717; display: flex; flex-direction: column">
+  <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #e5e5e5; flex-wrap: wrap">
+    <h2 style="margin: 0; font-size: 16px; font-weight: 600">Graph region used <span style="font-weight: 400; color: #525252; font-size: 13px">· IBD v1.3 · outline</span></h2>
+    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+      <span style="font-size: 12px; color: #525252">18 used · 1 bypassed · 2 not taken</span>
+      <button type="button" onClick="{{toggleAlt}}" aria-pressed="{{showAlt}}" style="{{altBtn}}">{{altLabel}}</button>
+      <button type="button" onClick="{{toggleAll}}" style="min-height: 44px; padding: 0 12px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 13px; cursor: pointer">{{allLabel}}</button>
+    </div>
+  </div>
+
+  <div role="tree" aria-label="Graph path" style="flex: 1; padding: 12px 16px; display: flex; flex-direction: column; gap: 4px">
+    <sc-for list="{{stages}}" as="st" hint-placeholder-count="6">
+      <div role="treeitem" aria-expanded="{{st.open}}" style="display: flex; flex-direction: column">
+        <button type="button" onClick="{{st.toggle}}" style="display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 0 8px; border: 0; border-radius: 6px; background: #fafafa; font: inherit; color: #171717; cursor: pointer; text-align: left">
+          <span aria-hidden="true" style="width: 14px; font-size: 12px">{{st.caret}}</span>
+          <span style="font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: #525252">{{st.n}}</span>
+          <span style="font-size: 14px; font-weight: 600; flex: 1">{{st.title}}</span>
+          <span style="font-size: 12px; color: #525252">{{st.summary}}</span>
+        </button>
+        <sc-if value="{{st.open}}" hint-placeholder-val="{{true}}">
+          <div role="group" style="margin-left: 22px; padding: 4px 0 8px 14px; border-left: 2px solid #1d4ed8; display: flex; flex-direction: column; gap: 2px">
+            <sc-for list="{{st.rows}}" as="r" hint-placeholder-count="3">
+              <button type="button" role="treeitem" onClick="{{r.pick}}" aria-selected="{{r.on}}" style="{{r.style}}">
+                <span aria-hidden="true" style="width: 18px; font-size: 13px; text-align: center">{{r.glyph}}</span>
+                <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px">
+                  <span style="font-size: 14px; font-weight: 500">{{r.label}}</span>
+                  <span style="font-size: 12px">{{r.type}} · {{r.tag}}</span>
+                </span>
+                <span style="{{r.citeStyle}}">{{r.cite}}</span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="border-top: 1px solid #e5e5e5; padding: 12px 16px; background: #fafafa; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; border-radius: 0 0 8px 8px">
+    <div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+      <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #525252">{{sel.type}} · {{sel.cite}} · {{sel.statusText}}</span>
+      <strong style="font-size: 15px">{{sel.label}}</strong>
+      <span style="font-size: 13px; color: #525252">Source: {{sel.src}} · v1.3</span>
+    </div>
+    <button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #171717; background: #ffffff; font: inherit; font-size: 13px; cursor: pointer">Open node detail</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":880,"height":1000}}'>
+var SD = 'IBD diagnostic consensus · §[x]', SG = 'UC management guideline · §[x]';
+var N = {
+  f1: { t: 'Symptom', l: 'Bloody stool · 6 mo', c: 'N1', s: 'used', src: SD },
+  f2: { t: 'Metric', l: 'Hb 10.2 g/dL · low', c: 'N2', s: 'used', src: '[Lab reference ranges]' },
+  f3: { t: 'Metric', l: 'Calprotectin 850 µg/g', c: 'N3', s: 'used', src: SD },
+  d1: { t: 'Diagnosis', l: 'Inflammatory bowel disease', c: 'N4', s: 'used', src: SD },
+  d2: { t: 'Diagnosis', l: 'Infectious colitis', c: '—', s: 'alt', src: SD },
+  t0: { t: 'Test', l: 'Stool culture · C. diff', c: 'N5', s: 'used', src: SD },
+  t1: { t: 'Test', l: 'Colonoscopy + biopsy', c: 'N6', s: 'used', src: SD },
+  t2: { t: 'Test', l: 'Extent (Montreal)', c: 'N7', s: 'used', src: SD },
+  t3: { t: 'Test', l: 'Severity (Mayo)', c: 'N8', s: 'used', src: SG },
+  s1: { t: 'Diagnosis', l: 'Ulcerative colitis', c: 'N9', s: 'used', src: SD },
+  s2: { t: 'Diagnosis', l: 'Crohn’s disease', c: '—', s: 'alt', src: SD },
+  s3: { t: 'Sub-type', l: 'Pancolitis (E3) · severe', c: 'N10', s: 'used', src: SD },
+  x1: { t: 'Tier 1', l: 'Mesalamine', c: 'N11', s: 'skip', src: SG },
+  x2: { t: 'Tier 2', l: 'Corticosteroids', c: 'N12', s: 'entry', src: SG },
+  x3: { t: 'Tier 3', l: 'Biologics', c: 'N13', s: 'used', note: 'Next if steroid-refractory', src: SG },
+  m1: { t: 'Monitoring', l: 'Calprotectin trend', c: 'N14', s: 'used', src: SG },
+  m2: { t: 'Monitoring', l: 'Hb · stool frequency', c: 'N15', s: 'used', src: SG },
+  di1: { t: 'Diet', l: 'Diet guidance', c: 'N16', s: 'used', src: '[Nutrition guidance] · §[x]' },
+  w1: { t: 'Watch-out', l: 'Toxic megacolon signs', c: 'N17', s: 'used', src: SG },
+  w2: { t: 'Escalation', l: 'Surgery trigger', c: 'N18', s: 'used', src: SG }
+};
+var STAGES = [
+  { t: 'Findings', ids: ['f1', 'f2', 'f3'] },
+  { t: 'Working diagnosis', ids: ['d1', 'd2'] },
+  { t: 'Confirm & refine', ids: ['t0', 't1', 't2', 't3'] },
+  { t: 'Sub-type', ids: ['s1', 's2', 's3'] },
+  { t: 'Treatment ladder', ids: ['x1', 'x2', 'x3'] },
+  { t: 'Monitor · diet · watch-outs', ids: ['m1', 'm2', 'di1', 'w1', 'w2'] }
+];
+var TAG = { used: 'used', entry: 'entry tier for this patient', skip: 'bypassed, entry not met', alt: 'considered, not taken' };
+var GLYPH = { used: '✓', entry: '▶', skip: '⤼', alt: '◌' };
+var STATUS = { used: '✓ Used in this session', entry: '▶ Entry tier for this patient', skip: '⤼ Bypassed: entry criteria not met', alt: 'Considered, not taken' };
+var ROW = 'display: flex; align-items: center; gap: 10px; width: 100%; box-sizing: border-box; min-height: 48px; padding: 6px 10px; border-radius: 6px; font: inherit; text-align: left; cursor: pointer; ';
+var CITE = 'flex: none; font-family: ui-monospace, Menlo, monospace; font-size: 11px; padding: 2px 6px; border-radius: 4px; ';
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var sel = this.state.sel || 'x2';
+    var showAlt = this.state.showAlt !== false;
+    var closed = this.state.closed || {};
+    var allOpen = STAGES.every(function (s, i) { return !closed[i]; });
+    var n = N[sel];
+    return {
+      showAlt: showAlt,
+      altLabel: showAlt ? 'Hide not-taken' : 'Show not-taken',
+      altBtn: 'min-height: 44px; padding: 0 12px; border-radius: 6px; font: inherit; font-size: 13px; cursor: pointer; ' + (showAlt ? 'background: #171717; color: #ffffff; border: 1px solid #171717;' : 'background: #ffffff; color: #171717; border: 1px solid #a3a3a3;'),
+      allLabel: allOpen ? 'Collapse all' : 'Expand all',
+      toggleAlt: function () { self.setState({ showAlt: !showAlt }); },
+      toggleAll: function () { var c = {}; if (allOpen) STAGES.forEach(function (s, i) { c[i] = true; }); self.setState({ closed: c }); },
+      stages: STAGES.map(function (s, i) {
+        var open = !closed[i];
+        var ids = s.ids.filter(function (id) { return showAlt || N[id].s !== 'alt'; });
+        var used = s.ids.filter(function (id) { return N[id].s !== 'alt'; }).length;
+        var alt = s.ids.length - used;
+        return {
+          n: 'Step ' + (i + 1), title: s.t, open: open, caret: open ? '▾' : '▸',
+          summary: used + ' used' + (alt ? ' · ' + alt + ' not taken' : ''),
+          toggle: function () { var c = Object.assign({}, closed); c[i] = !c[i]; self.setState({ closed: c }); },
+          rows: ids.map(function (id) {
+            var nd = N[id], on = sel === id;
+            var look = on ? 'background: #1d4ed8; color: #ffffff; border: 1px solid #1d4ed8;'
+              : nd.s === 'alt' ? 'background: #ffffff; color: #525252; border: 1px dashed #a3a3a3;'
+              : nd.s === 'skip' ? 'background: #ffffff; color: #404040; border: 1px solid #d4d4d4;'
+              : nd.s === 'entry' ? 'background: #eef2ff; color: #0b1b4a; border: 2px solid #1d4ed8;'
+              : 'background: transparent; color: #171717; border: 1px solid transparent;';
+            return { label: nd.l, type: nd.t, tag: nd.note || TAG[nd.s], glyph: GLYPH[nd.s], cite: nd.c, on: on,
+              style: ROW + look,
+              citeStyle: CITE + (on ? 'border: 1px solid #ffffff; color: #ffffff;' : nd.c === '—' ? 'border: 1px dashed #a3a3a3; color: #525252;' : 'border: 1px solid #1d4ed8; color: #1d4ed8; background: #ffffff;'),
+              pick: function () { self.setState({ sel: id }); } };
+          })
+        };
+      }),
+      sel: { type: n.t, label: n.l, cite: n.c, src: n.src, statusText: n.note || STATUS[n.s] }
+    };
+  }
+}
+</script>
+</body>
+</html>

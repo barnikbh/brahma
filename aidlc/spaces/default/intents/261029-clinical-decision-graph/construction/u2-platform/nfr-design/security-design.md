@@ -1,0 +1,22 @@
+# Security Design — u2-platform
+
+Upstream: `security-requirements.md` and `tech-stack-decisions.md` (U2 NFR requirements), `functional-spec.md` and `rules.md` (U2), `contract-summary.md` (C2–C4), `requirements.md`.
+
+## Design
+
+| Requirement | Design | Tests |
+|---|---|---|
+| NFR5.1 Keys only from the environment, never in logs | `ProviderConfig.from_env()` reads `BRAHMA_MODEL_PROVIDER`, `BRAHMA_MODEL_NAME` and the key variable for the chosen provider (`META_API_KEY`, `ANTHROPIC_API_KEY`, `LLAMA_API_KEY`). The key is held in a `SecretStr` and never formatted into a message. `ConfigError` names the variable only. The `error` field in ModelCallLog and the log line hold only the typed error class plus an HTTP status code, never the provider body, headers or exception text. | A config error names the variable without the value; after a successful call and after a failing call (401 with the key echoed in the body), the captured log and the ModelCallLog row contain no key and no body |
+| NFR5.2 `.env.example`; `.env` ignored | `.env.example` lists every U2 variable with empty values and a one-line comment each. `.env` is already in `.gitignore` (U1). | CI step checks that `.env.example` exists and has no non-empty values |
+| NFR7.1 Append-only audit | `pf_connect` opens with `isolation_level=None`, WAL, `busy_timeout=5000` and `foreign_keys=ON`, and creates `pf_audit_entry` and `pf_session_record` with BEFORE UPDATE and BEFORE DELETE triggers that abort. Writes use `BEGIN IMMEDIATE ... COMMIT`, so a failure rolls back. This protects against application bugs; it is not tamper-proof storage, because anyone with the file can drop the triggers (it is a local demo with no certification claim, C-R3). On open, `pf_connect` checks the triggers exist and recreates any that are missing. | UPDATE and DELETE refused on both tables; a failure mid-transaction leaves the earlier rows; removing a trigger then reopening restores it |
+| NFR7.2 Required fields | Pydantic models `AuditEntryIn` and `SessionRecordIn` (C2, updated) require profileId, plus packVersion, provider and model for sessions. The profile is checked against `pf_profile` through the shared in-U2 `ProfileRepository`. The 256 KB payload limit is checked on the serialised JSON. | Unknown profile, missing model and oversize payload are each refused |
+| NFR7.3 Role checks | `require_role` reads the role from `ProfileRepository` and raises `Forbidden`. The README states "demo profiles, no authentication". | Reviewer-only call as a doctor is refused |
+| NFR6.1 No prompt or response text logged | The gateway's logger takes a fixed metadata dict only; there is no code path that passes messages to the logger. | Log capture after a call contains no message text |
+| NFR6.2 Export labels | The PDF export uses the bundled DejaVu Sans font (`assets/fonts/DejaVuSans.ttf`, Bitstream Vera licence, noted in `assets/fonts/LICENSE`), so µ, ≥, ✓ and similar characters render. Every page header reads "Decision support, not diagnosis · Synthetic patient". | Export containing "µg/g" and "≥" succeeds; the PDF text includes both header strings |
+| NFR8.1 Timeouts and bounded retries | `ModelGateway.complete` wraps each provider call in a timeout (`BRAHMA_MODEL_TIMEOUT_S`, default 45 s) and retries timeouts, 429 and 5xx at most twice (1 s, then 3 s, or the provider's Retry-After when larger). 401 and 403 raise `ModelAuthError` at once. After the last attempt the typed error is raised with `retryable`. | Fake provider returning a timeout, 429 then success, 500 three times, and 401 |
+| NFR8.2 Structured output validated | When a request has `responseSchema`, the gateway asks the provider for JSON (JSON-schema mode where supported, otherwise a JSON-only instruction) and validates it with Pydantic. A validation failure uses one of the 2 retries; on the last attempt it raises `ModelUnavailable("invalid structured output")`. | Invalid JSON then valid JSON succeeds; three invalid responses raise |
+| NFR8.3 HTTPS only | A `BRAHMA_MODEL_BASE_URL` that does not start with `https://` raises ConfigError at start. | Config test with `http://` |
+
+## Logging Destination (NFR11, from review)
+
+U2 emits through the standard `logging` logger named `brahma.platform.models`. The U4 server decides where log lines go: by default `./data/logs/brahma.log`, git-ignored under `data/`, with size-based rotation. U2 writes no files itself.

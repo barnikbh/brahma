@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "brahma"
+version = "0.1.0"
+description = "Brahma: clinical decision support (decision support, not diagnosis). Synthetic data only."
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2",
+    "pyyaml",
+    "httpx",
+    "anthropic",
+    "fpdf2",
+    "fastapi",
+    "uvicorn",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+    "types-PyYAML",
+    "respx",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+brahma = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "timing: performance tests with time budgets (U1 NFR1.1, NFR10.1; U2 NFR1.1, NFR1.2)",
+]
+addopts = "-ra"
+
+[tool.coverage.run]
+branch = false
+source = ["brahma"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests", "scripts"]
+extend-exclude = [".claude", "aidlc", "docs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "SIM", "RUF"]
+# N818: the C1 contract names its errors (PackBusy, NodeNotFound, ...) without "Error".
+ignore = ["RUF001", "RUF002", "RUF003", "N818"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["N802"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+plugins = ["pydantic.mypy"]

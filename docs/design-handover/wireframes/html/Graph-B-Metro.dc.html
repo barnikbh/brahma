@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Graph view B — Metro line</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 880px; min-height: 1000px; box-sizing: border-box; background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; font-family: Inter, system-ui, sans-serif; color: #171717; display: flex; flex-direction: column">
+  <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #e5e5e5; flex-wrap: wrap">
+    <h2 style="margin: 0; font-size: 16px; font-weight: 600">Graph region used <span style="font-weight: 400; color: #525252; font-size: 13px">· IBD v1.3 · metro line</span></h2>
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #525252; align-items: center">
+      <span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 16px; height: 11px; border: 2px solid #1d4ed8; background: #eef2ff; border-radius: 3px"></span>Used</span>
+      <span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 16px; height: 11px; border: 1.5px solid #737373; border-radius: 3px"></span>Bypassed</span>
+      <span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 16px; height: 11px; border: 1.5px dashed #737373; border-radius: 3px"></span>Branch not taken</span>
+    </div>
+  </div>
+
+  <div style="flex: 1; padding: 24px 16px; overflow-x: auto">
+    <div style="position: relative; min-width: 840px">
+      <div aria-hidden="true" style="position: absolute; left: 8%; right: 8%; top: 54px; height: 4px; background: #1d4ed8; border-radius: 2px"></div>
+      <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; position: relative">
+        <sc-for list="{{stages}}" as="st" hint-placeholder-count="6">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0">
+            <span style="height: 32px; font-size: 12px; font-weight: 600; text-align: center; line-height: 1.25; display: flex; align-items: flex-end">{{st.title}}</span>
+            <span aria-hidden="true" style="{{st.dot}}">{{st.n}}</span>
+            <span aria-hidden="true" style="width: 2px; height: 10px; background: #1d4ed8"></span>
+            <div style="display: flex; flex-direction: column; gap: 6px; width: 100%">
+              <sc-for list="{{st.used}}" as="nd" hint-placeholder-count="2">
+                <button type="button" onClick="{{nd.pick}}" aria-pressed="{{nd.on}}" style="{{nd.style}}">
+                  <span style="display: flex; justify-content: space-between; gap: 6px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em"><span>{{nd.type}}</span><span style="font-family: ui-monospace, Menlo, monospace">{{nd.cite}}</span></span>
+                  <span style="font-weight: 600">{{nd.label}}</span>
+                  <span style="font-size: 11px">{{nd.tag}}</span>
+                </button>
+                <sc-if value="{{nd.ladder}}" hint-placeholder-val="{{false}}">
+                  <span aria-hidden="true" style="align-self: center; font-size: 11px; color: #525252; line-height: 1">↓</span>
+                </sc-if>
+              </sc-for>
+            </div>
+            <sc-if value="{{st.hasAlt}}" hint-placeholder-val="{{false}}">
+              <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 4px">
+                <span aria-hidden="true" style="width: 0; height: 18px; border-left: 2px dashed #a3a3a3"></span>
+                <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #525252">Branch</span>
+                <sc-for list="{{st.alt}}" as="nd" hint-placeholder-count="1">
+                  <button type="button" onClick="{{nd.pick}}" aria-pressed="{{nd.on}}" style="{{nd.style}}">
+                    <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em">{{nd.type}}</span>
+                    <span style="font-weight: 600">{{nd.label}}</span>
+                    <span style="font-size: 11px">{{nd.tag}}</span>
+                  </button>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div style="border-top: 1px solid #e5e5e5; padding: 12px 16px; background: #fafafa; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; border-radius: 0 0 8px 8px">
+    <div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+      <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #525252">{{sel.type}} · {{sel.cite}} · {{sel.statusText}}</span>
+      <strong style="font-size: 15px">{{sel.label}}</strong>
+      <span style="font-size: 13px; color: #525252">Source: {{sel.src}} · v1.3</span>
+    </div>
+    <button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #171717; background: #ffffff; font: inherit; font-size: 13px; cursor: pointer">Open node detail</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":880,"height":1000}}'>
+var SD = 'IBD diagnostic consensus · §[x]', SG = 'UC management guideline · §[x]';
+var N = {
+  f1: { t: 'Symptom', l: 'Bloody stool · 6 mo', c: 'N1', s: 'used', src: SD },
+  f2: { t: 'Metric', l: 'Hb 10.2 g/dL · low', c: 'N2', s: 'used', src: '[Lab reference ranges]' },
+  f3: { t: 'Metric', l: 'Calprotectin 850 µg/g', c: 'N3', s: 'used', src: SD },
+  d1: { t: 'Diagnosis', l: 'Inflammatory bowel disease', c: 'N4', s: 'used', src: SD },
+  d2: { t: 'Diagnosis', l: 'Infectious colitis', c: '—', s: 'alt', src: SD },
+  t0: { t: 'Test', l: 'Stool culture · C. diff', c: 'N5', s: 'used', src: SD },
+  t1: { t: 'Test', l: 'Colonoscopy + biopsy', c: 'N6', s: 'used', src: SD },
+  t2: { t: 'Test', l: 'Extent (Montreal)', c: 'N7', s: 'used', src: SD },
+  t3: { t: 'Test', l: 'Severity (Mayo)', c: 'N8', s: 'used', src: SG },
+  s1: { t: 'Diagnosis', l: 'Ulcerative colitis', c: 'N9', s: 'used', src: SD },
+  s2: { t: 'Diagnosis', l: 'Crohn’s disease', c: '—', s: 'alt', src: SD },
+  s3: { t: 'Sub-type', l: 'Pancolitis (E3) · severe', c: 'N10', s: 'used', src: SD },
+  x1: { t: 'Tier 1', l: 'Mesalamine', c: 'N11', s: 'skip', src: SG },
+  x2: { t: 'Tier 2', l: 'Corticosteroids', c: 'N12', s: 'entry', src: SG },
+  x3: { t: 'Tier 3', l: 'Biologics', c: 'N13', s: 'used', note: 'Next if refractory', src: SG },
+  m1: { t: 'Monitoring', l: 'Calprotectin trend', c: 'N14', s: 'used', src: SG },
+  m2: { t: 'Monitoring', l: 'Hb · stool frequency', c: 'N15', s: 'used', src: SG },
+  di1: { t: 'Diet', l: 'Diet guidance', c: 'N16', s: 'used', src: '[Nutrition guidance] · §[x]' },
+  w1: { t: 'Watch-out', l: 'Toxic megacolon signs', c: 'N17', s: 'used', src: SG },
+  w2: { t: 'Escalation', l: 'Surgery trigger', c: 'N18', s: 'used', src: SG }
+};
+var STAGES = [
+  { t: 'Findings', used: ['f1', 'f2', 'f3'], alt: [] },
+  { t: 'Working diagnosis', used: ['d1'], alt: ['d2'] },
+  { t: 'Confirm & refine', used: ['t0', 't1', 't2', 't3'], alt: [] },
+  { t: 'Sub-type', used: ['s1', 's3'], alt: ['s2'] },
+  { t: 'Treatment ladder', used: ['x1', 'x2', 'x3'], alt: [], ladder: true },
+  { t: 'Monitor · watch', used: ['m1', 'm2', 'di1', 'w1', 'w2'], alt: [] }
+];
+var TAG = { used: '✓ Used', entry: '▶ Entry tier', skip: '⤼ Bypassed', alt: 'Not taken' };
+var STATUS = { used: '✓ Used in this session', entry: '▶ Entry tier for this patient', skip: '⤼ Bypassed: entry criteria not met', alt: 'Considered, not taken' };
+var BASE = 'display: flex; flex-direction: column; gap: 3px; width: 100%; text-align: left; box-sizing: border-box; padding: 7px 9px; border-radius: 6px; font: inherit; font-size: 12px; line-height: 1.3; cursor: pointer; min-height: 44px; ';
+var LOOK = {
+  on: 'background: #1d4ed8; border: 2px solid #1d4ed8; color: #ffffff; box-shadow: 0 0 0 3px #bfdbfe;',
+  used: 'background: #eef2ff; border: 2px solid #1d4ed8; color: #0b1b4a;',
+  entry: 'background: #eef2ff; border: 3px solid #1d4ed8; color: #0b1b4a;',
+  skip: 'background: #ffffff; border: 1.5px solid #737373; color: #404040;',
+  alt: 'background: #ffffff; border: 1.5px dashed #737373; color: #525252;'
+};
+var DOT = 'width: 28px; height: 28px; box-sizing: border-box; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; ';
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var sel = this.state.sel || 'x2';
+    var card = function (ladder, last) {
+      return function (id, i, arr) {
+        var n = N[id], on = sel === id;
+        return { type: n.t, label: n.l, cite: n.c === '—' ? '' : n.c, tag: n.note || TAG[n.s], on: on, ladder: ladder && i < arr.length - 1,
+          style: BASE + (on ? LOOK.on : LOOK[n.s]), pick: function () { self.setState({ sel: id }); } };
+      };
+    };
+    var n = N[sel];
+    return {
+      stages: STAGES.map(function (s, i) {
+        var mine = s.used.concat(s.alt).indexOf(sel) >= 0;
+        return { n: i + 1, title: s.t, used: s.used.map(card(!!s.ladder)), alt: s.alt.map(card(false)), hasAlt: s.alt.length > 0,
+          dot: DOT + (mine ? 'background: #1d4ed8; color: #ffffff; border: 3px solid #1d4ed8;' : 'background: #ffffff; color: #1d4ed8; border: 3px solid #1d4ed8;') };
+      }),
+      sel: { type: n.t, label: n.l, cite: n.c, src: n.src, statusText: n.note || STATUS[n.s] }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "stage": "code-generation",
+  "unit": "u8-web-app",
+  "version": 1,
+  "writes": [
+    { "path": "web/" },
+    { "path": "tests/server/test_web_app.py" },
+    { "path": "src/brahma/server/app.py" },
+    { "path": "src/brahma/server/config.py" },
+    { "path": "src/brahma/server/services.py" },
+    { "path": ".env.example" },
+    { "path": "README.md" },
+    { "path": ".github/workflows/ci.yml" },
+    { "path": ".gitignore" }
+  ]
+}

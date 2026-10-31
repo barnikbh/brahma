@@ -1,0 +1,6 @@
+{
+  "_note": "Synthetic urology case (AC9.1.1): renal colic with a 6 mm stone.",
+  "text": "{\"findings\": [{\"kind\": \"age\", \"name\": \"age\", \"value\": 45.0, \"unit\": \"years\"}, {\"kind\": \"symptom\", \"name\": \"renal colic\", \"value\": null, \"unit\": null, \"duration\": \"1 day\"}, {\"kind\": \"metric\", \"name\": \"stone size\", \"value\": 6.0, \"unit\": \"mm\"}]}",
+  "inputTokens": 110,
+  "outputTokens": 60
+}

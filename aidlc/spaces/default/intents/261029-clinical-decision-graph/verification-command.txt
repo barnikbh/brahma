@@ -1,0 +1,1 @@
+.venv/bin/python -m pytest tests --cov=brahma --cov-fail-under=80 && .venv/bin/ruff check . && .venv/bin/ruff format --check . && .venv/bin/mypy --strict src/brahma

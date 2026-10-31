@@ -1,0 +1,30 @@
+{
+  "stage": "functional-design",
+  "unit": "u1-knowledge-graph",
+  "upstream_ids": ["AC3.2.1", "AC3.2.2", "AC3.2.3", "AC3.2.4", "AC3.2.5", "AC3.6.1", "AC3.6.2", "AC8.2.1", "AC8.2.2", "AC8.2.3", "AC9.1.1", "AC9.1.2"],
+  "coverage": [
+    { "id": "AC3.2.1", "status": "OK", "target": "BR3.1, BR2.1, BR2.2" },
+    { "id": "AC3.2.2", "status": "N/A", "target": "delivered by u4-grounded-agent (counts, provider) and u8-web-app (display); U1 supplies the pack version via BR1.5" },
+    { "id": "AC3.2.3", "status": "OK", "target": "BR1.4" },
+    { "id": "AC3.2.4", "status": "N/A", "target": "delivered by u4-grounded-agent (streaming and timing)" },
+    { "id": "AC3.2.5", "status": "OK", "target": "BR3.2" },
+    { "id": "AC3.6.1", "status": "OK", "target": "BR2.3, BR3.3" },
+    { "id": "AC3.6.2", "status": "N/A", "target": "delivered by u4-grounded-agent (stop exploring, audit mark)" },
+    { "id": "AC8.2.1", "status": "N/A", "target": "delivered by u5-knowledge-updates (proposal view)" },
+    { "id": "AC8.2.2", "status": "OK", "target": "BR1.3" },
+    { "id": "AC8.2.3", "status": "N/A", "target": "delivered by u5-knowledge-updates (copy flag blocks publish)" },
+    { "id": "AC9.1.1", "status": "OK", "target": "BR3.4" },
+    { "id": "AC9.1.2", "status": "OK", "target": "BR1.6" }
+  ],
+  "reverse": [
+    { "id": "BR1.1", "status": "N/A", "target": "FR1.2 pack-load validation; requirement-level, no story AC (user-stories review R-02 accepted)" },
+    { "id": "BR1.2", "status": "N/A", "target": "technical validation rule for FR1.3" },
+    { "id": "BR1.5", "status": "N/A", "target": "FR1.7 version pinning support; tested via US2.1 in u3" },
+    { "id": "BR2.4", "status": "N/A", "target": "FR1.4 reference ranges; used by u3 and u4" },
+    { "id": "BR2.5", "status": "N/A", "target": "FR13.4 benchmark scoring support for u7 (requirements-only)" },
+    { "id": "BR2.6", "status": "N/A", "target": "FR5.2 map data for u8 via C8" },
+    { "id": "BR2.7", "status": "N/A", "target": "FR1.2 node comments shown in the node panel (US4.1, u8)" },
+    { "id": "BR3.5", "status": "N/A", "target": "FR2.4 content validation" },
+    { "id": "BR3.6", "status": "N/A", "target": "FR2.5 and C-R4 content-authoring copy check, requirement-level" }
+  ]
+}

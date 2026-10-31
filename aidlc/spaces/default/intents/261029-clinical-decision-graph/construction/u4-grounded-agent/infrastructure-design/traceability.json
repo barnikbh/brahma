@@ -1,0 +1,28 @@
+{
+  "stage": "infrastructure-design",
+  "unit": "u4-grounded-agent",
+  "upstream_ids": ["NFR1.1", "NFR1.2", "NFR1.3", "NFR1.4", "NFR2.1", "NFR4.1", "NFR4.2", "NFR4.3", "NFR5.1", "NFR6.1", "NFR7.1", "NFR7.2", "NFR8.1", "NFR8.2", "NFR8.3", "NFR8.4", "NFR8.5", "NFR11.1", "NFR11.2", "NFR11.3", "FR15.1"],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "CI step 3 first-event test" },
+    { "id": "NFR1.2", "status": "N/A", "target": "measured on the submission model, not in CI" },
+    { "id": "NFR1.3", "status": "OK", "target": "local timing test" },
+    { "id": "NFR1.4", "status": "OK", "target": "CI step 3 streaming test" },
+    { "id": "NFR2.1", "status": "OK", "target": "CI step 3 guard and demo-walk tests" },
+    { "id": "NFR4.1", "status": "OK", "target": "single uvicorn process (infrastructure-specification.md)" },
+    { "id": "NFR4.2", "status": "OK", "target": "CI step 3 lock tests" },
+    { "id": "NFR4.3", "status": "N/A", "target": "application-level; no infrastructure" },
+    { "id": "NFR5.1", "status": "OK", "target": ".env.example; CI uses recorded provider" },
+    { "id": "NFR6.1", "status": "N/A", "target": "application-level; no import route" },
+    { "id": "NFR7.1", "status": "OK", "target": "CI step 3 audit tests" },
+    { "id": "NFR7.2", "status": "OK", "target": "CI step 3 session tests" },
+    { "id": "NFR8.1", "status": "OK", "target": "127.0.0.1 bind (infrastructure-specification.md)" },
+    { "id": "NFR8.2", "status": "OK", "target": "CI step 3 mid-stream error test" },
+    { "id": "NFR8.3", "status": "OK", "target": "CI step 3 resume test" },
+    { "id": "NFR8.4", "status": "OK", "target": "CI step 3 case view test" },
+    { "id": "NFR8.5", "status": "OK", "target": "CI step 3 guard failure test" },
+    { "id": "NFR11.1", "status": "OK", "target": "monitoring-design.md log file" },
+    { "id": "NFR11.2", "status": "OK", "target": "CI step 3 log allow-list test" },
+    { "id": "NFR11.3", "status": "OK", "target": "monitoring-design.md health" },
+    { "id": "FR15.1", "status": "OK", "target": "CI step 3 done-event test" }
+  ]
+}

@@ -1,0 +1,13 @@
+# Refused: content that contains a date such as a date of birth (NFR6.1).
+pack: {code: TST, name: Test pack, specialty: Testing}
+version: "1.0"
+sources:
+  - {sourceId: TST-S1, title: Test guideline, year: 2022, section: Section 1}
+nodes:
+  - nodeId: TST-N1
+    type: diagnosis
+    label: Diagnosis
+    content: Seen on 12/03/1990 with symptoms.
+    fields: {name: Diagnosis}
+    sourceIds: [TST-S1]
+    column: diagnosis

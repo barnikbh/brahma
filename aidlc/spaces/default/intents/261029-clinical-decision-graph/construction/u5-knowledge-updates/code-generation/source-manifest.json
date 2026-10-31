@@ -1,0 +1,13 @@
+{
+  "stage": "code-generation",
+  "unit": "u5-knowledge-updates",
+  "version": 1,
+  "writes": [
+    { "path": "src/brahma/updates/" },
+    { "path": "tests/updates/" },
+    { "path": "pyproject.toml" },
+    { "path": ".env.example" },
+    { "path": "src/brahma/platform/models/schemas.py" },
+    { "path": ".github/workflows/ci.yml" }
+  ]
+}

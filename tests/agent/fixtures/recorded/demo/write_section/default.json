@@ -1,0 +1,83 @@
+{
+  "_note": "Synthetic recorded replies for the AC3.2.1 demo walk. Paraphrased from the pack's own node content, never guideline text. One reply per section, chosen by the section tag in the request. The first four replies are the follow-up turn after anti-TNF failure, chosen by a node ID in the request.",
+  "replies": [
+    {
+      "match": "\"nodeId\": \"IBD-N46\"",
+      "text": "{\"lines\": [{\"text\": \"Start here: after anti-TNF failure, check drug levels and antibodies, then change to another drug class (Tier 3).\", \"nodeIds\": [\"IBD-N46\"], \"claims\": [{\"kind\": \"tier\", \"value\": \"3\"}]}, {\"text\": \"Ustekinumab starts with one weight-based intravenous induction dose, then 90 mg under the skin every 8 weeks.\", \"nodeIds\": [\"IBD-N54\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"ustekinumab\"}, {\"kind\": \"dose\", \"value\": \"90\", \"unit\": \"mg\"}]}, {\"text\": \"Vedolizumab 300 mg is infused at weeks 0, 2 and 6, then every 8 weeks.\", \"nodeIds\": [\"IBD-N57\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"vedolizumab\"}, {\"kind\": \"dose\", \"value\": \"300\", \"unit\": \"mg\"}, {\"kind\": \"frequency\", \"value\": \"weeks 0, 2 and 6, then every 8 weeks\"}]}, {\"text\": \"Tofacitinib, an oral JAK inhibitor, is started at 10 mg twice daily for 8 weeks of induction.\", \"nodeIds\": [\"IBD-N58\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"tofacitinib\"}, {\"kind\": \"dose\", \"value\": \"10\", \"unit\": \"mg\"}, {\"kind\": \"frequency\", \"value\": \"twice daily\"}]}, {\"text\": \"A second anti-TNF is mainly an option after a loss of response with low levels or antibodies.\", \"nodeIds\": [\"IBD-N46\"], \"claims\": []}]}",
+      "inputTokens": 1200,
+      "outputTokens": 260
+    },
+    {
+      "match": "\"nodeId\": \"IBD-N72\"",
+      "text": "{\"lines\": [{\"text\": \"Check the anti-TNF trough level and antibodies; a trough of at least 5 ug/mL is the suggested target.\", \"nodeIds\": [\"IBD-N72\"], \"claims\": [{\"kind\": \"threshold\", \"value\": \"5\", \"unit\": \"ug/mL\"}]}, {\"text\": \"On the new treatment, aim for a faecal calprotectin of 250 ug/g or below.\", \"nodeIds\": [\"IBD-N83\"], \"claims\": [{\"kind\": \"threshold\", \"value\": \"250\", \"unit\": \"ug/g\"}]}]}",
+      "inputTokens": 700,
+      "outputTokens": 90
+    },
+    {
+      "match": "\"nodeId\": \"IBD-N99\"",
+      "text": "{\"lines\": [{\"text\": \"Screen for latent tuberculosis and hepatitis B before the next biologic.\", \"nodeIds\": [\"IBD-N92\"], \"claims\": []}, {\"text\": \"Before a JAK inhibitor, review the risk of blood clots and heart events, and shingles vaccination.\", \"nodeIds\": [\"IBD-N103\"], \"claims\": []}, {\"text\": \"With no response to steroids after anti-TNF failure, arrange an early surgical review to discuss colectomy.\", \"nodeIds\": [\"IBD-N99\"], \"claims\": []}]}",
+      "inputTokens": 800,
+      "outputTokens": 110
+    },
+    {
+      "match": "\"nodeId\": \"IBD-N103\"",
+      "text": "{\"lines\": [{\"text\": \"Screen for latent tuberculosis and hepatitis B before the next biologic.\", \"nodeIds\": [\"IBD-N92\"], \"claims\": []}, {\"text\": \"Before a JAK inhibitor, review the risk of blood clots and heart events, and shingles vaccination.\", \"nodeIds\": [\"IBD-N103\"], \"claims\": []}, {\"text\": \"Steroids are only a short bridge until the new maintenance treatment works, then they are tapered off.\", \"nodeIds\": [\"IBD-N102\"], \"claims\": []}]}",
+      "inputTokens": 800,
+      "outputTokens": 110
+    },
+    {
+      "match": "<section id=\"findings\"",
+      "text": "{\"lines\": [{\"text\": \"Visible blood in loose stools is a key presenting feature to assess.\", \"nodeIds\": [\"IBD-N1\"], \"claims\": []}, {\"text\": \"A haemoglobin below 10.5 g/dL counts as a marker of systemic toxicity.\", \"nodeIds\": [\"IBD-N3\"], \"claims\": [{\"kind\": \"threshold\", \"value\": \"10.5\", \"unit\": \"g/dL\"}]}, {\"text\": \"Faecal calprotectin above 50 ug/g supports looking for bowel inflammation.\", \"nodeIds\": [\"IBD-N5\"], \"claims\": [{\"kind\": \"threshold\", \"value\": \"50\", \"unit\": \"ug/g\"}]}]}",
+      "inputTokens": 900,
+      "outputTokens": 120
+    },
+    {
+      "match": "<section id=\"diagnosis\"",
+      "text": "{\"lines\": [{\"text\": \"The working diagnosis is suspected inflammatory bowel disease.\", \"nodeIds\": [\"IBD-N10\"], \"claims\": [{\"kind\": \"diagnosis\", \"value\": \"inflammatory bowel disease\"}]}, {\"text\": \"The results refine this to ulcerative colitis, a continuous inflammation that starts in the rectum.\", \"nodeIds\": [\"IBD-N11\"], \"claims\": [{\"kind\": \"diagnosis\", \"value\": \"ulcerative colitis\"}]}]}",
+      "inputTokens": 700,
+      "outputTokens": 80
+    },
+    {
+      "match": "<section id=\"tests\"",
+      "text": "{\"lines\": [{\"text\": \"Stool culture and C. difficile testing rule out an infective cause.\", \"nodeIds\": [\"IBD-N20\"], \"claims\": [{\"kind\": \"test\", \"value\": \"stool culture\"}]}, {\"text\": \"Ileocolonoscopy with biopsies establishes the diagnosis and separates the two main forms.\", \"nodeIds\": [\"IBD-N21\"], \"claims\": [{\"kind\": \"test\", \"value\": \"ileocolonoscopy\"}]}, {\"text\": \"The Montreal extent grades the disease from E1 to E3.\", \"nodeIds\": [\"IBD-N22\"], \"claims\": []}, {\"text\": \"Truelove and Witts grading sets the activity as mild, moderate or severe.\", \"nodeIds\": [\"IBD-N23\"], \"claims\": []}]}",
+      "inputTokens": 800,
+      "outputTokens": 110
+    },
+    {
+      "match": "<section id=\"subtype\"",
+      "text": "{\"lines\": [{\"text\": \"Extent E3 places this as extensive ulcerative colitis, a pancolitis.\", \"nodeIds\": [\"IBD-N32\"], \"claims\": [{\"kind\": \"diagnosis\", \"value\": \"extensive ulcerative colitis\"}]}, {\"text\": \"Severe activity makes it acute severe ulcerative colitis, which needs admission.\", \"nodeIds\": [\"IBD-N34\"], \"claims\": [{\"kind\": \"diagnosis\", \"value\": \"acute severe ulcerative colitis\"}]}]}",
+      "inputTokens": 600,
+      "outputTokens": 70
+    },
+    {
+      "match": "<section id=\"treatment\"",
+      "text": "{\"lines\": [{\"text\": \"Entry point is Tier 2: intravenous corticosteroids in hospital.\", \"nodeIds\": [\"IBD-N41\"], \"claims\": [{\"kind\": \"tier\", \"value\": \"2\"}]}, {\"text\": \"Hydrocortisone 100 mg intravenously four times daily.\", \"nodeIds\": [\"IBD-N51\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"hydrocortisone\"}, {\"kind\": \"dose\", \"value\": \"100\", \"unit\": \"mg\"}, {\"kind\": \"frequency\", \"value\": \"four times daily\"}]}, {\"text\": \"Methylprednisolone 60 mg intravenously once daily is the alternative regimen.\", \"nodeIds\": [\"IBD-N52\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"methylprednisolone\"}, {\"kind\": \"dose\", \"value\": \"60\", \"unit\": \"mg\"}, {\"kind\": \"frequency\", \"value\": \"once daily\"}]}, {\"text\": \"Without an adequate response by day 3, Tier 3 rescue therapy is the next step.\", \"nodeIds\": [\"IBD-N42\"], \"claims\": [{\"kind\": \"tier\", \"value\": \"3\"}]}]}",
+      "inputTokens": 1100,
+      "outputTokens": 160
+    },
+    {
+      "match": "<section id=\"monitor\"",
+      "text": "{\"lines\": [{\"text\": \"Record stool frequency daily; more than 8 per day on day 3 makes colectomy likely.\", \"nodeIds\": [\"IBD-N70\"], \"claims\": [{\"kind\": \"threshold\", \"value\": \"8\", \"unit\": \"per day\"}]}, {\"text\": \"Check CRP during treatment; above 45 mg/L on day 3 also predicts colectomy.\", \"nodeIds\": [\"IBD-N71\"], \"claims\": [{\"kind\": \"threshold\", \"value\": \"45\", \"unit\": \"mg/L\"}]}, {\"text\": \"More than 8 per day on day 3 means no response to Tier 2.\", \"nodeIds\": [\"IBD-N80\"], \"claims\": [{\"kind\": \"threshold\", \"value\": \"8\", \"unit\": \"per day\"}, {\"kind\": \"tier\", \"value\": \"2\"}]}]}",
+      "inputTokens": 800,
+      "outputTokens": 110
+    },
+    {
+      "match": "<section id=\"diet\"",
+      "text": "{\"lines\": [{\"text\": \"No specific diet is proven to control the disease; screen for malnutrition and advise individually.\", \"nodeIds\": [\"IBD-N60\"], \"claims\": []}]}",
+      "inputTokens": 400,
+      "outputTokens": 30
+    },
+    {
+      "match": "<section id=\"watch_outs\"",
+      "text": "{\"lines\": [{\"text\": \"Send stool tests for bacterial pathogens and C. difficile toxin before escalating.\", \"nodeIds\": [\"IBD-N94\"], \"claims\": []}, {\"text\": \"Colonic dilatation with systemic toxicity needs urgent joint medical and surgical review.\", \"nodeIds\": [\"IBD-N90\"], \"claims\": []}, {\"text\": \"Give low-molecular-weight heparin prophylaxis in hospital unless contraindicated.\", \"nodeIds\": [\"IBD-N91\"], \"claims\": []}, {\"text\": \"Toxic megacolon that does not settle, perforation or major bleeding call for emergency colectomy.\", \"nodeIds\": [\"IBD-N96\"], \"claims\": []}]}",
+      "inputTokens": 900,
+      "outputTokens": 120
+    },
+    {
+      "match": "<section id=\"explore\"",
+      "text": "{\"lines\": [{\"text\": \"Infectious colitis can mimic this presentation and must be excluded.\", \"nodeIds\": [\"IBD-N13\"], \"claims\": [{\"kind\": \"diagnosis\", \"value\": \"infectious colitis\"}]}, {\"text\": \"Stool culture and C. difficile testing is the test for this branch.\", \"nodeIds\": [\"IBD-N20\"], \"claims\": [{\"kind\": \"test\", \"value\": \"stool culture\"}]}]}",
+      "inputTokens": 500,
+      "outputTokens": 60
+    }
+  ]
+}

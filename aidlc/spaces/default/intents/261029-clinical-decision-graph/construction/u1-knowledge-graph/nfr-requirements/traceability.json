@@ -1,0 +1,19 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "u1-knowledge-graph",
+  "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8", "NFR9", "NFR10", "NFR11", "NFR12"],
+  "coverage": [
+    { "id": "NFR1", "status": "OK", "target": "NFR1.1" },
+    { "id": "NFR2", "status": "OK", "target": "NFR2.1, NFR2.2" },
+    { "id": "NFR3", "status": "N/A", "target": "accessibility is delivered by u8-web-app; U1 has no UI" },
+    { "id": "NFR4", "status": "N/A", "target": "browser platform is delivered by u8-web-app; U1 has no UI" },
+    { "id": "NFR5", "status": "OK", "target": "NFR5.1" },
+    { "id": "NFR6", "status": "OK", "target": "NFR6.1, NFR6.2" },
+    { "id": "NFR7", "status": "OK", "target": "NFR7.1" },
+    { "id": "NFR8", "status": "OK", "target": "NFR8.1, NFR8.2" },
+    { "id": "NFR9", "status": "OK", "target": "NFR9.1" },
+    { "id": "NFR10", "status": "OK", "target": "NFR10.1" },
+    { "id": "NFR11", "status": "OK", "target": "NFR11.1" },
+    { "id": "NFR12", "status": "OK", "target": "NFR12.1, NFR12.2" }
+  ]
+}

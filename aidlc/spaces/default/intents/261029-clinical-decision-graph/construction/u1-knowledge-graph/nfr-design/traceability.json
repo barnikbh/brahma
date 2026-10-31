@@ -1,0 +1,16 @@
+{
+  "stage": "nfr-design",
+  "unit": "u1-knowledge-graph",
+  "upstream_ids": ["NFR2.1", "NFR2.2", "NFR6.1", "NFR8.1", "NFR8.2", "NFR7.1", "NFR5.1", "NFR6.2", "NFR12.1"],
+  "coverage": [
+    { "id": "NFR2.1", "status": "OK", "target": "PackValidator on every load and create_version (security-design.md)" },
+    { "id": "NFR2.2", "status": "OK", "target": "ClaimMatcher with Decimal values and Decimal UNIT_TABLE, exact equality, no rounding" },
+    { "id": "NFR6.1", "status": "OK", "target": "Pydantic extra=forbid, load-time patient-data scan of content and fields, schema fixture test, manual checklist" },
+    { "id": "NFR8.1", "status": "OK", "target": "PackLoader: size and extension check, NoAliasSafeLoader (SafeLoader subclass refusing aliases)" },
+    { "id": "NFR8.2", "status": "OK", "target": "BEGIN IMMEDIATE writes; kg_connect sets WAL, busy timeout and foreign keys" },
+    { "id": "NFR7.1", "status": "OK", "target": "No update or delete path; BEFORE UPDATE and DELETE triggers; live-to-superseded only; partial unique index on the live version" },
+    { "id": "NFR5.1", "status": "OK", "target": "Only BRAHMA_DB_PATH read; data/ git-ignored" },
+    { "id": "NFR6.2", "status": "OK", "target": "Strip then length and blank check; CommentInvalid and NodeNotFound; U8 escapes on display" },
+    { "id": "NFR12.1", "status": "OK", "target": "Paraphrase meaning: check_copy.py authoring check (security-design.md). Ruff meaning: CI step (logical-components.md, Derived Requirements). NFR1.1, NFR9.1, NFR10.1, NFR11.1 and NFR12.2 are designed in the same Derived Requirements table" }
+  ]
+}

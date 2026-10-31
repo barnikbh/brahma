@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Knowledge update and versions</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#4338ca}a:hover{color:#312e81}
+</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #171717; background: #f1f4f0; min-height: 100vh; display: flex; flex-direction: column">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 10px 24px; background: #ffffff; border-bottom: 1px solid #d4d4d4">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <div aria-hidden="true" style="width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px; font-family: Georgia, 'Times New Roman', serif">B</div>
+      <span style="display: flex; flex-direction: column; line-height: 1.15"><span style="font-weight: 700; font-size: 18px; letter-spacing: 0.03em; color: #312e81; font-family: Georgia, 'Times New Roman', serif">Brahma</span><span style="font-size: 11px; color: #4f5f52">Clinical decision graph</span></span>
+    </div>
+    <nav aria-label="Main" style="display: flex; gap: 4px; flex-wrap: wrap">
+      <a href="Patients.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">Patients</a>
+      <a href="History.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">History</a>
+      <a href="Knowledge.dc.html" aria-current="page" style="padding: 10px 12px; border-radius: 6px; background: #312e81; color: #ffffff; text-decoration: none; font-size: 14px">Knowledge</a>
+      <a href="Benchmark.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">Benchmark</a>
+    </nav>
+    <div style="margin-left: auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 13px">
+      <span style="padding: 4px 10px; border: 1px solid #a3a3a3; border-radius: 999px; font-family: ui-monospace, Menlo, monospace; font-size: 12px">IBD pack · Knowledge v1.3</span>
+      <span style="color: #525252">Dr. Maya (demo)</span>
+      <a href="Main.dc.html" style="padding: 10px 4px">Sign out</a>
+    </div>
+  </header>
+  <div role="note" style="display: flex; align-items: center; gap: 10px; padding: 8px 24px; background: #e6eee4; border-bottom: 1px solid #bfcdbb; color: #2f4034; font-size: 13px; flex-wrap: wrap">
+    <strong>Decision support, not diagnosis.</strong>
+    <span>Changes never go live directly: every proposal becomes a new version after clinical review.</span>
+  </div>
+
+  <main style="flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 16px 24px 32px">
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+
+      <section aria-labelledby="ph" style="flex: 1 1 420px; max-width: 600px; min-width: 0; background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+        <h1 id="ph" style="margin: 0; font-size: 18px; font-weight: 600">Suggest a change</h1>
+        <p style="margin: 0; font-size: 14px; color: #525252">Link a source, say what should change and why. It becomes a proposed version with your comment attached.</p>
+
+        <label for="node" style="font-size: 13px; font-weight: 500">Node to change</label>
+        <select id="node" value="{{node}}" onChange="{{onNode}}" style="min-height: 44px; padding: 0 8px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px; background: #ffffff">
+          <option value="x3">N13 · Tier 3 · Biologics (Treatment tier)</option>
+          <option value="x2">N12 · Tier 2 · Corticosteroids (Treatment tier)</option>
+          <option value="m1">N14 · Calprotectin trend (Monitoring)</option>
+          <option value="new">+ Propose a new node</option>
+        </select>
+
+        <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+          <legend style="font-size: 13px; font-weight: 500; margin-bottom: 6px">Source</legend>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap">
+            <sc-for list="{{srcTabs}}" as="t" hint-placeholder-count="2">
+              <button type="button" onClick="{{t.pick}}" aria-pressed="{{t.on}}" style="{{t.style}}">{{t.label}}</button>
+            </sc-for>
+          </div>
+          <sc-if value="{{isUrl}}" hint-placeholder-val="{{true}}">
+            <label for="url" style="font-size: 13px; color: #525252">Source URL</label>
+            <input id="url" type="url" value="{{url}}" onChange="{{onUrl}}" placeholder="https://… guideline or paper" style="min-height: 44px; padding: 0 12px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px">
+          </sc-if>
+          <sc-if value="{{isDoc}}" hint-placeholder-val="{{false}}">
+            <button type="button" style="min-height: 96px; border: 2px dashed #a3a3a3; border-radius: 6px; background: #fafafa; font: inherit; font-size: 14px; color: #525252; cursor: pointer">Drop a PDF here, or choose a file</button>
+          </sc-if>
+          <label for="sec" style="font-size: 13px; color: #525252">Section or page</label>
+          <input id="sec" placeholder="e.g. §4.2, p. 18" style="min-height: 44px; padding: 0 12px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px">
+        </fieldset>
+
+        <label for="chg" style="font-size: 13px; font-weight: 500">What should change</label>
+        <textarea id="chg" rows="3" value="{{change}}" onChange="{{onChange}}" placeholder="e.g. Add [new biologic] as a Tier 3 option with its fit criteria." style="font: inherit; font-size: 14px; line-height: 1.5; padding: 10px 12px; border: 1px solid #a3a3a3; border-radius: 6px; resize: vertical"></textarea>
+
+        <label for="why" style="font-size: 13px; font-weight: 500">Comment (why)</label>
+        <textarea id="why" rows="2" placeholder="e.g. Updated guideline adds this option for steroid-refractory UC." style="font: inherit; font-size: 14px; line-height: 1.5; padding: 10px 12px; border: 1px solid #a3a3a3; border-radius: 6px; resize: vertical"></textarea>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+          <button type="button" onClick="{{submit}}" disabled="{{submitted}}" style="min-height: 44px; padding: 0 18px; border-radius: 6px; border: 1px solid #312e81; background: #312e81; color: #ffffff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">{{submitLabel}}</button>
+          <a href="WS-Detail.dc.html" style="font-size: 14px; padding: 10px 4px">Back to node</a>
+        </div>
+      </section>
+
+      <section aria-labelledby="pv" style="flex: 999 1 520px; min-width: 0; background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center">
+          <h2 id="pv" style="margin: 0; font-size: 18px; font-weight: 600">Proposed version</h2>
+          <span style="font-family: ui-monospace, Menlo, monospace; font-size: 13px; padding: 4px 10px; border: 1.5px dashed #171717; border-radius: 4px">v1.3 → v1.4 (draft)</span>
+        </div>
+
+        <ol aria-label="Review steps" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+          <sc-for list="{{steps}}" as="st" hint-placeholder-count="3">
+            <li style="{{st.style}}"><span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em">{{st.n}}</span><span style="font-weight: 600">{{st.icon}} {{st.label}}</span></li>
+          </sc-for>
+        </ol>
+
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+          <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+            <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #525252">Before · v1.3</span>
+            <div style="padding: 12px; border: 1px solid #d4d4d4; border-radius: 6px; background: #fafafa; font-size: 14px; line-height: 1.5; min-height: 120px">{{before}}</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+            <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #525252">After · v1.4 draft</span>
+            <div style="padding: 12px; border: 2px solid #4338ca; border-radius: 6px; background: #eef2ff; font-size: 14px; line-height: 1.5; min-height: 120px">{{before}} <strong>+ {{afterAdd}}</strong></div>
+          </div>
+        </div>
+
+        <dl style="margin: 0; display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 6px 12px; font-size: 13px">
+          <dt style="color: #525252">New source</dt><dd style="margin: 0">{{srcShown}}</dd>
+          <dt style="color: #525252">Affects</dt><dd style="margin: 0">1 node · [n] past sessions would read differently (they keep v1.3)</dd>
+          <dt style="color: #525252">Proposed by</dt><dd style="margin: 0">Dr. Maya · {{when}}</dd>
+        </dl>
+      </section>
+    </div>
+
+    <section aria-labelledby="vh" style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; display: flex; flex-direction: column">
+      <div style="padding: 14px 18px; border-bottom: 1px solid #e5e5e5; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center">
+        <h2 id="vh" style="margin: 0; font-size: 18px; font-weight: 600">Version history · IBD pack</h2>
+        <span style="font-size: 13px; color: #525252">In use now: <strong style="font-family: ui-monospace, Menlo, monospace">v1.3</strong></span>
+      </div>
+      <div style="overflow-x: auto">
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px; min-width: 760px">
+          <thead>
+            <tr style="background: #fafafa; text-align: left">
+              <th scope="col" style="padding: 10px 18px; font-weight: 600">Version</th>
+              <th scope="col" style="padding: 10px; font-weight: 600">Status</th>
+              <th scope="col" style="padding: 10px; font-weight: 600">Date</th>
+              <th scope="col" style="padding: 10px; font-weight: 600">By</th>
+              <th scope="col" style="padding: 10px; font-weight: 600">Change</th>
+              <th scope="col" style="padding: 10px 18px; font-weight: 600">Comment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{history}}" as="h" hint-placeholder-count="4">
+              <tr style="border-top: 1px solid #e5e5e5">
+                <td style="padding: 10px 18px; font-family: ui-monospace, Menlo, monospace; font-weight: 600">{{h.v}}</td>
+                <td style="padding: 10px"><span style="{{h.badge}}">{{h.status}}</span></td>
+                <td style="padding: 10px">{{h.date}}</td>
+                <td style="padding: 10px">{{h.by}}</td>
+                <td style="padding: 10px">{{h.change}}</td>
+                <td style="padding: 10px 18px; color: #525252">{{h.comment}}</td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+var BEFORE = {
+  x3: 'Tier 3 · Biologics — infliximab (Remicade) or ustekinumab (Stelara). Entry: steroid-refractory or steroid-dependent.',
+  x2: 'Tier 2 · Corticosteroids (IV if severe). Entry: severe disease, or Tier 1 not enough. Review at day [n].',
+  m1: 'Calprotectin — recheck at [interval]; target below [threshold].',
+  'new': '(No node yet — new node will be placed in the graph by a reviewer.)'
+};
+var HIST = [
+  { v: 'v1.3', status: '● Live', date: '14 Oct 2026', by: 'Reviewer A', change: 'Tier 2 review day wording', comment: 'Aligned with [guideline] update' },
+  { v: 'v1.2', status: 'Superseded', date: '02 Oct 2026', by: 'Dr. Maya', change: 'Added diet node (N17)', comment: 'Diet guidance was missing' },
+  { v: 'v1.1', status: 'Superseded', date: '20 Sep 2026', by: 'Reviewer A', change: 'Split extent and severity tests', comment: 'Needed separate branches' },
+  { v: 'v1.0', status: 'Superseded', date: '08 Sep 2026', by: 'Clinical editor', change: 'Initial IBD pack', comment: 'Seeded from [sources]' }
+];
+var B_LIVE = 'font-size: 12px; padding: 2px 8px; border: 1.5px solid #4338ca; color: #4338ca; border-radius: 4px; white-space: nowrap;';
+var B_OLD = 'font-size: 12px; padding: 2px 8px; border: 1px solid #a3a3a3; color: #525252; border-radius: 4px; white-space: nowrap;';
+var B_PROP = 'font-size: 12px; padding: 2px 8px; border: 1.5px dashed #171717; color: #171717; border-radius: 4px; white-space: nowrap;';
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var node = this.state.node || 'x3';
+    var src = this.state.src || 'url';
+    var url = this.state.url ?? '';
+    var change = this.state.change ?? '';
+    var submitted = !!this.state.submitted;
+    var stepIdx = submitted ? 1 : 0;
+    var steps = [['1', 'Proposed'], ['2', 'Clinical review'], ['3', 'Published']].map(function (s, i) {
+      var done = i < stepIdx, cur = i === stepIdx;
+      return { n: 'Step ' + s[0], label: s[1], icon: done ? '✓' : (cur ? '●' : '○'),
+        style: 'display: flex; flex-direction: column; gap: 2px; padding: 10px; border-radius: 6px; font-size: 13px; ' + (cur ? 'border: 2px solid #171717; background: #ffffff;' : (done ? 'border: 1px solid #4338ca; background: #eef2ff;' : 'border: 1px dashed #a3a3a3; color: #525252;')) };
+    });
+    var hist = HIST.map(function (h) { return Object.assign({}, h, { badge: h.status === '● Live' ? B_LIVE : B_OLD }); });
+    if (submitted) hist.unshift({ v: 'v1.4', status: '◌ In review', date: '29 Oct 2026', by: 'Dr. Maya', change: change || '[described change]', comment: 'Awaiting clinical review', badge: B_PROP });
+    return {
+      node: node, url: url, change: change, submitted: submitted,
+      isUrl: src === 'url', isDoc: src === 'doc',
+      srcTabs: [['url', 'Link (URL)'], ['doc', 'Upload document']].map(function (t) {
+        var on = src === t[0];
+        return { label: t[1], on: on, pick: function () { self.setState({ src: t[0] }); },
+          style: 'min-height: 44px; padding: 0 14px; border-radius: 6px; font: inherit; font-size: 13px; cursor: pointer; ' + (on ? 'background: #312e81; color: #ffffff; border: 1px solid #171717;' : 'background: #ffffff; color: #171717; border: 1px solid #a3a3a3;') };
+      }),
+      before: BEFORE[node],
+      afterAdd: change || '[your described change appears here]',
+      srcShown: src === 'doc' ? '[uploaded document]' : (url || '[linked URL]'),
+      when: submitted ? 'submitted 29 Oct 2026' : 'draft, not submitted',
+      submitLabel: submitted ? '✓ Submitted for review' : 'Submit as v1.4 proposal',
+      steps: steps, history: hist,
+      onNode: function (e) { self.setState({ node: e.target.value }); },
+      onUrl: function (e) { self.setState({ url: e.target.value }); },
+      onChange: function (e) { self.setState({ change: e.target.value }); },
+      submit: function () { self.setState({ submitted: true }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

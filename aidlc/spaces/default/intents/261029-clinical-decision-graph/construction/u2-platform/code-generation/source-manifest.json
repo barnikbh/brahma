@@ -1,0 +1,14 @@
+{
+  "stage": "code-generation",
+  "unit": "u2-platform",
+  "version": 1,
+  "writes": [
+    { "path": "src/brahma/platform/" },
+    { "path": "tests/platform/" },
+    { "path": "pyproject.toml" },
+    { "path": ".env.example" },
+    { "path": "scripts/check_env_example.py" },
+    { "path": "scripts/check_secrets.py" },
+    { "path": ".github/workflows/ci.yml" }
+  ]
+}

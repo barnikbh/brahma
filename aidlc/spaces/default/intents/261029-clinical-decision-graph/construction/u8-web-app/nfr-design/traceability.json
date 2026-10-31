@@ -1,0 +1,16 @@
+{
+  "stage": "nfr-design",
+  "unit": "u8-web-app",
+  "upstream_ids": ["NFR1.5", "NFR1.6", "NFR4.4", "NFR2.2", "NFR5.2", "NFR6.2", "NFR8.6", "NFR3.1", "FR15.1"],
+  "coverage": [
+    { "id": "NFR1.5", "status": "OK", "target": "performance-design.md walkStream" },
+    { "id": "NFR1.6", "status": "OK", "target": "performance-design.md layout once" },
+    { "id": "NFR4.4", "status": "OK", "target": "performance-design.md targets and notice" },
+    { "id": "NFR2.2", "status": "OK", "target": "security-design.md reducer lines" },
+    { "id": "NFR5.2", "status": "OK", "target": "security-design.md same-origin" },
+    { "id": "NFR6.2", "status": "OK", "target": "security-design.md Synthetic badge" },
+    { "id": "NFR8.6", "status": "OK", "target": "security-design.md no innerHTML" },
+    { "id": "NFR3.1", "status": "OK", "target": "security-design.md accessibility" },
+    { "id": "FR15.1", "status": "OK", "target": "security-design.md AppShell" }
+  ]
+}

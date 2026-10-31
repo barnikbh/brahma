@@ -1,0 +1,8 @@
+# Refused: a Python object tag must never be constructed.
+pack:
+  code: TST
+  name: Test pack
+  specialty: Testing
+version: "1.0"
+sources: !!python/object/apply:os.system ["echo unsafe"]
+nodes: []

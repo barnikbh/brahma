@@ -1,0 +1,17 @@
+{
+  "_note": "Synthetic recorded extraction replies, chosen by the doctor's text.",
+  "replies": [
+    {
+      "match": "bloody stool",
+      "text": "{\"findings\": [{\"kind\": \"age\", \"name\": \"age\", \"value\": 34.0, \"unit\": \"years\"}, {\"kind\": \"symptom\", \"name\": \"bloody stool\", \"value\": null, \"unit\": null, \"duration\": \"6 months\"}, {\"kind\": \"metric\", \"name\": \"Hb\", \"value\": 10.2, \"unit\": \"g/dL\"}, {\"kind\": \"metric\", \"name\": \"calprotectin\", \"value\": 850.0, \"unit\": \"µg/g\"}]}",
+      "inputTokens": 150,
+      "outputTokens": 90
+    },
+    {
+      "match": "headache",
+      "text": "{\"findings\": [{\"kind\": \"age\", \"name\": \"age\", \"value\": 29.0, \"unit\": \"years\"}, {\"kind\": \"symptom\", \"name\": \"headache with visual aura\", \"value\": null, \"unit\": null, \"duration\": \"2 days\"}]}",
+      "inputTokens": 120,
+      "outputTokens": 50
+    }
+  ]
+}

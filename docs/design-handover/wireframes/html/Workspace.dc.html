@@ -1,0 +1,1184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Consultation workspace</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #171717; background: #f1f4f0; min-height: 100vh; display: flex; flex-direction: column">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 10px 24px; background: #ffffff; border-bottom: 1px solid #d4d4d4">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <div aria-hidden="true" style="width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px; font-family: Georgia, 'Times New Roman', serif">B</div>
+      <span style="display: flex; flex-direction: column; line-height: 1.15"><span style="font-weight: 700; font-size: 18px; letter-spacing: 0.03em; color: #312e81; font-family: Georgia, 'Times New Roman', serif">Brahma</span><span style="font-size: 11px; color: #4f5f52">Clinical decision graph</span></span>
+    </div>
+    <nav aria-label="Main" style="display: flex; gap: 4px; flex-wrap: wrap">
+      <a href="Patients.dc.html" aria-current="page" style="padding: 10px 12px; border-radius: 6px; background: #312e81; color: #ffffff; text-decoration: none; font-size: 14px">Patients</a>
+      <a href="History.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">History</a>
+      <a href="Knowledge.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">Knowledge</a>
+      <a href="Benchmark.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">Benchmark</a>
+    </nav>
+    <div style="margin-left: auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 13px">
+      <span style="padding: 4px 10px; border: 1px solid #a3a3a3; border-radius: 999px; font-family: ui-monospace, Menlo, monospace; font-size: 12px">IBD pack · Knowledge v1.3</span>
+      <span style="color: #525252">Dr. Maya (demo)</span>
+      <a href="Main.dc.html" style="color: #4338ca; padding: 10px 4px">Sign out</a>
+    </div>
+  </header>
+
+  <div role="note" style="display: flex; align-items: center; gap: 10px; padding: 8px 24px; background: #e6eee4; border-bottom: 1px solid #bfcdbb; color: #2f4034; font-size: 13px; flex-wrap: wrap">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+    <strong>Decision support, not diagnosis.</strong>
+    <span>Synthetic patients only. Every line comes from the knowledge graph, never from the model's memory.</span>
+  </div>
+
+  <section aria-label="Patient card" style="position: sticky; top: 0; z-index: 5; background: #ffffff; border-bottom: 1px solid #d4d4d4; box-shadow: 0 1px 0 #e5e5e5; padding: 10px 24px">
+    <sc-if value="{{pt.empty}}" hint-placeholder-val="{{false}}">
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-height: 44px">
+        <span aria-hidden="true" style="width: 36px; height: 36px; border-radius: 50%; border: 1.5px dashed #a3a3a3; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #525252">?</span>
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <strong style="font-size: 15px">New case {{caseId}} · synthetic</strong>
+          <span style="font-size: 13px; color: #525252">No patient details yet. Describe the patient in the chat; name, age, sex and history fill in here.</span>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{pt.filled}}" hint-placeholder-val="{{true}}">
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+          <span aria-hidden="true" style="width: 36px; height: 36px; border-radius: 50%; background: #e5e5e5; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">{{pt.initials}}</span>
+          <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+            <div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap">
+              <strong style="font-size: 16px">{{pt.name}}</strong>
+              <span style="font-size: 14px">{{pt.age}} y · {{pt.sex}} · {{pt.weight}} kg</span>
+              <span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #525252">{{caseId}} · synthetic</span>
+            </div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 12px">
+              <span style="padding: 2px 8px; border: 1px solid #a3a3a3; border-radius: 999px">Comorbidities: {{pt.comorbShort}}</span>
+              <span style="padding: 2px 8px; border: 1.5px solid #b91c1c; color: #b91c1c; background: #fef2f2; border-radius: 999px; font-weight: 600">⚠ Allergy: {{pt.allergies}}</span>
+              <sc-if value="{{pt.hasMore}}" hint-placeholder-val="{{true}}">
+                <span style="padding: 2px 8px; border: 1px solid #a3a3a3; border-radius: 999px; color: #525252">+{{pt.moreCount}} more</span>
+              </sc-if>
+            </div>
+          </div>
+          <div style="margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap">
+            <button type="button" onClick="{{editPatient}}" style="min-height: 44px; padding: 0 12px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 13px; cursor: pointer">Edit details</button>
+            <button type="button" onClick="{{toggleCard}}" aria-expanded="{{pt.open}}" aria-controls="pt-more" style="min-height: 44px; padding: 0 12px; border-radius: 6px; border: 1px solid #171717; background: #ffffff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">{{pt.toggleLabel}}</button>
+          </div>
+        </div>
+        <sc-if value="{{pt.open}}" hint-placeholder-val="{{false}}">
+          <dl id="pt-more" style="margin: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 16px; padding: 12px; background: #fafafa; border: 1px solid #e5e5e5; border-radius: 6px; font-size: 13px">
+            <div style="display: flex; flex-direction: column; gap: 2px"><dt style="color: #525252; font-size: 12px">Sex (sets reference ranges)</dt><dd style="margin: 0; font-weight: 600">{{pt.sex}}</dd></div>
+            <div style="display: flex; flex-direction: column; gap: 2px"><dt style="color: #525252; font-size: 12px">Weight (used for mg/kg doses)</dt><dd style="margin: 0; font-weight: 600">{{pt.weight}} kg</dd></div>
+            <div style="display: flex; flex-direction: column; gap: 2px"><dt style="color: #525252; font-size: 12px">Pregnancy status</dt><dd style="margin: 0">{{pt.pregnancy}}</dd></div>
+            <div style="display: flex; flex-direction: column; gap: 2px"><dt style="color: #525252; font-size: 12px">Allergies</dt><dd style="margin: 0; color: #b91c1c; font-weight: 600">⚠ {{pt.allergies}}</dd></div>
+            <div style="display: flex; flex-direction: column; gap: 2px; grid-column: span 2"><dt style="color: #525252; font-size: 12px">Comorbidities</dt><dd style="margin: 0">{{pt.comorb}}</dd></div>
+            <div style="display: flex; flex-direction: column; gap: 2px; grid-column: span 2"><dt style="color: #525252; font-size: 12px">Current medication</dt><dd style="margin: 0">{{pt.meds}}</dd></div>
+          </dl>
+        </sc-if>
+      </div>
+    </sc-if>
+  </section>
+
+  <main style="flex: 1; display: flex; flex-wrap: wrap; gap: 16px; padding: 16px 24px 32px; align-items: flex-start">
+
+    <section aria-label="Chat with the agent" style="flex: 1 1 440px; max-width: 640px; min-width: 0; background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; display: flex; flex-direction: column">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid #e5e5e5; flex-wrap: wrap">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #525252">{{caseLabel}} · synthetic</span>
+          <h2 style="margin: 0; font-size: 16px; font-weight: 600">Consultation chat</h2>
+        </div>
+        <a href="Patients.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 6px; border: 1px solid #a3a3a3; color: #171717; text-decoration: none; font-size: 13px">Exit case</a>
+      </div>
+
+      <div role="log" aria-label="Conversation" style="flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 16px; background: #fafafa">
+        <div style="display: flex; gap: 10px; align-items: flex-start">
+          <div aria-hidden="true" style="flex: none; width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; font-family: Georgia, 'Times New Roman', serif">B</div>
+          <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 12px; color: #525252">Brahma</span>
+            <div style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 2px 12px 12px 12px; padding: 12px 14px; font-size: 14px; line-height: 1.5; display: flex; flex-direction: column; gap: 10px">
+              <span>Hi Dr. Maya, I'm Brahma. Tell me about the patient: case history, symptoms with how long they've lasted, and any results with values and units. No names or IDs.</span>
+              <sc-if value="{{isEmpty}}" hint-placeholder-val="{{true}}">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                  <button type="button" onClick="{{useIbd}}" style="min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 13px; cursor: pointer">Use IBD example</button>
+                  <button type="button" onClick="{{useOok}}" style="min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 13px; cursor: pointer">Try a case outside the graph</button>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+        <sc-if value="{{showPatient}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; justify-content: flex-end">
+            <div style="max-width: 85%; display: flex; flex-direction: column; gap: 4px; align-items: flex-end">
+              <span style="font-size: 12px; color: #525252">Dr. Maya</span>
+              <div style="background: #e5e5e5; border-radius: 12px 12px 2px 12px; padding: 10px 14px; font-size: 14px; line-height: 1.5">{{text}}</div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{isConfirm}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; gap: 10px; align-items: flex-start">
+            <div aria-hidden="true" style="flex: none; width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; font-family: Georgia, 'Times New Roman', serif">B</div>
+            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 12px; color: #525252">Brahma · form · needs your input</span>
+              <div style="background: #ffffff; border: 2px solid #171717; border-radius: 2px 12px 12px 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+                <span style="font-size: 14px; line-height: 1.5">Here's what I picked up. Correct anything before I walk the graph. Durations and units matter.</span>
+                <sc-for list="{{chips}}" as="c" hint-placeholder-count="4">
+                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 6px 8px; border: 1px solid #d4d4d4; border-radius: 6px; background: #fafafa">
+                    <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #525252; width: 64px">{{c.kind}}</span>
+                    <input aria-label="{{c.nameLabel}}" value="{{c.name}}" onChange="{{c.onName}}" style="flex: 1 1 130px; min-width: 0; min-height: 40px; padding: 0 10px; border: 1px solid #a3a3a3; border-radius: 4px; font: inherit; font-size: 14px; background: #ffffff">
+                    <input aria-label="{{c.valLabel}}" value="{{c.value}}" onChange="{{c.onVal}}" style="width: 64px; min-height: 40px; padding: 0 10px; border: 1px solid #a3a3a3; border-radius: 4px; font: inherit; font-size: 14px; background: #ffffff">
+                    <span style="font-size: 13px; color: #525252; min-width: 48px">{{c.unit}}</span>
+                    <button type="button" aria-label="{{c.rmLabel}}" onClick="{{c.remove}}" style="width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #525252">
+                      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg>
+                    </button>
+                  </div>
+                </sc-for>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                  <button type="button" onClick="{{walk}}" style="min-height: 44px; padding: 0 16px; border-radius: 6px; border: 1px solid #312e81; background: #312e81; color: #ffffff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Looks right — walk the graph</button>
+                  <button type="button" onClick="{{addChip}}" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 14px; cursor: pointer">+ Add finding</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{showChipsRO}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; gap: 10px; align-items: flex-start">
+            <div aria-hidden="true" style="flex: none; width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; font-family: Georgia, 'Times New Roman', serif">B</div>
+            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 12px; color: #525252">Brahma · form submitted</span>
+              <div style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 2px 12px 12px 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px">
+                <span style="font-size: 14px">I read these findings:</span>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center">
+                  <sc-for list="{{chips}}" as="c" hint-placeholder-count="4">
+                    <span style="padding: 4px 10px; border: 1px solid #a3a3a3; border-radius: 999px; background: #ffffff; font-size: 13px">{{c.ro}}</span>
+                  </sc-for>
+                  <button type="button" onClick="{{editInputs}}" style="min-height: 44px; padding: 0 8px; border: 0; background: transparent; color: #4338ca; text-decoration: underline; font: inherit; font-size: 13px; cursor: pointer">Edit</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: flex-end">
+            <div style="max-width: 85%; display: flex; flex-direction: column; gap: 4px; align-items: flex-end">
+              <span style="font-size: 12px; color: #525252">Dr. Maya</span>
+              <div style="background: #e5e5e5; border-radius: 12px 12px 2px 12px; padding: 10px 14px; font-size: 14px">✓ Looks right — walk the graph.</div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{showResultsMsg}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; gap: 10px; align-items: flex-start">
+            <div aria-hidden="true" style="flex: none; width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; font-family: Georgia, 'Times New Roman', serif">B</div>
+            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 12px; color: #525252">Brahma · form submitted</span>
+              <div style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 2px 12px 12px 12px; padding: 12px 14px; font-size: 14px; line-height: 1.5">Working diagnosis is IBD <span style="font-family: ui-monospace, Menlo, monospace; font-size: 11px; padding: 1px 5px; border: 1px solid #4338ca; color: #4338ca; border-radius: 4px">N4</span>. To refine it I asked for stool culture, colonoscopy + biopsy, extent and severity.</div>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: flex-end">
+            <div style="max-width: 85%; display: flex; flex-direction: column; gap: 4px; align-items: flex-end">
+              <span style="font-size: 12px; color: #525252">Dr. Maya</span>
+              <div style="background: #e5e5e5; border-radius: 12px 12px 2px 12px; padding: 10px 14px; font-size: 14px; line-height: 1.5">{{resultsText}}</div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{isWorking}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; gap: 10px; align-items: flex-start">
+            <div aria-hidden="true" style="flex: none; width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; font-family: Georgia, 'Times New Roman', serif">B</div>
+            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 12px; color: #525252">Brahma</span>
+              <div role="status" style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 2px 12px 12px 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px">
+                <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px">
+                  <strong>Walking the graph…</strong>
+                  <span style="color: #525252">{{stepText}}</span>
+                </div>
+                <div style="height: 8px; background: #e5e5e5; border-radius: 4px; overflow: hidden">
+                  <div style="{{barStyle}}"></div>
+                </div>
+                <span style="font-size: 13px; color: #525252">{{workMsg}} · watch the canvas →</span>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{hasSections}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; gap: 10px; align-items: flex-start">
+            <div aria-hidden="true" style="flex: none; width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; font-family: Georgia, 'Times New Roman', serif">B</div>
+            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 12px; color: #525252">Brahma · pathway</span>
+              <article aria-label="Pathway" style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 2px 12px 12px 12px; display: flex; flex-direction: column">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #e5e5e5; flex-wrap: wrap">
+                  <h3 style="margin: 0; font-size: 15px; font-weight: 600">Pathway</h3>
+                  <span style="font-size: 12px; color: #525252">IBD pack v1.3 · click a line to see its node</span>
+                </div>
+                <sc-if value="{{isAnswered}}" hint-placeholder-val="{{false}}">
+                  <div style="padding: 12px 14px; background: #fafafa; border-bottom: 1px solid #e5e5e5; display: flex; flex-direction: column; gap: 8px">
+                    <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #525252">Summary</span>
+                    <p style="margin: 0; font-size: 15px; font-weight: 600; line-height: 1.4">{{summary}}</p>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 12px">
+                      <span style="padding: 3px 8px; border: 1px solid #a3a3a3; border-radius: 4px">18 steps</span>
+                      <span style="padding: 3px 8px; border: 1px solid #4338ca; color: #4338ca; border-radius: 4px">✓ 18 cited</span>
+                      <span style="padding: 3px 8px; border: 1px solid #a3a3a3; border-radius: 4px">0 ungrounded</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                      <a href="Prescription.dc.html" style="display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 6px; background: #312e81; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600">℞ Generate prescription</a>
+                      <a href="FollowUp.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; color: #171717; text-decoration: none; font-size: 14px">◷ Plan follow-up visit</a>
+                    </div>
+                  </div>
+                </sc-if>
+                <div style="padding: 4px 6px 10px; display: flex; flex-direction: column; gap: 4px">
+                  <sc-for list="{{sections}}" as="sec" hint-placeholder-count="3">
+                    <div style="display: flex; flex-direction: column; gap: 2px; padding-top: 8px">
+                      <h4 style="margin: 0; padding: 0 10px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #525252">{{sec.n}} · {{sec.title}}</h4>
+                      <sc-if value="{{sec.hasNote}}" hint-placeholder-val="{{false}}">
+                        <p style="margin: 2px 10px 4px; font-size: 13px; color: #525252; line-height: 1.45">{{sec.note}}</p>
+                      </sc-if>
+                      <sc-for list="{{sec.lines}}" as="ln" hint-placeholder-count="2">
+                        <button type="button" onClick="{{ln.pick}}" aria-pressed="{{ln.pressed}}" style="{{ln.rowStyle}}">
+                          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+                            <span>{{ln.text}}</span>
+                            <sc-if value="{{ln.hasRx}}" hint-placeholder-val="{{false}}"><span style="font-size: 12.5px; color: #404040">℞ {{ln.rx}}</span></sc-if>
+                            <sc-if value="{{ln.hasRes}}" hint-placeholder-val="{{false}}"><span style="{{ln.resStyle}}">{{ln.res}}</span></sc-if>
+                            <sc-if value="{{ln.hasFlag}}" hint-placeholder-val="{{false}}">
+                              <span style="align-self: flex-start; font-size: 12px; font-weight: 600; padding: 2px 8px; border: 1.5px solid #171717; border-radius: 4px">▶ {{ln.flag}}</span>
+                            </sc-if>
+                          </span>
+                          <span style="{{ln.citeStyle}}">{{ln.cite}}</span>
+                        </button>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="padding: 10px 14px; border-top: 1px solid #e5e5e5; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #525252">
+                  <span>Decision support, not diagnosis · Knowledge v1.3</span>
+                  <sc-if value="{{isAnswered}}" hint-placeholder-val="{{false}}">
+                    <span>✓ Saved to audit as S-0143 · <a href="History.dc.html" style="color: #4338ca">View in history</a></span>
+                  </sc-if>
+                </div>
+              </article>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{isNeeds}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; gap: 10px; align-items: flex-start">
+            <div aria-hidden="true" style="flex: none; width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; font-family: Georgia, 'Times New Roman', serif">B</div>
+            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 12px; color: #525252">Brahma · form · needs your input</span>
+              <div style="background: #ffffff; border: 2px solid #171717; border-radius: 2px 12px 12px 12px; padding: 14px; display: flex; flex-direction: column; gap: 12px">
+                <span style="font-size: 14px; line-height: 1.5">To narrow IBD to a sub-type I need four results (marked ? on the map). Fill them in here, or type them in the chat.</span>
+                <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+                  <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                    <label for="stool" style="font-size: 13px; font-weight: 500">Stool culture · C. diff</label>
+                    <select id="stool" value="{{ex.stool}}" onChange="{{onStool}}" style="min-height: 44px; padding: 0 8px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px; background: #ffffff">
+                      <option value="neg">Negative</option>
+                      <option value="pos">Positive</option>
+                    </select>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                    <label for="colon" style="font-size: 13px; font-weight: 500">Colonoscopy + biopsy</label>
+                    <select id="colon" value="{{ex.colon}}" onChange="{{onColon}}" style="min-height: 44px; padding: 0 8px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px; background: #ffffff">
+                      <option value="uc">Continuous from rectum (UC pattern)</option>
+                      <option value="crohn">Patchy / ileal (Crohn's pattern)</option>
+                    </select>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                    <label for="ext" style="font-size: 13px; font-weight: 500">Extent</label>
+                    <select id="ext" value="{{ex.extent}}" onChange="{{onExtent}}" style="min-height: 44px; padding: 0 8px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px; background: #ffffff">
+                      <option value="E1">E1 · Proctitis</option>
+                      <option value="E2">E2 · Left-sided</option>
+                      <option value="E3">E3 · Pancolitis</option>
+                    </select>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                    <label for="sev" style="font-size: 13px; font-weight: 500">Severity score</label>
+                    <select id="sev" value="{{ex.sev}}" onChange="{{onSev}}" style="min-height: 44px; padding: 0 8px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px; background: #ffffff">
+                      <option value="mild">Mild</option>
+                      <option value="moderate">Moderate</option>
+                      <option value="severe">Severe</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+                  <button type="button" onClick="{{refine}}" style="min-height: 44px; padding: 0 16px; border-radius: 6px; border: 1px solid #312e81; background: #312e81; color: #ffffff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Send results</button>
+                  <span style="font-size: 13px; color: #525252">Not back yet? Exit; the case resumes here.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{isOok}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; gap: 10px; align-items: flex-start">
+            <div aria-hidden="true" style="flex: none; width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; font-family: Georgia, 'Times New Roman', serif">B</div>
+            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 12px; color: #525252">Brahma</span>
+              <div role="status" style="background: #ffffff; border: 2px dashed #171717; border-radius: 2px 12px 12px 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+                <strong style="font-size: 15px">⊘ No grounded answer</strong>
+                <span style="font-size: 14px; color: #525252; line-height: 1.5">{{ookText}}</span>
+                <span style="font-size: 14px; line-height: 1.5"><strong>Nothing has been guessed.</strong> Logged to the audit as "out of knowledge".</span>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                  <button type="button" onClick="{{editInputs}}" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 14px; cursor: pointer">Edit findings</button>
+                  <a href="Knowledge.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; color: #171717; text-decoration: none; font-size: 14px">Suggest knowledge to add</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; gap: 10px; align-items: flex-start">
+            <div aria-hidden="true" style="flex: none; width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; font-family: Georgia, 'Times New Roman', serif">B</div>
+            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 12px; color: #525252">System</span>
+              <div role="alert" style="background: #ffffff; border: 2px solid #171717; border-radius: 2px 12px 12px 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+                <strong style="font-size: 15px">⚠ The graph service didn't respond</strong>
+                <span style="font-size: 14px; color: #525252; line-height: 1.5">Nothing was answered or guessed. Your messages are kept.</span>
+                <span style="font-size: 12px; color: #525252; font-family: ui-monospace, Menlo, monospace">Ref: [error code] · [timestamp]</span>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                  <button type="button" onClick="{{walk}}" style="min-height: 44px; padding: 0 16px; border-radius: 6px; border: 1px solid #312e81; background: #312e81; color: #ffffff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Retry</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-for list="{{log}}" as="e" hint-placeholder-count="0">
+          <sc-if value="{{e.hasUser}}" hint-placeholder-val="{{true}}">
+            <div style="display: flex; justify-content: flex-end">
+              <div style="max-width: 85%; display: flex; flex-direction: column; gap: 4px; align-items: flex-end">
+                <span style="font-size: 12px; color: #525252">Dr. Maya</span>
+                <div style="background: #e5e5e5; border-radius: 12px 12px 2px 12px; padding: 10px 14px; font-size: 14px; line-height: 1.5">{{e.userText}}</div>
+              </div>
+            </div>
+          </sc-if>
+          <div style="display: flex; gap: 10px; align-items: flex-start">
+            <div aria-hidden="true" style="flex: none; width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; font-family: Georgia, 'Times New Roman', serif">B</div>
+            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+              <span style="font-size: 12px; color: #525252">{{e.who}}</span>
+
+              <sc-if value="{{e.isNote}}" hint-placeholder-val="{{true}}">
+                <div style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 2px 12px 12px 12px; padding: 12px 14px; font-size: 14px; line-height: 1.5; display: flex; flex-direction: column; gap: 8px">
+                  <span>Added to the case history. It changes the findings, so I'll re-walk the graph with it when you're ready.</span>
+                  <button type="button" onClick="{{editInputs}}" style="align-self: flex-start; min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 13px; cursor: pointer">Review findings and re-walk</button>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{e.isExplore}}" hint-placeholder-val="{{false}}">
+                <div style="background: #ffffff; border: 2px dashed #a21caf; border-radius: 2px 12px 12px 12px; padding: 12px 14px; font-size: 14px; line-height: 1.5; display: flex; flex-direction: column; gap: 8px">
+                  <strong style="color: #86198f">⌖ Exploring: Infectious colitis</strong>
+                  <span>This is a side branch. It does not change the main plan. To confirm or rule it out, the pack lists: stool PCR panel <span style="font-family: ui-monospace, Menlo, monospace; font-size: 11px">E1</span> and ova &amp; parasites <span style="font-family: ui-monospace, Menlo, monospace; font-size: 11px">E2</span>, both not yet tested. Stool culture is shared with the main path and came back ✓ negative, which makes this branch less likely.</span>
+                  <span style="font-size: 13px; color: #525252">Shown in magenta on the map.</span>
+                  <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                    <button type="button" onClick="{{orderExploreTests}}" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #312e81; background: #312e81; color: #ffffff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Add these tests to the plan</button>
+                    <button type="button" onClick="{{stopExplore}}" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 13px; cursor: pointer">Stop exploring</button>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{e.isExploreNone}}" hint-placeholder-val="{{false}}">
+                <div style="background: #ffffff; border: 2px dashed #171717; border-radius: 2px 12px 12px 12px; padding: 12px 14px; font-size: 14px; line-height: 1.5; display: flex; flex-direction: column; gap: 8px">
+                  <strong>⊘ Nothing grounded to explore</strong>
+                  <span>The Crohn’s disease branch isn't in IBD pack v1.3, so I have no tests or treatments to show for it. I won't fill the gap from memory.</span>
+                  <a href="Knowledge.dc.html" style="align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #a3a3a3; color: #171717; text-decoration: none; font-size: 13px">Suggest adding this branch</a>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{e.isInfo}}" hint-placeholder-val="{{false}}">
+                <div style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 2px 12px 12px 12px; padding: 12px 14px; font-size: 14px; line-height: 1.5">{{e.infoText}}</div>
+              </sc-if>
+
+              <sc-if value="{{e.isRxLink}}" hint-placeholder-val="{{false}}">
+                <div style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 2px 12px 12px 12px; padding: 12px 14px; font-size: 14px; line-height: 1.5; display: flex; flex-direction: column; gap: 8px">
+                  <span>I've drafted a prescription from the current plan, including your edits. Review it, run the safety checks and sign it.</span>
+                  <a href="Prescription.dc.html" style="align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 6px; background: #312e81; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600">℞ Open draft prescription</a>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{e.isRxForm}}" hint-placeholder-val="{{false}}">
+                <div style="background: #ffffff; border: 2px solid #171717; border-radius: 2px 12px 12px 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+                  <span style="font-size: 14px; line-height: 1.5"><strong>Edit treatment: {{e.rxTitle}}</strong> · prefilled with the pack's suggestion. Change what you need, then apply.</span>
+                  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+                    <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                      <label for="{{e.idDrug}}" style="font-size: 13px; font-weight: 500">Drug</label>
+                      <select id="{{e.idDrug}}" value="{{e.f.drug}}" onChange="{{e.onDrug}}" style="min-height: 44px; padding: 0 8px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px; background: #ffffff">
+                        <sc-for list="{{e.drugOpts}}" as="o" hint-placeholder-count="2"><option value="{{o}}">{{o}}</option></sc-for>
+                      </select>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                      <label for="{{e.idRoute}}" style="font-size: 13px; font-weight: 500">Route</label>
+                      <input id="{{e.idRoute}}" value="{{e.f.route}}" onChange="{{e.onRoute}}" style="min-height: 44px; padding: 0 10px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                      <label for="{{e.idDose}}" style="font-size: 13px; font-weight: 500">Dose</label>
+                      <input id="{{e.idDose}}" value="{{e.f.dose}}" onChange="{{e.onDose}}" style="min-height: 44px; padding: 0 10px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                      <label for="{{e.idFreq}}" style="font-size: 13px; font-weight: 500">Frequency</label>
+                      <input id="{{e.idFreq}}" value="{{e.f.freq}}" onChange="{{e.onFreq}}" style="min-height: 44px; padding: 0 10px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0; grid-column: span 2">
+                      <label for="{{e.idDur}}" style="font-size: 13px; font-weight: 500">Duration / review</label>
+                      <input id="{{e.idDur}}" value="{{e.f.duration}}" onChange="{{e.onDur}}" style="min-height: 44px; padding: 0 10px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px">
+                    </div>
+                  </div>
+                  <span style="font-size: 12px; color: #525252">Checks run on apply: allergies ({{pt.allergies}}), weight {{pt.weight}} kg, comorbidities. Your edit is logged against the suggestion in the audit.</span>
+                  <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                    <button type="button" onClick="{{e.apply}}" style="min-height: 44px; padding: 0 16px; border-radius: 6px; border: 1px solid #312e81; background: #312e81; color: #ffffff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Apply changes</button>
+                    <button type="button" onClick="{{e.cancel}}" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 14px; cursor: pointer">Cancel</button>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{e.isPtForm}}" hint-placeholder-val="{{false}}">
+                <div style="background: #ffffff; border: 2px solid #171717; border-radius: 2px 12px 12px 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+                  <span style="font-size: 14px; line-height: 1.5"><strong>Edit patient details.</strong> Sex sets the reference ranges; weight sets mg/kg doses.</span>
+                  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+                    <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                      <label for="{{e.idSex}}" style="font-size: 13px; font-weight: 500">Sex</label>
+                      <select id="{{e.idSex}}" value="{{e.p.sex}}" onChange="{{e.onSex}}" style="min-height: 44px; padding: 0 8px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px; background: #ffffff">
+                        <option value="Female">Female</option>
+                        <option value="Male">Male</option>
+                        <option value="Not recorded">Not recorded</option>
+                      </select>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                      <label for="{{e.idWt}}" style="font-size: 13px; font-weight: 500">Weight (kg)</label>
+                      <input id="{{e.idWt}}" value="{{e.p.weight}}" onChange="{{e.onWt}}" style="min-height: 44px; padding: 0 10px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                      <label for="{{e.idCo}}" style="font-size: 13px; font-weight: 500">Comorbidities</label>
+                      <input id="{{e.idCo}}" value="{{e.p.comorb}}" onChange="{{e.onCo}}" style="min-height: 44px; padding: 0 10px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                      <label for="{{e.idAl}}" style="font-size: 13px; font-weight: 500">Allergies</label>
+                      <input id="{{e.idAl}}" value="{{e.p.allergies}}" onChange="{{e.onAl}}" style="min-height: 44px; padding: 0 10px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 14px">
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                    <button type="button" onClick="{{e.apply}}" style="min-height: 44px; padding: 0 16px; border-radius: 6px; border: 1px solid #312e81; background: #312e81; color: #ffffff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Save details</button>
+                    <button type="button" onClick="{{e.cancel}}" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 14px; cursor: pointer">Cancel</button>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{e.isDone}}" hint-placeholder-val="{{false}}">
+                <div style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 2px 12px 12px 12px; padding: 12px 14px; font-size: 14px; line-height: 1.5">{{e.doneText}}</div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="padding: 12px 16px; border-top: 1px solid #e5e5e5; display: flex; flex-direction: column; gap: 6px; background: #ffffff; border-radius: 0 0 8px 8px">
+        <label for="composer" style="font-size: 13px; font-weight: 500">{{composerLabel}}</label>
+        <div style="display: flex; gap: 8px; align-items: flex-end">
+          <textarea id="composer" rows="3" value="{{composerVal}}" onChange="{{onComposer}}" placeholder="{{composerHint}}" style="flex: 1; min-width: 0; font: inherit; font-size: 14px; line-height: 1.5; padding: 10px 12px; border: 1px solid #a3a3a3; border-radius: 6px; resize: vertical"></textarea>
+          <button type="button" onClick="{{send}}" disabled="{{composerEmpty}}" style="min-height: 44px; padding: 0 18px; border-radius: 6px; border: 1px solid #312e81; background: #312e81; color: #ffffff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Send</button>
+        </div>
+        <span style="font-size: 12px; color: #525252">Decision support, not diagnosis · answers come only from the knowledge graph</span>
+      </div>
+    </section>
+
+    <section aria-label="Graph canvas" style="flex: 999 1 600px; min-width: 0; background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; display: flex; flex-direction: column">
+      <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; border-bottom: 1px solid #e5e5e5">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap">
+          <h2 style="margin: 0; font-size: 16px; font-weight: 600">Graph region used <span style="font-weight: 400; color: #525252; font-size: 13px">· IBD v1.3 · network map</span></h2>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #525252; align-items: center">
+            <span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 20px; height: 0; border-top: 2.5px solid #4338ca"></span>Path walked</span>
+            <span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 20px; height: 0; border-top: 1.5px solid #a3a3a3"></span>Bypassed</span>
+            <span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 20px; height: 0; border-top: 1.5px dashed #737373"></span>Not taken</span>
+            <span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 20px; height: 0; border-top: 2px dashed #a21caf"></span>Exploring</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: #404040; align-items: center">
+          <span style="display: flex; align-items: center; gap: 5px"><span aria-hidden="true" style="width: 16px; height: 16px; border-radius: 50%; background: #15803d; color: #ffffff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center">✓</span>Done / tested</span>
+          <span style="display: flex; align-items: center; gap: 5px"><span aria-hidden="true" style="width: 16px; height: 16px; box-sizing: border-box; border-radius: 50%; border: 1.5px solid #b45309; background: #fffbeb; color: #b45309; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center">?</span>Test needed</span>
+          <span style="display: flex; align-items: center; gap: 5px"><span aria-hidden="true" style="padding: 0 5px; border-radius: 3px; background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; font-weight: 600; font-size: 11px">↓ ↑ !</span>Out of range</span>
+          <span style="display: flex; align-items: center; gap: 5px"><span aria-hidden="true" style="padding: 0 5px; border-radius: 3px; background: #f0fdf4; color: #15803d; border: 1px solid #86efac; font-weight: 600; font-size: 11px">✓</span>Normal</span>
+          <span style="display: flex; align-items: center; gap: 5px"><span aria-hidden="true" style="font-size: 12px">◷</span>Planned</span>
+        </div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: stretch; flex: 1">
+        <div style="flex: 999 1 480px; min-width: 0; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+          <sc-if value="{{hasHint}}" hint-placeholder-val="{{true}}">
+            <p style="margin: 0; padding: 10px 12px; border: 1px dashed #a3a3a3; border-radius: 6px; font-size: 13px; color: #525252">{{canvasHint}}</p>
+          </sc-if>
+          <div role="group" aria-label="Zoom the graph" style="display: flex; gap: 4px; align-items: center; justify-content: flex-end; flex-wrap: wrap">
+            <button type="button" aria-label="Zoom out" onClick="{{zoomOut}}" style="width: 44px; height: 44px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 18px; cursor: pointer">−</button>
+            <span role="status" style="min-width: 52px; text-align: center; font-size: 13px; font-family: ui-monospace, Menlo, monospace">{{zoomPct}}</span>
+            <button type="button" aria-label="Zoom in" onClick="{{zoomIn}}" style="width: 44px; height: 44px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 18px; cursor: pointer">+</button>
+            <button type="button" onClick="{{zoomFit}}" style="min-height: 44px; padding: 0 12px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 13px; cursor: pointer">Fit</button>
+            <button type="button" onClick="{{zoomReset}}" style="min-height: 44px; padding: 0 12px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 13px; cursor: pointer">100%</button>
+          </div>
+          <div style="overflow: auto; padding-bottom: 4px; max-height: 760px; border: 1px solid #e5e5e5; border-radius: 6px; background: #fcfcfc">
+          <div style="{{zoomBox}}">
+          <div style="{{zoomInner}}">
+            <div style="position: relative; width: 720px; height: 28px">
+              <sc-for list="{{heads}}" as="h" hint-placeholder-count="6">
+                <span style="{{h.style}}">{{h.t}}</span>
+              </sc-for>
+            </div>
+            <div style="{{mapStyle}}">
+              <svg aria-hidden="true" width="720" height="400" viewBox="0 0 720 400" style="position: absolute; left: 0; top: 0; pointer-events: none">
+                <g fill="none" stroke="#e5e5e5" stroke-width="1.5">
+                  <path d="M100 36 C112 36 112 122 124 122"></path><path d="M100 122 L124 122"></path><path d="M100 208 C112 208 112 122 124 122"></path>
+                  <path d="M224 122 C236 122 236 36 248 36"></path><path d="M224 122 L248 122"></path><path d="M224 122 C236 122 236 208 248 208"></path><path d="M224 122 C236 122 236 294 248 294"></path>
+                  <path d="M348 122 C360 122 360 79 372 79"></path><path d="M348 208 L372 208"></path><path d="M348 294 C360 294 360 208 372 208"></path><path d="M422 115 L422 172"></path>
+                  <path d="M472 208 C484 208 484 176 496 176"></path><path d="M472 208 C484 208 484 79 496 79"></path><path d="M546 115 L546 140"></path><path d="M546 212 L546 237"></path>
+                  <path d="M596 176 C608 176 608 36 620 36"></path><path d="M596 176 C608 176 608 118 620 118"></path><path d="M596 176 C608 176 608 200 620 200"></path><path d="M596 176 C608 176 608 282 620 282"></path><path d="M596 176 C608 176 608 364 620 364"></path>
+                  <path d="M100 36 C112 36 112 294 124 294"></path><path d="M348 122 C360 122 360 337 372 337"></path>
+                </g>
+              </svg>
+              <sc-if value="{{edgesA}}" hint-placeholder-val="{{false}}">
+                <svg aria-hidden="true" width="720" height="400" viewBox="0 0 720 400" style="position: absolute; left: 0; top: 0; pointer-events: none">
+                  <g fill="none" stroke="#4338ca" stroke-width="2.5">
+                    <path d="M100 36 C112 36 112 122 124 122"></path><path d="M100 122 L124 122"></path><path d="M100 208 C112 208 112 122 124 122"></path>
+                    <path d="M224 122 C236 122 236 36 248 36"></path><path d="M224 122 L248 122"></path><path d="M224 122 C236 122 236 208 248 208"></path><path d="M224 122 C236 122 236 294 248 294"></path>
+                  </g>
+                  <g fill="none" stroke="#737373" stroke-width="1.5" stroke-dasharray="5 4"><path d="M100 36 C112 36 112 294 124 294"></path></g>
+                </svg>
+              </sc-if>
+              <sc-if value="{{edgesB}}" hint-placeholder-val="{{false}}">
+                <svg aria-hidden="true" width="720" height="400" viewBox="0 0 720 400" style="position: absolute; left: 0; top: 0; pointer-events: none">
+                  <g fill="none" stroke="#4338ca" stroke-width="2.5">
+                    <path d="M348 122 C360 122 360 79 372 79"></path><path d="M348 208 L372 208"></path><path d="M348 294 C360 294 360 208 372 208"></path><path d="M422 115 L422 172"></path>
+                    <path d="M546 212 L546 237"></path>
+                    <path d="M596 176 C608 176 608 36 620 36"></path><path d="M596 176 C608 176 608 118 620 118"></path><path d="M596 176 C608 176 608 200 620 200"></path><path d="M596 176 C608 176 608 282 620 282"></path><path d="M596 176 C608 176 608 364 620 364"></path>
+                  </g>
+                  <g fill="none" stroke="#737373" stroke-width="1.5" stroke-dasharray="5 4"><path d="M348 122 C360 122 360 337 372 337"></path></g>
+                </svg>
+              </sc-if>
+              <sc-if value="{{edgesTier2}}" hint-placeholder-val="{{false}}">
+                <svg aria-hidden="true" width="720" height="400" viewBox="0 0 720 400" style="position: absolute; left: 0; top: 0; pointer-events: none">
+                  <g fill="none" stroke="#4338ca" stroke-width="2.5"><path d="M472 208 C484 208 484 176 496 176"></path></g>
+                  <g fill="none" stroke="#a3a3a3" stroke-width="1.5"><path d="M472 208 C484 208 484 79 496 79"></path></g>
+                </svg>
+              </sc-if>
+              <sc-if value="{{edgesTier1}}" hint-placeholder-val="{{false}}">
+                <svg aria-hidden="true" width="720" height="400" viewBox="0 0 720 400" style="position: absolute; left: 0; top: 0; pointer-events: none">
+                  <g fill="none" stroke="#4338ca" stroke-width="2.5"><path d="M472 208 C484 208 484 79 496 79"></path><path d="M546 115 L546 140"></path></g>
+                </svg>
+              </sc-if>
+              <sc-if value="{{edgesCrohn}}" hint-placeholder-val="{{false}}">
+                <svg aria-hidden="true" width="720" height="400" viewBox="0 0 720 400" style="position: absolute; left: 0; top: 0; pointer-events: none">
+                  <g fill="none" stroke="#171717" stroke-width="2" stroke-dasharray="5 4"><path d="M348 122 C360 122 360 337 372 337"></path></g>
+                </svg>
+              </sc-if>
+              <sc-if value="{{exploring}}" hint-placeholder-val="{{false}}">
+                <svg aria-hidden="true" width="720" height="500" viewBox="0 0 720 500" style="position: absolute; left: 0; top: 0; pointer-events: none">
+                  <g fill="none" stroke="#a21caf" stroke-width="2" stroke-dasharray="6 4"><path d="M224 294 C236 294 236 446 248 446"></path><path d="M348 446 L372 446"></path><path d="M472 446 L496 446"></path><path d="M224 294 C236 294 236 36 248 36"></path></g>
+                </svg>
+              </sc-if>
+              <sc-for list="{{mapNodes}}" as="nd" hint-placeholder-count="20">
+                <button type="button" onClick="{{nd.pick}}" aria-pressed="{{nd.pressed}}" aria-label="{{nd.aria}}" style="{{nd.style}}">
+                  <span style="display: flex; align-items: center; gap: 4px; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.04em">
+                    <sc-if value="{{nd.hasBadge}}" hint-placeholder-val="{{false}}"><span aria-hidden="true" style="{{nd.badgeStyle}}">{{nd.badge}}</span></sc-if>
+                    <span style="flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis">{{nd.type}}</span>
+                    <span style="font-family: ui-monospace, Menlo, monospace">{{nd.cite}}</span>
+                  </span>
+                  <span style="font-weight: 600; font-size: 12px; line-height: 1.2">{{nd.label}}</span>
+                  <sc-if value="{{nd.hasRes}}" hint-placeholder-val="{{false}}"><span style="{{nd.resStyle}}">{{nd.res}}</span></sc-if>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+          </div>
+          </div>
+        </div>
+
+        <sc-if value="{{hasSel}}" hint-placeholder-val="{{false}}">
+          <aside aria-label="Node detail" style="flex: 1 1 300px; max-width: 380px; min-width: 0; border-left: 1px solid #d4d4d4; background: #fafafa; padding: 16px; display: flex; flex-direction: column; gap: 12px; border-radius: 0 0 8px 0">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+              <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 8px; border: 1px solid #171717; border-radius: 4px">{{sel.type}} · {{sel.cite}}</span>
+              <button type="button" aria-label="Close node detail" onClick="{{closeSel}}" style="width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center">
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg>
+              </button>
+            </div>
+            <h3 style="margin: 0; font-size: 18px; font-weight: 600; line-height: 1.3">{{sel.label}}</h3>
+            <span style="font-size: 13px; font-weight: 600">{{sel.status}}</span>
+            <sc-if value="{{sel.hasRes}}" hint-placeholder-val="{{false}}">
+              <div style="{{sel.resBox}}">
+                <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em">{{sel.resHead}}</span>
+                <span style="font-size: 18px; font-weight: 700">{{sel.resValue}}</span>
+                <span style="font-size: 13px">Reference: {{sel.resRef}}</span>
+              </div>
+            </sc-if>
+            <p style="margin: 0; font-size: 14px; line-height: 1.5">{{sel.detail}}</p>
+            <sc-if value="{{sel.canExplore}}" hint-placeholder-val="{{false}}">
+              <button type="button" onClick="{{sel.explore}}" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 2px dashed #a21caf; background: #fdf4ff; color: #86198f; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">⌖ Explore this pathway</button>
+              <span style="font-size: 12px; color: #525252">Or ask in the chat: "explore {{sel.labelLower}}". The main plan stays as it is.</span>
+            </sc-if>
+            <sc-if value="{{sel.isExploringSel}}" hint-placeholder-val="{{false}}">
+              <button type="button" onClick="{{stopExplore}}" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 14px; cursor: pointer">Stop exploring</button>
+            </sc-if>
+            <sc-if value="{{sel.isRx}}" hint-placeholder-val="{{false}}">
+              <div style="border: 1px solid #d4d4d4; border-radius: 6px; background: #ffffff; display: flex; flex-direction: column">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid #e5e5e5; flex-wrap: wrap">
+                  <strong style="font-size: 14px">Treatment plan</strong>
+                  <span style="{{sel.rxTagStyle}}">{{sel.rxTag}}</span>
+                </div>
+                <div style="padding: 10px 12px; display: flex; flex-direction: column; gap: 6px">
+                  <sc-for list="{{sel.rxRows}}" as="r" hint-placeholder-count="7">
+                    <div style="display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 8px; font-size: 13px; line-height: 1.4">
+                      <span style="color: #525252">{{r.k}}</span>
+                      <span style="{{r.style}}">{{r.v}} {{r.mark}}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="padding: 10px 12px; border-top: 1px solid #e5e5e5; display: flex; flex-direction: column; gap: 6px">
+                  <button type="button" onClick="{{sel.editRx}}" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #312e81; background: #312e81; color: #ffffff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Edit treatment (opens a form in the chat)</button>
+                  <span style="font-size: 12px; color: #525252">Or type it in the chat, e.g. "change dose to 40 mg" or "switch to hydrocortisone". Values in [brackets] are placeholders until the pack's source is loaded.</span>
+                </div>
+              </div>
+            </sc-if>
+            <dl style="margin: 0; display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 6px 10px; font-size: 13px; padding: 10px; background: #ffffff; border: 1px solid #d4d4d4; border-radius: 6px">
+              <dt style="color: #525252">Source</dt><dd style="margin: 0">{{sel.src}} · <a href="#src" style="color: #4338ca">Open ↗</a></dd>
+              <dt style="color: #525252">Version</dt><dd style="margin: 0; font-family: ui-monospace, Menlo, monospace">{{sel.version}}</dd>
+              <dt style="color: #525252">Node ID</dt><dd style="margin: 0; font-family: ui-monospace, Menlo, monospace">{{sel.id}}</dd>
+            </dl>
+            <h4 style="margin: 4px 0 0; font-size: 13px; font-weight: 600">Comments ({{sel.nComments}})</h4>
+            <sc-if value="{{sel.noComments}}" hint-placeholder-val="{{false}}">
+              <p style="margin: 0; font-size: 13px; color: #525252">No comments yet.</p>
+            </sc-if>
+            <sc-for list="{{sel.comments}}" as="cm" hint-placeholder-count="1">
+              <div style="padding: 8px 10px; border: 1px solid #d4d4d4; background: #ffffff; border-radius: 6px; display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 12px; color: #525252">{{cm.who}} · {{cm.when}}</span>
+                <span style="font-size: 13px; line-height: 1.45">{{cm.text}}</span>
+              </div>
+            </sc-for>
+            <label for="cmt" style="font-size: 13px; font-weight: 500">Add a comment</label>
+            <textarea id="cmt" rows="2" value="{{draft}}" onChange="{{onDraft}}" style="font: inherit; font-size: 13px; padding: 8px 10px; border: 1px solid #a3a3a3; border-radius: 6px; resize: vertical"></textarea>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap">
+              <button type="button" onClick="{{post}}" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #312e81; background: #312e81; color: #ffffff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">Post</button>
+              <a href="Knowledge.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; color: #171717; text-decoration: none; font-size: 13px">Suggest a change</a>
+            </div>
+          </aside>
+        </sc-if>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"initial":{"editor":"enum","options":["empty","confirm","working","needsData","answered","detail","explore","rxEdit","ook","error"],"default":"empty","section":"Demo state"},"$preview":{"width":1440,"height":1000}}'>
+var IBD_TEXT = '34-year-old woman, bloody stool on and off for 6 months, Hb 10.2 g/dL, faecal calprotectin 850 µg/g';
+var OOK_TEXT = '52-year-old, headache for 3 weeks with visual aura';
+function ibdChips() { return [
+  { kind: 'Context', name: 'Age', value: '34', unit: 'years' },
+  { kind: 'Symptom', name: 'Bloody stool', value: '6', unit: 'months' },
+  { kind: 'Metric', name: 'Haemoglobin', value: '10.2', unit: 'g/dL' },
+  { kind: 'Metric', name: 'Faecal calprotectin', value: '850', unit: 'µg/g' }
+]; }
+function ookChips() { return [
+  { kind: 'Context', name: 'Age', value: '52', unit: 'years' },
+  { kind: 'Symptom', name: 'Headache', value: '3', unit: 'weeks' },
+  { kind: 'Symptom', name: 'Visual aura', value: '', unit: '' }
+]; }
+var SG = '[UC management guideline, year] · §[section]';
+var SD = '[IBD diagnostic consensus, year] · §[section]';
+var SL = '[Lab reference ranges] · [table]';
+var NODES = {
+  f1: { type: 'Symptom', label: 'Bloody stool · 6 mo', line: 'Bloody stool, on and off for 6 months', detail: 'Rectal bleeding with loose stool for more than 4 weeks. The chronic course is what moves the walk toward IBD rather than an acute cause.', src: SD },
+  f2: { type: 'Metric', label: 'Hb 10.2 g/dL · low', line: 'Haemoglobin 10.2 g/dL — below reference range', detail: 'Anaemia supports active inflammation or blood loss. Threshold: [reference range from source].', src: SL },
+  f3: { type: 'Metric', label: 'Calprotectin 850 µg/g · high', line: 'Faecal calprotectin 850 µg/g — markedly raised', detail: 'Marker of intestinal inflammation. Above [threshold] favours an inflammatory over a functional cause.', src: SD },
+  d1: { type: 'Diagnosis', label: 'Inflammatory bowel disease', line: 'Inflammatory bowel disease (IBD)', detail: 'Entry pattern: chronic bloody diarrhoea plus raised faecal calprotectin, with or without anaemia. Confirm with endoscopy and histology.', src: SD },
+  d2: { type: 'Diagnosis', label: 'Infectious colitis', alt: true, detail: 'Considered and kept open until stool tests return. Less likely given a course over 4 weeks.', src: SD },
+  t0: { type: 'Test', label: 'Stool culture · C. diff', line: 'Stool culture and C. difficile toxin — exclude infection first', detail: 'Rule out infection before labelling IBD or starting steroids.', src: SD },
+  t1: { type: 'Test', label: 'Colonoscopy + biopsy', line: 'Colonoscopy with biopsy — confirms IBD and separates UC from Crohn’s', detail: 'Branches: continuous inflammation from the rectum → ulcerative colitis; patchy, transmural or ileal → Crohn’s disease.', src: SD },
+  t2: { type: 'Test', label: 'Extent (Montreal E1–E3)', line: 'Extent mapping (Montreal E1–E3) — how much colon is involved', detail: 'E1 proctitis · E2 left-sided · E3 extensive (pancolitis). Extent changes the therapy route and surveillance.', src: SD },
+  t3: { type: 'Test', label: 'Severity (Mayo / Truelove & Witts)', line: 'Severity scoring (Mayo / Truelove & Witts) — sets the treatment entry tier', detail: 'Mild · moderate · severe. Severity decides where on the treatment ladder the patient enters.', src: SG },
+  s1: { type: 'Diagnosis', label: 'Ulcerative colitis', line: 'Ulcerative colitis', detail: 'Confirmed by continuous mucosal inflammation from the rectum on colonoscopy and biopsy.', src: SD },
+  s2: { type: 'Diagnosis', label: 'Crohn’s disease', alt: true, detail: 'The other branch of the colonoscopy result.', src: SD },
+  s3: { type: 'Diagnosis', label: 'Extent · severity', line: '', detail: 'Refined sub-type: combines the extent and severity results.', src: SD },
+  x1: { type: 'Treatment tier', label: 'Tier 1 · Mesalamine', line: 'Tier 1 · Mesalamine (5-ASA). Entry: mild to moderate disease', detail: 'First line for mild to moderate UC. Step up if response is not adequate by [timeframe from source].', src: SG },
+  x2: { type: 'Treatment tier', label: 'Tier 2 · Corticosteroids', line: 'Tier 2 · Corticosteroids (IV if severe). Entry: severe disease, or Tier 1 not enough', detail: 'Induction for moderate to severe disease. Severe disease enters the ladder here. Review response at day [n from source].', src: SG },
+  x3: { type: 'Treatment tier', label: 'Tier 3 · Biologics', line: 'Tier 3 · Biologics — infliximab (Remicade) or ustekinumab (Stelara). Entry: steroid-refractory or steroid-dependent', detail: 'Options and when each fits: infliximab (Remicade) — [fit criteria from source]; ustekinumab (Stelara) — [fit criteria from source].', src: SG },
+  m1: { type: 'Monitoring', label: 'Calprotectin trend', line: 'Calprotectin — recheck at [interval]; target below [threshold]', detail: 'Objective marker of response. A rising value triggers review.', src: SG },
+  m2: { type: 'Monitoring', label: 'Hb · stool frequency', line: 'Haemoglobin and stool frequency — trend each visit; escalate if [threshold]', detail: 'Tracks anaemia recovery and clinical response.', src: SG },
+  di1: { type: 'Diet', label: 'Diet guidance', line: 'Diet — [guidance from source]', detail: 'Diet guidance for active disease and remission: [content from source].', src: '[Nutrition guidance, year] · §[section]' },
+  w1: { type: 'Watch-out', label: 'Toxic megacolon signs', line: 'Warning signs — fever, fast heart rate, abdominal distension: urgent review', detail: 'Red flags for toxic megacolon or perforation. Same-day senior and surgical review.', src: SG },
+  w2: { type: 'Escalation', label: 'Surgery trigger', line: 'Surgery trigger — no response to IV steroids by day [n] → rescue therapy or colectomy review', detail: 'Escalation rule: failure of IV steroids leads to rescue therapy or surgical consultation.', src: SG }
+};
+var ORDER1 = ['f1', 'f2', 'f3', 'd1', 't0', 't1', 't2', 't3'];
+var ORDER2 = ['s1', 's3', 'x1', 'x2', 'x3', 'm1', 'm2', 'di1', 'w1', 'w2'];
+var ALL = ORDER1.concat(ORDER2);
+var COLS = [
+  { t: 'Findings', ids: ['f1', 'f2', 'f3'] },
+  { t: 'Diagnosis', ids: ['d1', 'd2'] },
+  { t: 'Confirm & refine', ids: ['t0', 't1', 't2', 't3'] },
+  { t: 'Sub-type', ids: ['s1', 's2', 's3'] },
+  { t: 'Treatment tiers', ids: ['x1', 'x2', 'x3'] },
+  { t: 'Monitor · diet · watch', ids: ['m1', 'm2', 'di1', 'w1', 'w2'] }
+];
+var SECS = [
+  { t: 'Findings', ids: ['f1', 'f2', 'f3'] },
+  { t: 'Working diagnosis', ids: ['d1'], note: 'Why: chronic bloody diarrhoea (over 4 weeks) + raised calprotectin + anaemia match the IBD entry pattern. Infectious colitis stays open until stool tests return.' },
+  { t: 'Confirm and refine with', ids: ['t0', 't1', 't2', 't3'], note: 'Each result branches: UC or Crohn’s → extent → severity.' },
+  { t: 'Refined sub-type', ids: ['s1', 's3'] },
+  { t: 'Treatment plan, tiered', ids: ['x1', 'x2', 'x3'], note: 'Each tier shows its entry criteria. The patient enters the ladder where their severity fits.' },
+  { t: 'Monitor', ids: ['m1', 'm2'] },
+  { t: 'Diet', ids: ['di1'] },
+  { t: 'Watch-outs and surgery triggers', ids: ['w1', 'w2'] }
+];
+var SEED = {
+  d1: [{ who: 'Reviewer A', when: '14 Oct 2026', text: 'Entry pattern matches the current pack.' }],
+  x2: [
+    { who: 'Reviewer A', when: '14 Oct 2026', text: 'Day-[n] review threshold to be checked against the source.' },
+    { who: 'Dr. Maya', when: '21 Oct 2026', text: 'Add a line on the steroid-sparing plan.' }
+  ]
+};
+var PATIENTS = {
+  ibd: { name: 'Lakshmi R.', initials: 'LR', age: 34, sex: 'Female', weight: 58, pregnancy: 'Not pregnant (test negative)', comorb: 'Hypothyroidism (on treatment)', allergies: 'Penicillin', meds: 'Levothyroxine 50 µg once daily' },
+  ook: { name: 'Arun K.', initials: 'AK', age: 52, sex: 'Male', weight: 74, pregnancy: 'Not applicable', comorb: 'Type 2 diabetes · Hypertension', allergies: 'None recorded', meds: 'Metformin 500 mg twice daily · Amlodipine 5 mg daily' }
+};
+var HB_REF = { Female: [12.0, 15.5], Male: [13.5, 17.5] };
+var RX = {
+  x1: { tier: 'Tier 1', opts: ['Mesalamine'], drugs: {
+    Mesalamine: { type: 'Aminosalicylate (5-ASA)', route: 'Oral', dose: '[2.4–4.8 g/day]', freq: '[Once daily or divided]', duration: '[Induction ~8 weeks, then review]', checks: 'Renal function at baseline [per source]' } } },
+  x2: { tier: 'Tier 2', opts: ['Methylprednisolone', 'Hydrocortisone'], drugs: {
+    Methylprednisolone: { type: 'Corticosteroid', route: 'IV', dose: '[60 mg]', freq: '[Once daily]', duration: '[Review response at day 3]', checks: 'Infection excluded first (stool culture)' },
+    Hydrocortisone: { type: 'Corticosteroid', route: 'IV', dose: '[100 mg]', freq: '[Four times daily]', duration: '[Review response at day 3]', checks: 'Infection excluded first (stool culture)' } } },
+  x3: { tier: 'Tier 3', opts: ['Infliximab', 'Ustekinumab'], drugs: {
+    Infliximab: { type: 'Biologic · anti-TNF', route: 'IV infusion', dose: '[5 mg/kg]', perKg: 5, freq: '[Weeks 0, 2, 6, then every 8 weeks]', duration: '[Review at week 14]', checks: 'TB and hepatitis B screening before start [per source]' },
+    Ustekinumab: { type: 'Biologic · anti-IL-12/23', route: 'IV induction, then SC', dose: '[~6 mg/kg IV once, then SC]', perKg: 6, freq: '[SC every 8 weeks]', duration: '[Review at week 16]', checks: 'TB screening before start [per source]' } } }
+};
+function rxDefault(id, drug, w) {
+  var r = RX[id], d = drug || r.opts[0], s = r.drugs[d];
+  var dose = s.dose + (s.perKg && w ? ' ≈ ' + Math.round(s.perKg * w) + ' mg at ' + w + ' kg' : '');
+  return { drug: d, type: s.type, route: s.route, dose: dose, freq: s.freq, duration: s.duration, checks: s.checks };
+}
+var SX = '[Infectious diarrhoea guideline, year] · §[section]';
+NODES.e1 = { type: 'Test', label: 'Stool PCR panel', line: '', detail: 'Multiplex PCR for bacterial, viral and parasitic pathogens.', src: SX, explore: true };
+NODES.e2 = { type: 'Test', label: 'Ova & parasites', line: '', detail: 'Stool microscopy for parasites, if travel or exposure history.', src: SX, explore: true };
+NODES.e3 = { type: 'Treatment', label: 'Supportive care', line: '', detail: 'Hydration; targeted antimicrobials only if a pathogen is found [per source].', src: SX, explore: true };
+var EXT = { E1: 'Proctitis (E1)', E2: 'Left-sided (E2)', E3: 'Pancolitis (E3)' };
+var BASE_NODE = 'display: flex; flex-direction: column; gap: 4px; text-align: left; width: 100%; box-sizing: border-box; padding: 8px 10px; border-radius: 6px; font: inherit; font-size: 12px; line-height: 1.3; cursor: pointer; min-height: 44px; ';
+var BASE_LINE = 'display: flex; gap: 10px; align-items: flex-start; width: 100%; box-sizing: border-box; text-align: left; padding: 8px 10px; border-radius: 6px; font: inherit; font-size: 14px; line-height: 1.45; color: #171717; cursor: pointer; ';
+var CITE = 'flex: none; font-family: ui-monospace, Menlo, monospace; font-size: 11px; padding: 2px 6px; border: 1px solid #4338ca; border-radius: 4px; ';
+
+class Component extends DCLogic {
+  componentWillUnmount() { this.stop(); }
+  stop() { if (this._t) { clearInterval(this._t); this._t = null; } }
+  init() { return this.props.initial ?? 'empty'; }
+  stage() {
+    if (this.state.stage) return this.state.stage;
+    var i = this.init();
+    return (i === 'detail' || i === 'explore' || i === 'rxEdit') ? 'answered' : i;
+  }
+  preset() { return this.state.preset ?? (this.init() === 'ook' ? 'ook' : 'ibd'); }
+  run(stage, total, next, extra) {
+    this.stop();
+    var s = Object.assign({ stage: stage, lit: 0, sel: null }, extra || {});
+    this.setState(s);
+    var self = this; var n = 0;
+    this._t = setInterval(function () {
+      n += 1;
+      if (n >= total) { self.stop(); self.setState({ stage: next, lit: total }); }
+      else { self.setState({ lit: n }); }
+    }, 450);
+  }
+  renderVals() {
+    var self = this;
+    var init = this.init();
+    var stage = this.stage();
+    var preset = this.preset();
+    var ex = Object.assign({ stool: 'neg', colon: 'uc', extent: 'E3', sev: 'severe' }, this.state.ex || {});
+    var lit = this.state.lit ?? (stage === 'working' ? 5 : 0);
+    var text = this.state.text ?? (init === 'empty' ? '' : (preset === 'ook' ? OOK_TEXT : IBD_TEXT));
+    var chips = this.state.chips || (preset === 'ook' ? ookChips() : ibdChips());
+    var sel = this.state.sel !== undefined ? this.state.sel : ({ detail: 'x2', rxEdit: 'x2', explore: 'd2' })[init] || null;
+    var ookReason = this.state.ookReason ?? (preset === 'ook' ? 'entry' : 'crohn');
+    var tier = ex.sev === 'severe' ? 2 : 1;
+    var patient = Object.assign({}, PATIENTS[preset === 'ook' ? 'ook' : 'ibd'], this.state.patient || {});
+    var ptEmpty = init === 'empty' && stage === 'empty';
+    var cardOpen = this.state.cardOpen ?? (init === 'rxEdit');
+    var exploring = this.state.exploring ?? (init === 'explore');
+    var zoom = this.state.zoom ?? 1;
+    var rxEdits = this.state.rxEdits || {};
+    var rxOf = function (id) {
+      var e = rxEdits[id] || {};
+      var base = rxDefault(id, e.drug, patient.weight);
+      return { cur: Object.assign({}, base, e), edited: e };
+    };
+    var defaultLog = init === 'explore' ? [{ kind: 'explore', user: 'Explore: Infectious colitis (from the map)' }]
+      : init === 'rxEdit' ? [{ kind: 'rxForm', id: 'x2', user: 'Edit treatment: Tier 2 (from the map)', f: rxDefault('x2', null, patient.weight) }] : [];
+    var log = this.state.log ?? defaultLog;
+    var pushLog = function (entry, extra) { self.setState(Object.assign({ log: log.concat([entry]), note: '' }, extra || {})); };
+
+    var litIds = [];
+    if (stage === 'working') litIds = preset === 'ook' ? [] : ORDER1.slice(0, lit);
+    else if (stage === 'needsData') litIds = ORDER1;
+    else if (stage === 'working2') litIds = ORDER1.concat(ORDER2.slice(0, lit));
+    else if (stage === 'answered') litIds = ALL;
+    else if (stage === 'ook' && ookReason === 'crohn') litIds = ORDER1;
+    var isLit = function (id) { return litIds.indexOf(id) >= 0; };
+    var citeOf = function (id) { var i = ALL.indexOf(id); return i >= 0 ? 'N' + (i + 1) : ''; };
+    var pick = function (id) { return function () { self.setState({ sel: sel === id ? null : id, draft: '' }); }; };
+
+    var lineText = function (id) {
+      if (id === 's3') return 'Extent: ' + EXT[ex.extent] + ' · severity: ' + ex.sev;
+      return NODES[id].line;
+    };
+
+    var resultsSent = stage === 'working2' || stage === 'answered' || (stage === 'ook' && (ookReason === 'crohn' || ookReason === 'infect'));
+    var chipVal = function (name) { var c = chips.filter(function (x) { return (x.name || '').toLowerCase() === name; })[0]; return c ? parseFloat(c.value) : NaN; };
+    var RES_BASE = 'display: block; font-size: 10.5px; font-weight: 600; padding: 1px 5px; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ';
+    var RES_LOOK = {
+      abn: 'background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5;',
+      ok: 'background: #f0fdf4; color: #15803d; border: 1px solid #86efac;',
+      pending: 'background: #fffbeb; color: #92400e; border: 1px dashed #b45309;',
+      plan: 'background: #ffffff; color: #525252; border: 1px solid #d4d4d4;'
+    };
+    var TEST_REF = { t0: 'Negative', t1: 'Normal mucosa', t2: 'No colonic involvement', t3: 'Remission (Mayo 0–2)' };
+    var resOf = function (id) {
+      if (id === 'f1') {
+        var dur = chipVal('bloody stool');
+        return { flag: 'abn', short: '! Present · ' + (isNaN(dur) ? '—' : dur) + ' mo', value: 'Present for ' + (isNaN(dur) ? '—' : dur) + ' months', ref: 'Normally absent', head: '! Abnormal' };
+      }
+      if (id === 'f2') {
+        var hb = chipVal('haemoglobin');
+        if (isNaN(hb)) return { flag: 'pending', short: '? Result needed', value: 'Not entered', ref: 'Set by patient sex', head: '? Test needed' };
+        var rr = HB_REF[patient.sex];
+        var lo = rr ? rr[0] : 12.0, hi = rr ? rr[1] : 17.5;
+        var refTxt = rr ? lo.toFixed(1) + '–' + hi.toFixed(1) + ' g/dL (' + patient.sex.toLowerCase() + ', picked from the patient card)' : '12.0–17.5 g/dL (widest range: sex not recorded, confirm on the card)';
+        var low = hb < lo, hiFlag = hb > hi;
+        return { flag: (low || hiFlag) ? 'abn' : 'ok', short: (low ? '↓ ' : hiFlag ? '↑ ' : '✓ ') + hb + ' g/dL', value: hb + ' g/dL', ref: refTxt, head: low ? '↓ Low' : hiFlag ? '↑ High' : '✓ Normal' };
+      }
+      if (id === 'f3') {
+        var cal = chipVal('faecal calprotectin');
+        if (isNaN(cal)) return { flag: 'pending', short: '? Result needed', value: 'Not entered', ref: '< 50 µg/g', head: '? Test needed' };
+        var high = cal >= 50;
+        return { flag: high ? 'abn' : 'ok', short: (high ? '↑ ' : '✓ ') + cal + ' µg/g', value: cal + ' µg/g', ref: '< 50 µg/g', head: high ? '↑ High' : '✓ Normal' };
+      }
+      if (id === 't0' || id === 't1' || id === 't2' || id === 't3') {
+        if (!resultsSent) return { flag: 'pending', short: '? Result needed', value: 'Not yet tested', ref: TEST_REF[id], head: '? Test needed' };
+        if (id === 't0') return ex.stool === 'neg'
+          ? { flag: 'ok', short: '✓ Negative', value: 'Negative', ref: TEST_REF.t0, head: '✓ Normal' }
+          : { flag: 'abn', short: '! Positive', value: 'Positive', ref: TEST_REF.t0, head: '! Abnormal' };
+        if (id === 't1') return ex.colon === 'uc'
+          ? { flag: 'abn', short: '! UC pattern', value: 'Continuous inflammation from rectum', ref: TEST_REF.t1, head: '! Abnormal' }
+          : { flag: 'abn', short: '! Crohn’s pattern', value: 'Patchy / ileal inflammation', ref: TEST_REF.t1, head: '! Abnormal' };
+        if (id === 't2') return { flag: 'abn', short: '! ' + ex.extent, value: EXT[ex.extent], ref: TEST_REF.t2, head: '! Abnormal' };
+        return { flag: 'abn', short: '! ' + ex.sev.charAt(0).toUpperCase() + ex.sev.slice(1), value: 'Mayo: ' + ex.sev, ref: TEST_REF.t3, head: '! Active disease' };
+      }
+      if (id === 'm1') return { flag: 'plan', short: '◷ Target < [x]', value: 'Recheck at [interval]', ref: 'Below [threshold]', head: '◷ Planned' };
+      if (id === 'm2') return { flag: 'plan', short: '◷ Each visit', value: 'Trend at each visit', ref: 'Hb 12–16 g/dL', head: '◷ Planned' };
+      return null;
+    };
+    var lineRes = function (id) { return (id.charAt(0) === 'f' || id.charAt(0) === 't') ? resOf(id) : null; };
+    var tierStatus = function (id) {
+      if (id === 'x1') return tier === 2 ? 'skip' : 'entry';
+      if (id === 'x2') return tier === 2 ? 'entry' : 'used';
+      return null;
+    };
+    var sections = [];
+    SECS.forEach(function (s) {
+      var ids = s.ids.filter(isLit);
+      if (!ids.length) return;
+      sections.push({
+        n: sections.length + 1, title: s.t, hasNote: !!s.note, note: s.note || '',
+        lines: ids.map(function (id) {
+          var on = sel === id;
+          var flagged = (id === 'x1' && tier === 1) || (id === 'x2' && tier === 2);
+          return {
+            text: lineText(id), cite: citeOf(id), pick: pick(id), pressed: on,
+            hasFlag: flagged, flag: 'Entry point for this patient',
+            hasRx: !!RX[id] && isLit(id), rx: RX[id] ? (function () { var r = rxOf(id); return r.cur.drug + ' · ' + r.cur.route + ' · ' + r.cur.dose + ' · ' + r.cur.freq + (Object.keys(r.edited).length ? ' · ✎ edited' : ''); })() : '',
+            hasRes: !!lineRes(id), res: lineRes(id) ? lineRes(id).short : '', resStyle: lineRes(id) ? 'align-self: flex-start; ' + RES_BASE + RES_LOOK[lineRes(id).flag] : '',
+            rowStyle: BASE_LINE + (on ? 'background: #eef2ff; border: 1px solid #4338ca;' : 'background: transparent; border: 1px solid transparent;'),
+            citeStyle: CITE + (on ? 'background: #4338ca; color: #ffffff;' : 'background: #ffffff; color: #4338ca;')
+          };
+        })
+      });
+    });
+
+    var MX = [0, 124, 248, 372, 496, 620];
+    var MAP = {
+      f1: [0, 0, 'Bloody stool'], f2: [0, 86, 'Haemoglobin'], f3: [0, 172, 'Calprotectin'],
+      d1: [1, 86, 'IBD'], d2: [1, 258, 'Infectious colitis'],
+      t0: [2, 0, 'Stool culture'], t1: [2, 86, 'Colonoscopy + biopsy'], t2: [2, 172, 'Extent (Montreal)'], t3: [2, 258, 'Severity (Mayo)'],
+      s1: [3, 43, 'Ulcerative colitis'], s3: [3, 172, 'Extent · severity'], s2: [3, 301, 'Crohn’s disease'],
+      x1: [4, 43, 'T1 Mesalamine'], x2: [4, 140, 'T2 Steroids'], x3: [4, 237, 'T3 Biologics'],
+      m1: [5, 0, 'Calprotectin trend'], m2: [5, 82, 'Hb · stool freq.'], di1: [5, 164, 'Diet guidance'], w1: [5, 246, 'Megacolon signs'], w2: [5, 328, 'Surgery trigger']
+    };
+    if (exploring) { MAP.e1 = [2, 410, 'Stool PCR panel']; MAP.e2 = [3, 410, 'Ova & parasites']; MAP.e3 = [4, 410, 'Supportive care']; }
+    var mapH = exploring ? 490 : 400;
+    var heads = ['Findings', 'Diagnosis', 'Tests', 'Sub-type', 'Treatment', 'Monitor · watch'].map(function (t, i) {
+      return { t: t, style: 'position: absolute; top: 6px; left: ' + MX[i] + 'px; width: 100px; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #525252' };
+    });
+    var BADGE_DONE = 'flex: none; width: 15px; height: 15px; border-radius: 50%; background: #15803d; color: #ffffff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; letter-spacing: 0;';
+    var BADGE_Q = 'flex: none; width: 15px; height: 15px; box-sizing: border-box; border-radius: 50%; border: 1.5px solid #b45309; background: #fffbeb; color: #b45309; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; letter-spacing: 0;';
+    var BADGE_G = 'flex: none; font-size: 11px; letter-spacing: 0;';
+    var NODE_LOOK = {
+      sel: 'background: #4338ca; border: 2px solid #4338ca; color: #ffffff; box-shadow: 0 0 0 3px #c7d2fe;',
+      used: 'background: #eef2ff; border: 2px solid #4338ca; color: #1e1b4b;',
+      entry: 'background: #eef2ff; border: 3px solid #4338ca; color: #1e1b4b;',
+      pending: 'background: #ffffff; border: 2px dashed #4338ca; color: #1e1b4b;',
+      skip: 'background: #ffffff; border: 1.5px solid #a3a3a3; color: #404040;',
+      alt: 'background: #ffffff; border: 1.5px dashed #737373; color: #525252;',
+      gap: 'background: #ffffff; border: 2px dashed #171717; color: #171717;',
+      off: 'background: #ffffff; border: 1px solid #d4d4d4; color: #6b6b6b;',
+      explore: 'background: #fdf4ff; border: 2px dashed #a21caf; color: #4a044e;'
+    };
+    var STATUS_WORD = { explore: 'exploring', used: 'used', entry: 'entry tier', pending: 'test needed', skip: 'bypassed', alt: 'not taken', gap: 'not in this pack', off: 'not reached' };
+    var mapNodes = Object.keys(MAP).map(function (id) {
+      var m = MAP[id], n = NODES[id], used = isLit(id), on = sel === id;
+      if (n.explore || (id === 'd2' && exploring)) {
+        var isTestE = id === 'e1' || id === 'e2';
+        var cite = n.explore ? 'E' + id.slice(1) : '';
+        return { type: n.type, label: m[2], cite: cite, hasBadge: true, badge: isTestE ? '?' : '⌖', badgeStyle: isTestE ? BADGE_Q : BADGE_G,
+          hasRes: isTestE, res: '? Not tested', resStyle: RES_BASE + RES_LOOK.pending, pressed: on, pick: pick(id),
+          aria: m[2] + ', ' + n.type + ', exploring' + (isTestE ? ', not tested' : ''),
+          style: 'position: absolute; left: ' + MX[m[0]] + 'px; top: ' + m[1] + 'px; width: 100px; height: 72px; box-sizing: border-box; padding: 5px 6px; border-radius: 6px; font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; gap: 2px; overflow: hidden; ' + (on ? NODE_LOOK.sel : NODE_LOOK.explore) };
+      }
+      var gap = stage === 'ook' && ookReason === 'crohn' && id === 's2';
+      var colLit = COLS[m[0]].ids.some(isLit);
+      var alt = !used && !gap && n.alt && colLit;
+      var r = used ? resOf(id) : null;
+      var st = used ? (tierStatus(id) || ((r && r.flag === 'pending') ? 'pending' : 'used')) : (gap ? 'gap' : (alt ? 'alt' : 'off'));
+      var isObs = id.charAt(0) === 'f' || id.charAt(0) === 't';
+      var badge = '', badgeStyle = BADGE_G;
+      if (used && isObs) { if (r && r.flag !== 'pending') { badge = '✓'; badgeStyle = BADGE_DONE; } else { badge = '?'; badgeStyle = BADGE_Q; } }
+      else if (used && r && r.flag === 'plan') badge = '◷';
+      else if (st === 'skip') badge = '⤼';
+      else if (st === 'entry') badge = '▶';
+      else if (st === 'alt') badge = '◌';
+      else if (st === 'gap') badge = '⊘';
+      var label = id === 's3' && used ? ex.extent + ' · ' + ex.sev : m[2];
+      return {
+        type: n.type, label: label, cite: used ? citeOf(id) : '',
+        hasBadge: !!badge, badge: badge, badgeStyle: badgeStyle,
+        hasRes: !!r, res: r ? r.short : '', resStyle: r ? RES_BASE + RES_LOOK[r.flag] : '',
+        pressed: on, pick: pick(id),
+        aria: label + ', ' + n.type + ', ' + STATUS_WORD[st] + (r ? ', ' + r.head + ' ' + r.value : ''),
+        style: 'position: absolute; left: ' + MX[m[0]] + 'px; top: ' + m[1] + 'px; width: 100px; height: 72px; box-sizing: border-box; padding: 5px 6px; border-radius: 6px; font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; gap: 2px; overflow: hidden; ' + (on ? NODE_LOOK.sel : NODE_LOOK[st])
+      };
+    });
+    var edgesA = isLit('d1');
+    var edgesB = stage === 'answered' || (stage === 'working2' && lit >= 2);
+
+    var hint = '';
+    if (stage === 'empty' || stage === 'confirm') hint = 'Nothing walked yet. The part of the graph used for this patient will light up here, step by step.';
+    else if (stage === 'error') hint = 'Walk not started: the service is unavailable.';
+    else if (stage === 'ook' && ookReason === 'entry') hint = 'No entry node in IBD pack v1.3 matches these findings, so nothing is lit.';
+    else if (stage === 'ook') hint = 'The walk stopped at the colonoscopy branch: the Crohn’s sub-tree is not in this pack.';
+    else if (stage === 'needsData') hint = 'Paused: the 4 tests marked ? need results. Send them in the chat to continue.';
+    else if (stage === 'ook' && ookReason === 'infect') hint = 'Stool culture positive: the walk stops at the infection branch, which is not in this pack.';
+
+    if (exploring && stage === 'answered') hint = 'Exploring infectious colitis (magenta, dashed). The main plan is unchanged.';
+    var selObj = null;
+    if (sel && NODES[sel]) {
+      var n = NODES[sel];
+      var extra = (this.state.extraComments || {})[sel] || [];
+      var comments = (SEED[sel] || []).concat(extra);
+      var used = isLit(sel);
+      var selRes = used ? resOf(sel) : null;
+      var ts = used ? tierStatus(sel) : null;
+      selObj = {
+        id: sel, type: n.type, cite: citeOf(sel) || (n.explore ? 'E' + sel.slice(1) : '—'),
+        label: sel === 's3' ? 'UC · ' + EXT[ex.extent] + ' · ' + ex.sev : n.label,
+        status: n.explore ? '⌖ Exploring · not part of the plan' : (sel === 'd2' && exploring) ? '⌖ Exploring this branch' : ts === 'skip' ? '⤼ Bypassed: entry criteria not met' : ts === 'entry' ? '▶ Entry tier for this patient' : used ? '✓ Used in this session' : (n.alt ? 'Considered, not taken' : 'Not reached in this session'),
+        detail: n.detail, src: n.src,
+        canExplore: (sel === 'd2' && !exploring && isLit('d1')) || (sel === 's2' && isLit('s1')),
+        isExploringSel: sel === 'd2' && exploring,
+        labelLower: n.label.toLowerCase(),
+        explore: function () {
+          if (sel === 'd2') pushLog({ kind: 'explore', user: 'Explore: Infectious colitis (from the map)' }, { exploring: true });
+          else pushLog({ kind: 'exploreNone', user: 'Explore: Crohn’s disease (from the map)' });
+        },
+        isRx: !!RX[sel] && used,
+        rxTag: (RX[sel] && Object.keys(rxOf(sel).edited).length) ? '✎ Edited by Dr. Maya' : 'Suggested by pack',
+        rxTagStyle: 'font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 4px; ' + ((RX[sel] && Object.keys(rxOf(sel).edited).length) ? 'border: 1.5px solid #171717;' : 'border: 1px solid #4338ca; color: #4338ca;'),
+        rxRows: RX[sel] ? (function () {
+          var r = rxOf(sel), c = r.cur, e = r.edited;
+          var safety = (patient.allergies === 'None recorded' ? '✓ No recorded allergies' : '✓ No conflict with recorded allergy (' + patient.allergies + ')') + ' · comorbidities: ' + patient.comorb + ' [interaction check per source]';
+          return [['Type', c.type, false], ['Drug', c.drug, !!e.drug], ['Route', c.route, !!e.route], ['Dose', c.dose, !!e.dose], ['Frequency', c.freq, !!e.freq], ['Duration / review', c.duration, !!e.duration], ['Pre-start checks', c.checks, false], ['Safety', safety, false]]
+            .map(function (x) { return { k: x[0], v: x[1], mark: x[2] ? '✎ edited' : '', style: x[2] ? 'font-weight: 600; color: #171717' : 'color: #171717' }; });
+        })() : [],
+        editRx: function () { pushLog({ kind: 'rxForm', id: sel, user: 'Edit treatment: ' + RX[sel].tier + ' (from the map)', f: rxOf(sel).cur }); },
+        hasRes: !!selRes, resHead: selRes ? selRes.head : '', resValue: selRes ? selRes.value : '', resRef: selRes ? selRes.ref : '',
+        resBox: selRes ? 'display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 6px; ' + RES_LOOK[selRes.flag] : '',
+        version: sel === 'x2' ? 'v1.3 · changed 14 Oct 2026' : 'v1.3',
+        comments: comments, nComments: comments.length, noComments: comments.length === 0
+      };
+    }
+
+    var draft = this.state.draft ?? '';
+    var summary = 'Ulcerative colitis, ' + EXT[ex.extent].toLowerCase() + ', ' + ex.sev + ' → enters treatment at Tier ' + tier + (tier === 2 ? ' (corticosteroids)' : ' (mesalamine)');
+    var total = stage === 'working2' ? ORDER2.length : (preset === 'ook' ? 3 : ORDER1.length);
+    var pct = Math.round((Math.min(lit, total) / total) * 100);
+    var msgs1 = ['Reading findings into entry nodes', 'Reading findings into entry nodes', 'Reading findings into entry nodes', 'Matching findings to diagnosis nodes', 'Collecting tests that confirm and refine', 'Collecting tests that confirm and refine', 'Collecting tests that confirm and refine', 'Collecting tests that confirm and refine'];
+    var msgs2 = ['Placing the sub-type', 'Placing the sub-type', 'Building the treatment ladder', 'Building the treatment ladder', 'Building the treatment ladder', 'Adding monitoring', 'Adding monitoring', 'Adding diet guidance', 'Adding watch-outs and escalation', 'Adding watch-outs and escalation'];
+    var workMsg = stage === 'working2' ? (msgs2[lit] || msgs2[9]) : (preset === 'ook' ? 'Looking for an entry node that matches these findings' : (msgs1[lit] || msgs1[7]));
+
+    var setEx = function (k) { return function (e) { var v = Object.assign({}, ex); v[k] = e.target.value; self.setState({ ex: v }); }; };
+
+    return {
+      text: text, noText: !text.trim(), draft: draft, ex: ex,
+      caseId: init === 'empty' ? 'P-1044' : (preset === 'ook' ? 'P-1031' : 'P-1042'),
+      caseLabel: init === 'empty' ? 'New case P-1044' : 'Case ' + (preset === 'ook' ? 'P-1031' : 'P-1042'),
+      showResultsMsg: stage === 'working2' || stage === 'answered' || (stage === 'ook' && ookReason === 'crohn'),
+      resultsText: 'Stool culture: ' + (ex.stool === 'neg' ? 'negative' : 'positive') + ' · Colonoscopy: ' + (ex.colon === 'uc' ? 'continuous from rectum (UC pattern)' : 'patchy / ileal (Crohn’s pattern)') + ' · Extent: ' + EXT[ex.extent] + ' · Severity: ' + ex.sev,
+      composerLabel: stage === 'empty' ? 'Describe the patient' : 'Message the agent — add case history or new results',
+      composerHint: stage === 'empty' ? 'e.g. 34-year-old woman, bloody stool on and off for 6 months, Hb 10.2 g/dL, faecal calprotectin 850 µg/g' : 'e.g. “explore infectious colitis”, “change dose to 40 mg”, “generate prescription”, or new history',
+      composerVal: stage === 'empty' ? text : (this.state.note ?? ''),
+      composerEmpty: stage === 'empty' ? !text.trim() : !(this.state.note ?? '').trim(),
+      onComposer: function (e) { if (stage === 'empty') self.setState({ text: e.target.value }); else self.setState({ note: e.target.value }); },
+      send: function () {
+        if (stage === 'empty') {
+          if (!text.trim()) return;
+          var p = /headache|aura/i.test(text) ? 'ook' : 'ibd';
+          self.setState({ stage: 'confirm', preset: p, chips: p === 'ook' ? ookChips() : ibdChips() });
+          return;
+        }
+        var n = (self.state.note ?? '').trim();
+        if (!n) return;
+        var low = n.toLowerCase();
+        if (/prescri/.test(low)) { pushLog({ kind: 'rxLink', user: n }); return; }
+        if (/explore|what about|rule out/.test(low) && /infect/.test(low)) { pushLog({ kind: 'explore', user: n }, { exploring: true, sel: 'd2' }); return; }
+        if (/explore|what about/.test(low) && /crohn/.test(low)) { pushLog({ kind: 'exploreNone', user: n }); return; }
+        if (/dose|\bmg\b|switch|hydrocortisone|methylpred|ustekinumab|infliximab|mesalamine/.test(low)) {
+          var tid = (sel && RX[sel]) ? sel : (/ustekinumab|infliximab|biologic/.test(low) ? 'x3' : (/mesalamine/.test(low) ? 'x1' : 'x2'));
+          var f = rxOf(tid).cur;
+          if (/hydrocortisone/.test(low)) f = rxDefault('x2', 'Hydrocortisone', patient.weight);
+          if (/ustekinumab/.test(low)) f = rxDefault('x3', 'Ustekinumab', patient.weight);
+          var mm = n.match(/(\d+(?:\.\d+)?)\s*(mg|g)\b/i);
+          if (mm) f = Object.assign({}, f, { dose: mm[1] + ' ' + mm[2].toLowerCase() });
+          pushLog({ kind: 'rxForm', id: tid, user: n, f: f }); return;
+        }
+        if (/\bfemale\b|\bmale\b|weight|\bkg\b|allerg|comorbid/.test(low)) {
+          var sx = /\bfemale\b/.test(low) ? 'Female' : (/\bmale\b/.test(low) ? 'Male' : patient.sex);
+          var wm = n.match(/(\d+(?:\.\d+)?)\s*kg/i);
+          pushLog({ kind: 'ptForm', user: n, p: { sex: sx, weight: wm ? wm[1] : String(patient.weight), comorb: patient.comorb, allergies: patient.allergies } }); return;
+        }
+        pushLog({ kind: 'note', user: n });
+      },
+      isEmpty: stage === 'empty',
+      showPatient: stage !== 'empty',
+      isConfirm: stage === 'confirm',
+      showChipsRO: stage !== 'empty' && stage !== 'confirm',
+      isWorking: stage === 'working' || stage === 'working2',
+      hasSections: sections.length > 0,
+      isAnswered: stage === 'answered',
+      isNeeds: stage === 'needsData',
+      isOok: stage === 'ook',
+      isError: stage === 'error',
+      ookText: ookReason === 'infect' ? 'Stool culture came back positive, so infection comes first. The infectious colitis branch is not in IBD pack v1.3, so I stop here rather than guess.' : ookReason === 'entry'
+        ? 'Nothing in IBD pack v1.3 matches these findings (headache, visual aura). The agent does not answer from its own memory, so there is no recommendation.'
+        : 'Colonoscopy points to Crohn’s disease, and the Crohn’s branch is not in IBD pack v1.3 yet. The walk stops at the working diagnosis rather than guess.',
+      pt: Object.assign({}, patient, {
+        empty: ptEmpty, filled: !ptEmpty, open: cardOpen,
+        toggleLabel: cardOpen ? 'Collapse ▴' : 'Expand ▾',
+        comorbShort: patient.comorb.split(' · ')[0] + (patient.comorb.split(' · ').length > 1 ? ' +' + (patient.comorb.split(' · ').length - 1) : ''),
+        hasMore: !cardOpen, moreCount: 3
+      }),
+      toggleCard: function () { self.setState({ cardOpen: !cardOpen }); },
+      editPatient: function () {
+        pushLog({ kind: 'ptForm', user: 'Edit patient details (from the card)', p: { sex: patient.sex, weight: String(patient.weight), comorb: patient.comorb, allergies: patient.allergies } });
+      },
+      exploring: exploring,
+      stopExplore: function () { pushLog({ kind: 'info', text: 'Stopped exploring infectious colitis. The map is back to the main path.' }, { exploring: false }); },
+      orderExploreTests: function () { pushLog({ kind: 'info', text: 'Added stool PCR panel and ova & parasites to the test list, marked ? needed. Their results will update the magenta branch.' }); },
+      zoomPct: Math.round(zoom * 100) + '%',
+      zoomIn: function () { self.setState({ zoom: Math.min(2, Math.round((zoom + 0.2) * 10) / 10) }); },
+      zoomOut: function () { self.setState({ zoom: Math.max(0.4, Math.round((zoom - 0.2) * 10) / 10) }); },
+      zoomFit: function () { self.setState({ zoom: 0.8 }); },
+      zoomReset: function () { self.setState({ zoom: 1 }); },
+      zoomBox: 'position: relative; width: ' + Math.round(720 * zoom) + 'px; height: ' + Math.round((28 + mapH) * zoom) + 'px',
+      zoomInner: 'position: absolute; left: 0; top: 0; width: 720px; transform: scale(' + zoom + '); transform-origin: 0 0',
+      mapStyle: 'position: relative; width: 720px; height: ' + mapH + 'px',
+      log: log.map(function (en, i) {
+        var setLog = function (patch, extra) { var L = log.slice(); L[i] = Object.assign({}, en, patch); self.setState(Object.assign({ log: L }, extra || {})); };
+        var o = {
+          hasUser: !!en.user, userText: en.user || '', who: 'Brahma',
+          isNote: en.kind === 'note', isExplore: en.kind === 'explore', isExploreNone: en.kind === 'exploreNone',
+          isInfo: en.kind === 'info', infoText: en.text || '', isRxLink: en.kind === 'rxLink',
+          isRxForm: en.kind === 'rxForm' && !en.done, isPtForm: en.kind === 'ptForm' && !en.done,
+          isDone: !!en.done, doneText: en.doneText || '', f: {}, p: {}, drugOpts: []
+        };
+        if (en.kind === 'rxForm') {
+          var f = en.f;
+          var upd = function (k) { return function (ev) { var nf = Object.assign({}, f); nf[k] = ev.target.value; setLog({ f: nf }); }; };
+          o.who = en.done ? 'Brahma · form submitted' : 'Brahma · form · needs your input';
+          o.f = f; o.drugOpts = RX[en.id].opts;
+          o.rxTitle = RX[en.id].tier + ' · ' + NODES[en.id].label.replace(/^Tier \d · /, '');
+          o.idDrug = 'rx-drug-' + i; o.idRoute = 'rx-route-' + i; o.idDose = 'rx-dose-' + i; o.idFreq = 'rx-freq-' + i; o.idDur = 'rx-dur-' + i;
+          o.onDrug = function (ev) { setLog({ f: rxDefault(en.id, ev.target.value, patient.weight) }); };
+          o.onRoute = upd('route'); o.onDose = upd('dose'); o.onFreq = upd('freq'); o.onDur = upd('duration');
+          o.apply = function () {
+            var first = rxDefault(en.id, null, patient.weight), base = rxDefault(en.id, f.drug, patient.weight), diff = {};
+            if (f.drug !== first.drug) diff.drug = f.drug;
+            ['route', 'dose', 'freq', 'duration'].forEach(function (k) { if (f[k] !== base[k]) diff[k] = f[k]; });
+            var all = Object.assign({}, rxEdits); all[en.id] = diff;
+            var changed = Object.keys(diff).length;
+            setLog({ done: true, doneText: changed
+              ? '✓ Applied to ' + RX[en.id].tier + ': ' + f.drug + ' · ' + f.route + ' · ' + f.dose + ' · ' + f.freq + '. Checked against allergy (' + patient.allergies + ') and weight (' + patient.weight + ' kg). Logged in the audit as an edit to the pack suggestion.'
+              : 'No changes. The pack suggestion stays.' }, { rxEdits: all, sel: en.id });
+          };
+          o.cancel = function () { setLog({ done: true, doneText: 'Edit cancelled. The pack suggestion stays.' }); };
+        }
+        if (en.kind === 'ptForm') {
+          var pp = en.p;
+          var pu = function (k) { return function (ev) { var np = Object.assign({}, pp); np[k] = ev.target.value; setLog({ p: np }); }; };
+          o.who = en.done ? 'Brahma · form submitted' : 'Brahma · form · needs your input';
+          o.p = pp; o.idSex = 'pt-sex-' + i; o.idWt = 'pt-wt-' + i; o.idCo = 'pt-co-' + i; o.idAl = 'pt-al-' + i;
+          o.onSex = pu('sex'); o.onWt = pu('weight'); o.onCo = pu('comorb'); o.onAl = pu('allergies');
+          o.apply = function () {
+            var w = parseFloat(pp.weight);
+            var np = Object.assign({}, self.state.patient || {}, { sex: pp.sex, weight: isNaN(w) ? patient.weight : w, comorb: pp.comorb, allergies: pp.allergies });
+            setLog({ done: true, doneText: '✓ Patient details saved. Reference ranges now use ' + pp.sex.toLowerCase() + ' values and mg/kg doses use ' + (isNaN(w) ? patient.weight : w) + ' kg.' }, { patient: np });
+          };
+          o.cancel = function () { setLog({ done: true, doneText: 'No changes to patient details.' }); };
+        }
+        return o;
+      }),
+      sections: sections, mapNodes: mapNodes, heads: heads, summary: summary,
+      edgesA: edgesA, edgesB: edgesB, edgesTier2: edgesB && tier === 2, edgesTier1: edgesB && tier === 1, edgesCrohn: stage === 'ook' && ookReason === 'crohn',
+      hasHint: !!hint, canvasHint: hint,
+      hasSel: !!selObj, sel: selObj || { comments: [] },
+      stepText: 'Step ' + Math.min(lit + 1, total) + ' of ' + total,
+      barStyle: 'height: 8px; background: #312e81; width: ' + pct + '%;',
+      workMsg: workMsg,
+      chips: chips.map(function (c, i) {
+        var upd = function (k) { return function (e) { var cs = chips.slice(); cs[i] = Object.assign({}, cs[i]); cs[i][k] = e.target.value; self.setState({ chips: cs }); }; };
+        return Object.assign({}, c, {
+          ro: c.kind + ' · ' + c.name + (c.value ? ' ' + c.value + ' ' + c.unit : ''),
+          nameLabel: c.kind + ' name', valLabel: c.name + ' value', rmLabel: 'Remove ' + c.name,
+          onName: upd('name'), onVal: upd('value'),
+          remove: function () { var cs = chips.slice(); cs.splice(i, 1); self.setState({ chips: cs }); }
+        });
+      }),
+      onText: function (e) { self.setState({ text: e.target.value }); },
+      useIbd: function () { self.setState({ text: IBD_TEXT, preset: 'ibd' }); },
+      useOok: function () { self.setState({ text: OOK_TEXT, preset: 'ook' }); },
+      read: function () {
+        if (!text.trim()) return;
+        var p = /headache|aura/i.test(text) ? 'ook' : 'ibd';
+        self.setState({ stage: 'confirm', preset: p, chips: p === 'ook' ? ookChips() : ibdChips() });
+      },
+      addChip: function () { self.setState({ chips: chips.concat([{ kind: 'Metric', name: 'New finding', value: '', unit: '' }]) }); },
+      walk: function () {
+        if (preset === 'ook') self.run('working', 3, 'ook', { ookReason: 'entry', text: text, chips: chips });
+        else self.run('working', ORDER1.length, 'needsData', { text: text, chips: chips });
+      },
+      refine: function () {
+        if (ex.stool === 'pos') { self.stop(); self.setState({ stage: 'ook', ookReason: 'infect', sel: null }); }
+        else if (ex.colon === 'crohn') { self.stop(); self.setState({ stage: 'ook', ookReason: 'crohn', sel: null }); }
+        else self.run('working2', ORDER2.length, 'answered');
+      },
+      editInputs: function () { self.stop(); self.setState({ stage: 'confirm', text: text, chips: chips, sel: null }); },
+      reset: function () { self.stop(); self.setState({ stage: 'empty', text: '', sel: null, lit: 0, preset: 'ibd', chips: null, ex: null, ookReason: null }); },
+      closeSel: function () { self.setState({ sel: null }); },
+      onDraft: function (e) { self.setState({ draft: e.target.value }); },
+      post: function () {
+        if (!draft.trim() || !sel) return;
+        var all = Object.assign({}, self.state.extraComments || {});
+        all[sel] = (all[sel] || []).concat([{ who: 'Dr. Maya', when: 'Just now', text: draft }]);
+        self.setState({ extraComments: all, draft: '' });
+      },
+      onStool: setEx('stool'), onColon: setEx('colon'), onExtent: setEx('extent'), onSev: setEx('sev')
+    };
+  }
+}
+</script>
+</body>
+</html>

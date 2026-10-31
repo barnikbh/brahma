@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Graph view E — Network map</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 880px; min-height: 1000px; box-sizing: border-box; background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; font-family: Inter, system-ui, sans-serif; color: #171717; display: flex; flex-direction: column">
+  <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #e5e5e5; flex-wrap: wrap">
+    <h2 style="margin: 0; font-size: 16px; font-weight: 600">Graph region used <span style="font-weight: 400; color: #525252; font-size: 13px">· IBD v1.3 · network map</span></h2>
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #525252; align-items: center">
+      <span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 22px; height: 0; border-top: 2.5px solid #1d4ed8"></span>Path walked</span>
+      <span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 22px; height: 0; border-top: 1.5px solid #a3a3a3"></span>Bypassed</span>
+      <span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 22px; height: 0; border-top: 1.5px dashed #737373"></span>Not taken</span>
+    </div>
+  </div>
+
+  <div style="flex: 1; padding: 20px 24px; display: flex; flex-direction: column; gap: 8px">
+    <div style="position: relative; height: 32px; width: 830px">
+      <sc-for list="{{heads}}" as="h" hint-placeholder-count="6">
+        <span style="{{h.style}}">{{h.t}}</span>
+      </sc-for>
+    </div>
+    <div style="position: relative; width: 830px; height: 400px; background: #fafafa; border: 1px solid #e5e5e5; border-radius: 8px">
+      <svg aria-hidden="true" width="830" height="400" viewBox="0 0 830 400" style="position: absolute; left: 0; top: 0; pointer-events: none">
+        <defs>
+          <marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#1d4ed8"></path></marker>
+        </defs>
+        <g fill="none" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ah)">
+          <path d="M112 68 C132 68 130 148 150 148"></path>
+          <path d="M112 148 L150 148"></path>
+          <path d="M112 228 C132 228 130 148 150 148"></path>
+          <path d="M254 148 C274 148 272 38 292 38"></path>
+          <path d="M254 148 C274 148 272 118 292 118"></path>
+          <path d="M254 148 C274 148 272 198 292 198"></path>
+          <path d="M254 148 C274 148 272 278 292 278"></path>
+          <path d="M396 118 C416 118 414 98 434 98"></path>
+          <path d="M396 198 L434 198"></path>
+          <path d="M396 278 C416 278 414 198 434 198"></path>
+          <path d="M486 126 L486 170"></path>
+          <path d="M538 198 C558 198 556 158 576 158"></path>
+          <path d="M628 186 L628 230"></path>
+          <path d="M680 158 C700 158 698 28 718 28"></path>
+          <path d="M680 158 C700 158 698 104 718 104"></path>
+          <path d="M680 158 C700 158 698 180 718 180"></path>
+          <path d="M680 158 C700 158 698 256 718 256"></path>
+          <path d="M680 158 C700 158 698 332 718 332"></path>
+        </g>
+        <g fill="none" stroke="#a3a3a3" stroke-width="1.5">
+          <path d="M538 198 C558 198 556 58 576 58"></path>
+        </g>
+        <g fill="none" stroke="#737373" stroke-width="1.5" stroke-dasharray="5 4">
+          <path d="M112 68 C132 68 130 288 150 288"></path>
+          <path d="M396 118 C416 118 414 318 434 318"></path>
+        </g>
+      </svg>
+      <sc-for list="{{nodes}}" as="nd" hint-placeholder-count="20">
+        <button type="button" onClick="{{nd.pick}}" aria-pressed="{{nd.on}}" aria-label="{{nd.aria}}" style="{{nd.style}}">
+          <span style="display: flex; justify-content: space-between; gap: 4px; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.04em"><span>{{nd.glyph}} {{nd.type}}</span><span style="font-family: ui-monospace, Menlo, monospace">{{nd.cite}}</span></span>
+          <span style="font-weight: 600; font-size: 12px; line-height: 1.2">{{nd.label}}</span>
+        </button>
+      </sc-for>
+    </div>
+    <span style="font-size: 12px; color: #525252">Fixed layered layout: columns are walk stages, so the map never reshuffles between sessions. Zoom and pan for larger packs.</span>
+  </div>
+
+  <div style="border-top: 1px solid #e5e5e5; padding: 12px 16px; background: #fafafa; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; border-radius: 0 0 8px 8px">
+    <div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+      <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #525252">{{sel.type}} · {{sel.cite}} · {{sel.statusText}}</span>
+      <strong style="font-size: 15px">{{sel.label}}</strong>
+      <span style="font-size: 13px; color: #525252">Source: {{sel.src}} · v1.3</span>
+    </div>
+    <button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #171717; background: #ffffff; font: inherit; font-size: 13px; cursor: pointer">Open node detail</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":880,"height":1000}}'>
+var SD = 'IBD diagnostic consensus · §[x]', SG = 'UC management guideline · §[x]';
+var X = [8, 150, 292, 434, 576, 718];
+var N = {
+  f1: { col: 0, y: 40, t: 'Symptom', l: 'Bloody stool 6 mo', full: 'Bloody stool · 6 months', c: 'N1', s: 'used', src: SD },
+  f2: { col: 0, y: 120, t: 'Metric', l: 'Hb 10.2 · low', full: 'Haemoglobin 10.2 g/dL · low', c: 'N2', s: 'used', src: '[Lab reference ranges]' },
+  f3: { col: 0, y: 200, t: 'Metric', l: 'Calprotectin 850', full: 'Faecal calprotectin 850 µg/g', c: 'N3', s: 'used', src: SD },
+  d1: { col: 1, y: 120, t: 'Diagnosis', l: 'IBD', full: 'Inflammatory bowel disease', c: 'N4', s: 'used', src: SD },
+  d2: { col: 1, y: 260, t: 'Diagnosis', l: 'Infectious colitis', full: 'Infectious colitis', c: '', s: 'alt', src: SD },
+  t0: { col: 2, y: 10, t: 'Test', l: 'Stool culture', full: 'Stool culture · C. diff toxin', c: 'N5', s: 'used', src: SD },
+  t1: { col: 2, y: 90, t: 'Test', l: 'Colonoscopy + biopsy', full: 'Colonoscopy with biopsy', c: 'N6', s: 'used', src: SD },
+  t2: { col: 2, y: 170, t: 'Test', l: 'Extent E1–E3', full: 'Extent mapping (Montreal E1–E3)', c: 'N7', s: 'used', src: SD },
+  t3: { col: 2, y: 250, t: 'Test', l: 'Severity (Mayo)', full: 'Severity score (Mayo / Truelove & Witts)', c: 'N8', s: 'used', src: SG },
+  s1: { col: 3, y: 70, t: 'Diagnosis', l: 'Ulcerative colitis', full: 'Ulcerative colitis', c: 'N9', s: 'used', src: SD },
+  s3: { col: 3, y: 170, t: 'Sub-type', l: 'E3 · severe', full: 'Pancolitis (E3) · severe', c: 'N10', s: 'used', src: SD },
+  s2: { col: 3, y: 290, t: 'Diagnosis', l: 'Crohn’s disease', full: 'Crohn’s disease', c: '', s: 'alt', src: SD },
+  x1: { col: 4, y: 30, t: 'Tier 1', l: 'Mesalamine', full: 'Tier 1 · Mesalamine', c: 'N11', s: 'skip', src: SG },
+  x2: { col: 4, y: 130, t: 'Tier 2', l: 'Steroids', full: 'Tier 2 · Corticosteroids', c: 'N12', s: 'entry', src: SG },
+  x3: { col: 4, y: 230, t: 'Tier 3', l: 'Biologics', full: 'Tier 3 · Biologics', c: 'N13', s: 'used', note: 'Next if steroid-refractory', src: SG },
+  m1: { col: 5, y: 0, t: 'Monitor', l: 'Calprotectin trend', full: 'Calprotectin trend', c: 'N14', s: 'used', src: SG },
+  m2: { col: 5, y: 76, t: 'Monitor', l: 'Hb · stool freq.', full: 'Haemoglobin and stool frequency', c: 'N15', s: 'used', src: SG },
+  di1: { col: 5, y: 152, t: 'Diet', l: 'Diet guidance', full: 'Diet guidance', c: 'N16', s: 'used', src: '[Nutrition guidance] · §[x]' },
+  w1: { col: 5, y: 228, t: 'Watch-out', l: 'Megacolon signs', full: 'Toxic megacolon warning signs', c: 'N17', s: 'used', src: SG },
+  w2: { col: 5, y: 304, t: 'Escalation', l: 'Surgery trigger', full: 'Surgery trigger', c: 'N18', s: 'used', src: SG }
+};
+var HEADS = ['Findings', 'Diagnosis', 'Confirm & refine', 'Sub-type', 'Treatment', 'Monitor · watch'];
+var GLYPH = { used: '✓', entry: '▶', skip: '⤼', alt: '◌' };
+var STATUS = { used: '✓ Used in this session', entry: '▶ Entry tier for this patient', skip: '⤼ Bypassed: entry criteria not met', alt: 'Considered, not taken' };
+var LOOK = {
+  on: 'background: #1d4ed8; border: 2px solid #1d4ed8; color: #ffffff; box-shadow: 0 0 0 3px #bfdbfe;',
+  used: 'background: #eef2ff; border: 2px solid #1d4ed8; color: #0b1b4a;',
+  entry: 'background: #eef2ff; border: 3px solid #1d4ed8; color: #0b1b4a;',
+  skip: 'background: #ffffff; border: 1.5px solid #a3a3a3; color: #404040;',
+  alt: 'background: #ffffff; border: 1.5px dashed #737373; color: #525252;'
+};
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var sel = this.state.sel || 'x2';
+    var n = N[sel];
+    return {
+      heads: HEADS.map(function (t, i) { return { t: t, style: 'position: absolute; top: 8px; left: ' + X[i] + 'px; width: 104px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #525252' }; }),
+      nodes: Object.keys(N).map(function (id) {
+        var nd = N[id], on = sel === id;
+        return { type: nd.t, label: nd.l, cite: nd.c, glyph: GLYPH[nd.s], on: on, aria: nd.full + ', ' + STATUS[nd.s],
+          style: 'position: absolute; left: ' + X[nd.col] + 'px; top: ' + nd.y + 'px; width: 104px; height: 56px; box-sizing: border-box; padding: 5px 7px; border-radius: 6px; font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; ' + (on ? LOOK.on : LOOK[nd.s]),
+          pick: function () { self.setState({ sel: id }); } };
+      }),
+      sel: { type: n.t, label: n.full, cite: n.c || '—', src: n.src, statusText: n.note || STATUS[n.s] }
+    };
+  }
+}
+</script>
+</body>
+</html>

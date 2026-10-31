@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Patients — find or create</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#4338ca}a:hover{color:#312e81}
+</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #171717; background: #f1f4f0; min-height: 100vh; display: flex; flex-direction: column">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 10px 24px; background: #ffffff; border-bottom: 1px solid #d4d4d4">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <div aria-hidden="true" style="width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px; font-family: Georgia, 'Times New Roman', serif">B</div>
+      <span style="display: flex; flex-direction: column; line-height: 1.15"><span style="font-weight: 700; font-size: 18px; letter-spacing: 0.03em; color: #312e81; font-family: Georgia, 'Times New Roman', serif">Brahma</span><span style="font-size: 11px; color: #4f5f52">Clinical decision graph</span></span>
+    </div>
+    <nav aria-label="Main" style="display: flex; gap: 4px; flex-wrap: wrap">
+      <a href="Patients.dc.html" aria-current="page" style="padding: 10px 12px; border-radius: 6px; background: #312e81; color: #ffffff; text-decoration: none; font-size: 14px">Patients</a>
+      <a href="History.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">History</a>
+      <a href="Knowledge.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">Knowledge</a>
+      <a href="Benchmark.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">Benchmark</a>
+    </nav>
+    <div style="margin-left: auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 13px">
+      <span style="padding: 4px 10px; border: 1px solid #a3a3a3; border-radius: 999px; font-family: ui-monospace, Menlo, monospace; font-size: 12px">IBD pack · Knowledge v1.3</span>
+      <span style="color: #525252">Dr. Maya (demo)</span>
+      <a href="Main.dc.html" style="padding: 10px 4px">Sign out</a>
+    </div>
+  </header>
+  <div role="note" style="display: flex; align-items: center; gap: 10px; padding: 8px 24px; background: #e6eee4; border-bottom: 1px solid #bfcdbb; color: #2f4034; font-size: 13px; flex-wrap: wrap">
+    <strong>Decision support, not diagnosis.</strong>
+    <span>Synthetic patients only. Names are invented and labelled synthetic.</span>
+  </div>
+
+  <main style="flex: 1; width: 100%; max-width: 1080px; margin: 0 auto; box-sizing: border-box; padding: 32px 24px; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h1 style="margin: 0; font-size: 24px; font-weight: 700">Good morning, Dr. Maya</h1>
+      <p style="margin: 0; font-size: 14px; color: #525252">Open an existing patient to continue their case, or start a new one.</p>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch">
+      <section aria-labelledby="find" style="flex: 999 1 520px; min-width: 0; background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+        <h2 id="find" style="margin: 0; font-size: 18px; font-weight: 600">Find a patient</h2>
+        <label for="q" style="font-size: 13px; font-weight: 500">Search by case ID, finding or diagnosis</label>
+        <input id="q" type="search" value="{{q}}" onChange="{{onQ}}" placeholder="e.g. P-1042, calprotectin, ulcerative colitis" style="min-height: 48px; padding: 0 14px; border: 1px solid #a3a3a3; border-radius: 6px; font: inherit; font-size: 15px">
+        <span role="status" style="font-size: 13px; color: #525252">{{countText}}</span>
+        <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+          <sc-for list="{{rows}}" as="p" hint-placeholder-count="4">
+            <li>
+              <a href="{{p.href}}" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 12px 14px; border: 1px solid #d4d4d4; border-radius: 6px; text-decoration: none; color: #171717; min-height: 44px">
+                <span style="font-family: ui-monospace, Menlo, monospace; font-size: 13px; font-weight: 600; width: 64px">{{p.id}}</span>
+                <span style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                  <span style="font-size: 14px; font-weight: 600">{{p.summary}}</span>
+                  <span style="font-size: 13px; color: #525252">{{p.outcome}}</span>
+                </span>
+                <span style="font-size: 12px; padding: 2px 8px; border: 1px solid #171717; border-radius: 4px; white-space: nowrap">{{p.status}}</span>
+                <span style="font-size: 12px; color: #525252; white-space: nowrap">{{p.last}}</span>
+                <span aria-hidden="true" style="font-size: 14px">→</span>
+              </a>
+            </li>
+          </sc-for>
+        </ul>
+        <sc-if value="{{none}}" hint-placeholder-val="{{false}}">
+          <p style="margin: 0; padding: 12px; border: 1px dashed #a3a3a3; border-radius: 6px; font-size: 14px; color: #525252">No patient matches. Check the case ID, or create a new patient.</p>
+        </sc-if>
+      </section>
+
+      <section aria-labelledby="new" style="flex: 1 1 300px; min-width: 0; background: #ffffff; border: 2px solid #312e81; border-radius: 8px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+        <h2 id="new" style="margin: 0; font-size: 18px; font-weight: 600">New patient</h2>
+        <p style="margin: 0; font-size: 14px; color: #525252; line-height: 1.5">Opens a fresh case with a generated ID. Describe symptoms and results, confirm what was understood, then walk the graph.</p>
+        <a href="Workspace.dc.html" style="display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 18px; border-radius: 6px; background: #312e81; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 600">+ Create new patient</a>
+        <span style="font-size: 12px; color: #525252">Next ID: P-1044 · tied to Dr. Maya for the audit trail</span>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+var PATIENTS = [
+  { id: 'P-1042', summary: 'Lakshmi R. · 34 y · F · UC pancolitis, severe', outcome: 'On Tier 2 (IV steroids) since 29 Oct · day-14 review', status: '◷ Follow-up due today', last: 'Visit 1 · 29 Oct', href: 'FollowUp.dc.html' },
+  { id: 'P-1039', summary: '41 y · diarrhoea 8 wk · calprotectin 420', outcome: 'IBD (working) — awaiting colonoscopy', status: '? Needs data', last: '27 Oct', href: 'WS-NeedsData.dc.html' },
+  { id: 'P-1031', summary: '52 y · headache 3 wk · visual aura', outcome: 'No grounded answer — outside IBD pack', status: '⊘ Out of knowledge', last: '22 Oct', href: 'WS-OutOfKnowledge.dc.html' },
+  { id: 'P-1024', summary: '63 y · urinary frequency · [PSA value]', outcome: 'Urology stub · [stub pathway outcome]', status: '✓ Plan in place', last: '18 Oct', href: 'History.dc.html' }
+];
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var q = this.state.q ?? '';
+    var t = q.trim().toLowerCase();
+    var rows = PATIENTS.filter(function (p) {
+      return !t || (p.id + ' ' + p.summary + ' ' + p.outcome).toLowerCase().indexOf(t) >= 0;
+    });
+    return {
+      q: q, rows: rows, none: rows.length === 0,
+      countText: t ? rows.length + ' of ' + PATIENTS.length + ' patients match' : 'Recent patients',
+      onQ: function (e) { self.setState({ q: e.target.value }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

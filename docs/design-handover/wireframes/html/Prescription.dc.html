@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Generate prescription</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#4338ca}a:hover{color:#312e81}
+</style>
+</helmet>
+<div style="font-family: Inter, system-ui, sans-serif; color: #171717; background: #f1f4f0; min-height: 100vh; display: flex; flex-direction: column">
+  <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 10px 24px; background: #ffffff; border-bottom: 1px solid #d4d4d4">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <div aria-hidden="true" style="width: 32px; height: 32px; border-radius: 8px; background: #312e81; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px; font-family: Georgia, 'Times New Roman', serif">B</div>
+      <span style="display: flex; flex-direction: column; line-height: 1.15"><span style="font-weight: 700; font-size: 18px; letter-spacing: 0.03em; color: #312e81; font-family: Georgia, 'Times New Roman', serif">Brahma</span><span style="font-size: 11px; color: #4f5f52">Clinical decision graph</span></span>
+    </div>
+    <nav aria-label="Main" style="display: flex; gap: 4px; flex-wrap: wrap">
+      <a href="Patients.dc.html" aria-current="page" style="padding: 10px 12px; border-radius: 6px; background: #312e81; color: #ffffff; text-decoration: none; font-size: 14px">Patients</a>
+      <a href="History.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">History</a>
+      <a href="Knowledge.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">Knowledge</a>
+      <a href="Benchmark.dc.html" style="padding: 10px 12px; border-radius: 6px; color: #171717; text-decoration: none; font-size: 14px">Benchmark</a>
+    </nav>
+    <div style="margin-left: auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 13px">
+      <span style="color: #525252">Dr. Maya (demo)</span>
+      <a href="Main.dc.html" style="padding: 10px 4px">Sign out</a>
+    </div>
+  </header>
+  <div role="note" style="display: flex; align-items: center; gap: 10px; padding: 8px 24px; background: #e6eee4; border-bottom: 1px solid #bfcdbb; color: #2f4034; font-size: 13px; flex-wrap: wrap">
+    <strong>Decision support, not diagnosis.</strong>
+    <span>Brahma drafts from the plan. You review, edit and sign. Demo prescriptions are for synthetic patients only and are watermarked.</span>
+  </div>
+
+  <section aria-label="Patient card" style="position: sticky; top: 0; z-index: 5; background: #ffffff; border-bottom: 1px solid #d4d4d4; padding: 10px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+    <span aria-hidden="true" style="width: 36px; height: 36px; border-radius: 50%; background: #e5e5e5; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">LR</span>
+    <div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap">
+      <strong style="font-size: 16px">Lakshmi R.</strong>
+      <span style="font-size: 14px">34 y · Female · 58 kg</span>
+      <span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #525252">P-1042 · synthetic</span>
+      <span style="font-size: 12px; padding: 2px 8px; border: 1.5px solid #b91c1c; color: #b91c1c; background: #fef2f2; border-radius: 999px; font-weight: 600">⚠ Allergy: Penicillin</span>
+    </div>
+    <a href="WS-Answered.dc.html" style="margin-left: auto; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 6px; border: 1px solid #a3a3a3; color: #171717; text-decoration: none; font-size: 13px">← Back to case</a>
+  </section>
+
+  <main style="flex: 1; display: flex; flex-wrap: wrap; gap: 16px; padding: 16px 24px 32px; align-items: flex-start">
+    <section aria-labelledby="ed" style="flex: 1 1 460px; max-width: 640px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+      <div style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap">
+          <h1 id="ed" style="margin: 0; font-size: 18px; font-weight: 600">℞ Draft prescription</h1>
+          <span style="font-size: 12px; padding: 2px 8px; border: 1px solid #4338ca; color: #312e81; border-radius: 4px">Drafted from the plan · Tier 2</span>
+        </div>
+        <p style="margin: 0; font-size: 13px; color: #525252; line-height: 1.5">Each line comes from a graph node or the patient card. Untick to leave a line out; edit any field. Generic names are printed in capitals.</p>
+
+        <sc-for list="{{meds}}" as="m" hint-placeholder-count="2">
+          <div style="{{m.box}}">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+              <label style="display: flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer">
+                <input type="checkbox" checked="{{m.on}}" onChange="{{m.toggle}}" style="width: 20px; height: 20px; accent-color: #312e81">
+                <span style="font-size: 14px; font-weight: 700; letter-spacing: 0.02em">{{m.nameUp}}</span>
+              </label>
+              <span style="font-size: 11px; padding: 2px 6px; border: 1px solid #4338ca; color: #4338ca; border-radius: 4px; font-family: ui-monospace, Menlo, monospace">{{m.src}}</span>
+              <span style="font-size: 12px; color: #525252">{{m.origin}}</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+              <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0"><label for="{{m.idForm}}" style="font-size: 12px; color: #525252">Form · route</label><input id="{{m.idForm}}" value="{{m.form}}" onChange="{{m.onForm}}" style="min-height: 40px; padding: 0 8px; border: 1px solid #a3a3a3; border-radius: 4px; font: inherit; font-size: 13px"></div>
+              <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0"><label for="{{m.idDose}}" style="font-size: 12px; color: #525252">Dose</label><input id="{{m.idDose}}" value="{{m.dose}}" onChange="{{m.onDose}}" style="{{m.doseStyle}}"></div>
+              <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0"><label for="{{m.idFreq}}" style="font-size: 12px; color: #525252">Frequency</label><input id="{{m.idFreq}}" value="{{m.freq}}" onChange="{{m.onFreq}}" style="{{m.freqStyle}}"></div>
+              <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0"><label for="{{m.idDur}}" style="font-size: 12px; color: #525252">Duration</label><input id="{{m.idDur}}" value="{{m.dur}}" onChange="{{m.onDur}}" style="{{m.durStyle}}"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 3px"><label for="{{m.idNote}}" style="font-size: 12px; color: #525252">Instructions for the patient</label><input id="{{m.idNote}}" value="{{m.note}}" onChange="{{m.onNote}}" style="min-height: 40px; padding: 0 8px; border: 1px solid #a3a3a3; border-radius: 4px; font: inherit; font-size: 13px"></div>
+          </div>
+        </sc-for>
+        <button type="button" onClick="{{addMed}}" style="align-self: flex-start; min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px dashed #312e81; background: #ffffff; color: #312e81; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer">+ Add medicine</button>
+        <span style="font-size: 12px; color: #525252">Or ask in the case chat, e.g. “add pantoprazole 40 mg once daily”. Brahma checks it against the pack and the card before adding.</span>
+      </div>
+
+      <div style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 600">Safety checks</h2>
+        <sc-for list="{{checks}}" as="c" hint-placeholder-count="5">
+          <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 13px; line-height: 1.45">
+            <span aria-hidden="true" style="{{c.badge}}">{{c.icon}}</span>
+            <span style="flex: 1"><strong>{{c.title}}</strong> · {{c.text}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section aria-label="Prescription preview" style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+      <article style="position: relative; background: #ffffff; border: 1px solid #d4d4d4; border-radius: 4px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); padding: 32px 36px; display: flex; flex-direction: column; gap: 16px; max-width: 760px">
+        <div aria-hidden="true" style="position: absolute; top: 40%; left: 0; right: 0; text-align: center; font-size: 48px; font-weight: 700; color: #312e81; opacity: 0.06; transform: rotate(-18deg); pointer-events: none">DEMO · SYNTHETIC PATIENT</div>
+        <div style="display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 2px solid #312e81">
+          <div style="display: flex; flex-direction: column; gap: 2px">
+            <strong style="font-size: 17px; color: #312e81">Dr. Maya [Surname]</strong>
+            <span style="font-size: 13px">MD, DM (Gastroenterology) · Consultant gastroenterologist</span>
+            <span style="font-size: 12px; color: #525252">Reg. No. [State Medical Council number]</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 2px; text-align: right; font-size: 12px; color: #525252">
+            <span>[Hospital / clinic name]</span>
+            <span>[Address, city]</span>
+            <span>[Phone]</span>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 16px; font-size: 13px">
+          <span><strong>Patient:</strong> Lakshmi R. (synthetic)</span>
+          <span><strong>Date:</strong> 29 Oct 2026</span>
+          <span><strong>Age / sex / weight:</strong> 34 y · F · 58 kg</span>
+          <span><strong>Case ID:</strong> P-1042</span>
+          <span style="grid-column: span 2; color: #b91c1c"><strong>Allergy:</strong> Penicillin</span>
+          <span style="grid-column: span 2"><strong>Diagnosis:</strong> Ulcerative colitis, pancolitis (E3), severe · ICD-10 [K51.0, confirm]</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span style="font-size: 26px; font-weight: 700; color: #312e81; font-family: Georgia, 'Times New Roman', serif">℞</span>
+          <sc-for list="{{onMeds}}" as="m" hint-placeholder-count="2">
+            <div style="display: flex; gap: 10px; font-size: 14px; line-height: 1.45">
+              <span style="font-weight: 700; min-width: 18px">{{m.n}}.</span>
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <span><strong style="letter-spacing: 0.02em">{{m.nameUp}}</strong> · {{m.form}} · {{m.dose}}</span>
+                <span style="font-size: 13px">{{m.freq}} · {{m.dur}}</span>
+                <span style="font-size: 12px; color: #525252">{{m.note}}</span>
+              </div>
+            </div>
+          </sc-for>
+          <sc-if value="{{noMeds}}" hint-placeholder-val="{{false}}"><span style="font-size: 13px; color: #525252">No medicines selected.</span></sc-if>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.5">
+          <strong>Investigations</strong>
+          <span>Faecal calprotectin and haemoglobin: recheck at [interval]. Stool culture done 29 Oct: negative.</span>
+          <strong style="margin-top: 6px">Advice</strong>
+          <span>Diet: [guidance from source]. Come to emergency at once with fever, a fast heartbeat, a swollen or very painful abdomen, or heavy bleeding.</span>
+          <strong style="margin-top: 6px">Follow-up</strong>
+          <span>Response review on 1 Nov 2026 (day 3). Clinic visit on 12 Nov 2026 (day 14).</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid #e5e5e5">
+          <span style="font-size: 11px; color: #525252">Generated with Brahma decision support · IBD pack v1.3 · audit S-0143</span>
+          <sc-if value="{{signed}}" hint-placeholder-val="{{false}}">
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px; padding: 8px 12px; border: 2px solid #312e81; border-radius: 6px; color: #312e81">
+              <strong style="font-size: 13px">✓ e-signed · Dr. Maya</strong>
+              <span style="font-size: 11px">29 Oct 2026 · 10:58 · ID RX-0143-01</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{notSigned}}" hint-placeholder-val="{{true}}">
+            <span style="font-size: 12px; color: #525252; padding: 8px 12px; border: 1px dashed #a3a3a3; border-radius: 6px">Not signed · draft</span>
+          </sc-if>
+        </div>
+      </article>
+
+      <div style="background: #ffffff; border: 1px solid #d4d4d4; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 10px; max-width: 760px; box-sizing: border-box">
+        <sc-if value="{{notSigned}}" hint-placeholder-val="{{true}}">
+          <span style="{{phStyle}}">{{phText}}</span>
+          <label style="display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.5; min-height: 44px; cursor: pointer">
+            <input type="checkbox" checked="{{reviewed}}" onChange="{{onReviewed}}" style="width: 20px; height: 20px; margin-top: 2px; accent-color: #312e81">
+            <span>I have reviewed every medicine, dose and instruction, and I take responsibility for this prescription.</span>
+          </label>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap">
+            <button type="button" onClick="{{sign}}" disabled="{{cantSign}}" style="{{signStyle}}">Sign and generate PDF</button>
+            <button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 14px; cursor: pointer">Save draft</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{signed}}" hint-placeholder-val="{{false}}">
+          <strong style="font-size: 15px; color: #312e81">✓ Signed. PDF ready and saved to the case audit.</strong>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap">
+            <button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #312e81; background: #312e81; color: #ffffff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Download PDF</button>
+            <button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 14px; cursor: pointer">Print</button>
+            <button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 6px; border: 1px solid #a3a3a3; background: #ffffff; font: inherit; font-size: 14px; cursor: pointer">Share with patient (later)</button>
+            <button type="button" onClick="{{unsign}}" style="min-height: 44px; padding: 0 8px; border: 0; background: transparent; color: #4338ca; text-decoration: underline; font: inherit; font-size: 13px; cursor: pointer">Void and re-issue</button>
+          </div>
+        </sc-if>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+var START = [
+  { name: 'Methylprednisolone', form: 'Injection · IV', dose: '[60 mg]', freq: '[Once daily]', dur: '[Review on day 3]', note: 'Given in hospital.', src: 'N12', origin: 'Tier 2 · from the plan', on: true },
+  { name: 'Levothyroxine', form: 'Tablet · oral', dose: '50 µg', freq: 'Once daily, before breakfast', dur: 'Continue', note: 'Existing medicine. No change.', src: 'Card', origin: 'Current medication · patient card', on: true }
+];
+var FIELD = 'min-height: 40px; padding: 0 8px; border-radius: 4px; font: inherit; font-size: 13px; ';
+var OKF = 'border: 1px solid #a3a3a3;';
+var PH = 'border: 1.5px dashed #b45309; background: #fffbeb;';
+var CHECK = 'flex: none; width: 20px; height: 20px; box-sizing: border-box; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; ';
+class Component extends DCLogic {
+  renderVals() {
+    var self = this;
+    var meds = this.state.meds || START;
+    var signed = !!this.state.signed, reviewed = !!this.state.reviewed;
+    var isPh = function (t) { return /\[.*\]/.test(t || ''); };
+    var upd = function (i, k) { return function (e) { var m = meds.slice(); m[i] = Object.assign({}, m[i]); m[i][k] = k === 'on' ? e.target.checked : e.target.value; self.setState({ meds: m, signed: false }); }; };
+    var on = meds.filter(function (m) { return m.on; });
+    var ph = 0; on.forEach(function (m) { ['dose', 'freq', 'dur'].forEach(function (k) { if (isPh(m[k])) ph++; }); });
+    var allergyHit = on.some(function (m) { return /cillin|penem|cef/i.test(m.name); });
+    var steroid = on.some(function (m) { return /pred|cortisone|methylpred|hydrocort/i.test(m.name); });
+    var thyro = on.some(function (m) { return /levothyrox/i.test(m.name); });
+    var mk = function (state) { return state === 'ok' ? CHECK + 'background: #15803d; color: #ffffff;' : state === 'warn' ? CHECK + 'border: 1.5px solid #b45309; background: #fffbeb; color: #b45309;' : CHECK + 'background: #b91c1c; color: #ffffff;'; };
+    var checks = [
+      { s: allergyHit ? 'bad' : 'ok', icon: allergyHit ? '!' : '✓', title: 'Allergy', text: allergyHit ? 'A selected medicine may cross-react with penicillin. Review before signing.' : 'No conflict with the recorded allergy (penicillin).' },
+      { s: 'ok', icon: '✓', title: 'Pregnancy', text: 'Not pregnant (test negative), from the patient card.' },
+      { s: (steroid && thyro) ? 'warn' : 'ok', icon: (steroid && thyro) ? '?' : '✓', title: 'Interactions', text: (steroid && thyro) ? 'Corticosteroid with levothyroxine: [interaction check per source]. Needs your review.' : 'No interactions flagged by the pack.' },
+      { s: 'ok', icon: '✓', title: 'Duplicates', text: 'No two medicines from the same class.' },
+      { s: ph ? 'warn' : 'ok', icon: ph ? '?' : '✓', title: 'Doses from source', text: ph ? ph + ' value(s) are still [placeholders]. Replace them with the cited source values.' : 'All doses filled in.' }
+    ].map(function (c) { return { icon: c.icon, title: c.title, text: c.text, badge: mk(c.s) }; });
+    var cantSign = !reviewed || allergyHit || on.length === 0;
+    var n = 0;
+    return {
+      meds: meds.map(function (m, i) {
+        return Object.assign({}, m, {
+          nameUp: (m.name || 'New medicine').toUpperCase(),
+          box: 'display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 6px; ' + (m.on ? 'border: 1px solid #c7d2fe; background: #fbfbff;' : 'border: 1px dashed #d4d4d4; background: #fafafa; opacity: 0.75;'),
+          toggle: upd(i, 'on'), onForm: upd(i, 'form'), onDose: upd(i, 'dose'), onFreq: upd(i, 'freq'), onDur: upd(i, 'dur'), onNote: upd(i, 'note'),
+          idForm: 'f' + i, idDose: 'd' + i, idFreq: 'q' + i, idDur: 'u' + i, idNote: 'n' + i,
+          doseStyle: FIELD + (isPh(m.dose) ? PH : OKF), freqStyle: FIELD + (isPh(m.freq) ? PH : OKF), durStyle: FIELD + (isPh(m.dur) ? PH : OKF)
+        });
+      }),
+      onMeds: on.map(function (m) { n++; return Object.assign({}, m, { n: n, nameUp: (m.name || 'New medicine').toUpperCase() }); }),
+      noMeds: on.length === 0,
+      addMed: function () { self.setState({ meds: meds.concat([{ name: 'New medicine', form: '', dose: '', freq: '', dur: '', note: '', src: 'Manual', origin: 'Added by Dr. Maya · not from the pack', on: true }]) }); },
+      checks: checks,
+      phText: ph ? '? ' + ph + ' dose field(s) still hold [placeholders] (dashed amber). In production these come from the cited source.' : '✓ All dose fields filled.',
+      phStyle: 'font-size: 13px; padding: 8px 10px; border-radius: 6px; ' + (ph ? 'background: #fffbeb; color: #78350f; border: 1px dashed #b45309;' : 'background: #f0fdf4; color: #14532d; border: 1px solid #86efac;'),
+      reviewed: reviewed, onReviewed: function (e) { self.setState({ reviewed: e.target.checked }); },
+      signed: signed, notSigned: !signed, cantSign: cantSign,
+      signStyle: 'min-height: 44px; padding: 0 18px; border-radius: 6px; font: inherit; font-size: 14px; font-weight: 600; ' + (cantSign ? 'background: #e5e5e5; color: #525252; border: 1px solid #d4d4d4; cursor: not-allowed;' : 'background: #312e81; color: #ffffff; border: 1px solid #312e81; cursor: pointer;'),
+      sign: function () { if (!cantSign) self.setState({ signed: true }); },
+      unsign: function () { self.setState({ signed: false, reviewed: false }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
