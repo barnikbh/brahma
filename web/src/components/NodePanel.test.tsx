@@ -88,4 +88,24 @@ describe("NodePanel", () => {
     await userEvent.keyboard("{Escape}");
     expect(onClose).toHaveBeenCalled();
   });
+
+  it("shows the stored edit marker with no in-memory outcome (reload)", async () => {
+    installFakeApi({
+      "GET /api/nodes/:v/:n": () =>
+        nodeDetail({
+          edited: {
+            editId: "te-1",
+            caseId: "BR-000001",
+            nodeId: "IBD-N51",
+            original: { doseValue: 100 },
+            newValues: { doseValue: 40 },
+            editorProfileId: "p-maya",
+            createdAt: "t",
+          },
+        }),
+    });
+    render(<NodePanel nodeId="IBD-N51" version="IBD 1.0" caseId="BR-000001" onClose={vi.fn()} />);
+    expect(await screen.findByText("✎ edited")).toBeInTheDocument();
+    expect(screen.getByText(/Edited by p-maya/)).toBeInTheDocument();
+  });
 });

@@ -67,11 +67,14 @@ def node_detail(
         "packVersion": version_label(ref),
         "disclaimer": DISCLAIMER,
     }
-    if case_id is not None and node.type == "drug":
-        dose = shared.cases.compute_dose(case_id, node_id)
-        detail["dose"] = dose_note(dose)
-        safety = shared.cases.safety_checks(case_id, [node_id])
-        detail["safety"] = [s.model_dump(by_alias=True) for s in safety]
+    if case_id is not None:
+        edit = shared.cases.latest_edit(case_id, node_id)
+        detail["edited"] = edit.model_dump(by_alias=True) if edit else None
+        if node.type == "drug":
+            dose = shared.cases.compute_dose(case_id, node_id)
+            detail["dose"] = dose_note(dose)
+            safety = shared.cases.safety_checks(case_id, [node_id])
+            detail["safety"] = [s.model_dump(by_alias=True) for s in safety]
     return detail
 
 

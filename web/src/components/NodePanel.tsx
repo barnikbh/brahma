@@ -128,10 +128,13 @@ export function NodePanel(props: NodePanelProps) {
   };
 
   const edit = props.edit ?? null;
-  const fields = { ...(detail?.node.fields ?? {}), ...(edit?.edit.newValues ?? {}) };
+  // The in-memory outcome wins when present; otherwise the stored edit from the
+  // detail keeps the marker across reloads (dose/safety already reflect it).
+  const edited = edit?.edit ?? detail?.edited ?? null;
+  const fields = { ...(detail?.node.fields ?? {}), ...(edited?.newValues ?? {}) };
   const editedKeys = new Set(
-    Object.keys(edit?.edit.newValues ?? {}).filter(
-      (k) => text(edit?.edit.newValues[k]) !== text(edit?.edit.original[k]),
+    Object.keys(edited?.newValues ?? {}).filter(
+      (k) => text(edited?.newValues[k]) !== text(edited?.original[k]),
     ),
   );
   const dose = edit ? edit.dose : detail?.dose;
@@ -187,9 +190,9 @@ export function NodePanel(props: NodePanelProps) {
               ? `Updated by ${detail.updated.updatedByName} · ${formatWhen(detail.updated.updatedAt)}`
               : `Initial pack v${detail.initialVersion ?? "1.0"}`}
           </p>
-          {edit ? (
+          {edited ? (
             <p className="text-brand-700">
-              ✎ Edited by {props.editorName ?? edit.edit.editorProfileId}
+              ✎ Edited by {props.editorName ?? edited.editorProfileId}
             </p>
           ) : null}
           <p>{detail.node.content}</p>

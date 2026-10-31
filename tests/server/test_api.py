@@ -285,6 +285,23 @@ def test_treatment_edit_patient_change_message_and_draft(client: TestClient) -> 
     assert client.get(f"/api/cases/{case_id}").json()["formDrafts"] == {form_id: {"Hb": "10.2"}}
 
 
+def test_node_detail_returns_the_latest_edit_for_its_case(client: TestClient) -> None:
+    case_id = new_case(client)
+    edit = client.post(
+        f"/api/cases/{case_id}/treatment-edits",
+        json={"nodeId": "IBD-N52", "newValues": {"doseValue": 40}},
+        headers=TAB_HEADERS,
+    )
+    assert edit.status_code == 201, edit.text
+    edited = client.get("/api/nodes/IBD@1.1/IBD-N52", params={"caseId": case_id}).json()["edited"]
+    assert edited["editId"] == edit.json()["edit"]["editId"]
+    assert edited["newValues"]["doseValue"] == 40
+    assert edited["editorProfileId"] == DOCTOR
+    other = client.get("/api/nodes/IBD@1.1/IBD-N51", params={"caseId": case_id}).json()
+    assert other["edited"] is None
+    assert client.get("/api/nodes/IBD@1.1/IBD-N52").json()["edited"] is None
+
+
 def test_session_history_detail_and_export(client: TestClient) -> None:
     case_id = new_case(client)
     done = _payloads(_demo_walk(client, case_id), "done")[0]

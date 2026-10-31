@@ -347,6 +347,10 @@ class CaseService:
         catalog = self._catalog(self._version(case))
         return _safety_checks(drugs, self.get_patient(case_id), catalog)
 
+    def latest_edit(self, case_id: str, node_id: str) -> TreatmentEdit | None:
+        """The case's latest treatment edit for a node, if any (C5, BR4.4)."""
+        return self._repo.latest_edit(case_id, node_id)
+
     def apply_edit(
         self, case_id: str, node_id: str, new_values: dict[str, Any], editor_profile_id: str
     ) -> EditOutcome:
