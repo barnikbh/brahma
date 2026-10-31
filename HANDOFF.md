@@ -125,7 +125,8 @@ The owner planned for a family or friend reviewer to check the IBD content **by 
 - **Oct 31:** reviewer check of the IBD content (above).
 - **Nov 2, 9 PM ET:** Meta credentials. The key now works (`muse-spark-1.3`), so the Meta path is confirmed; record this against requirement FR13.10.
 - **Nov 3–4:** rehearse the demo on the Meta model, record the video from a tagged commit, submit repo and video before **Nov 4, 9 PM ET**. Ungrounded runs 0–1 per walk and the badge is demo-visible, so record multiple takes and ship a 0-take.
-- **Benchmark (U7): stays deferred.** Judging criteria found Oct 31 (impact 30 / Meta tooling 25 / demo 25 / technical depth 20) expect no benchmark or quantitative result. Original 20-case plan shelved; design in `requirements.md` FR13 if ever needed.
+- **Benchmark (U7): DONE Oct 31 (lean 12-case version).** Owner said "do it all", so the shelved 20-case plan became 5 UC + 5 CD + 2 URO (shown, not counted) in `results/benchmark_cases.json`, run live on `muse-spark-1.3` via `scripts/run_benchmark.py` (judge in `src/brahma/bench.py`). Verdict **Pass**: IBD graph 99.3% grounded / 100% pathway agreement vs plain model 48% / 28%; URO graph 93% / 100% vs plain 33% / 50%. Report: `results/benchmark.html`. Expected pathways are derived from `walk_graph`, never hand-written. Note: `uc-stool-positive` was replaced by `uc-day3-responder` because no edge gates on stool culture (see content gaps) — the positive result changed nothing, so the case discriminated only in the plain arm.
+- **Review prep + recording guide (added Oct 31):** `docs/review-checklist.md` (dose table, thresholds, 4 pack-design questions for the reviewer, expected pathways, sign-off via `reviewedBy`) and `docs/recording-guide.md` (9-step demo script, takes/recovery, submission checklist).
 
 ## Backlog (low priority, not scheduled)
 
