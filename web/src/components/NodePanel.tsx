@@ -98,9 +98,12 @@ export function NodePanel(props: NodePanelProps) {
     void load();
   }, [load]);
 
+  // Focus once on open (the panel remounts per node). Never refocus when detail
+  // arrives late: the doctor may have moved to the composer, and yanking focus
+  // back breaks Enter-to-send there.
   useEffect(() => {
-    if (detail) heading.current?.focus();
-  }, [detail]);
+    heading.current?.focus();
+  }, []);
 
   const { onClose } = props;
   useEffect(() => {

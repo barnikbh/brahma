@@ -56,6 +56,20 @@ describe("WorkspacePage", () => {
     expect(screen.getAllByTestId("walk-summary")).toHaveLength(2);
   });
 
+  it("sends the follow-up with Enter in the composer", async () => {
+    const fake = await walkDemo();
+    fake.walkStreams.push(FOLLOW_UP_EVENTS);
+    await userEvent.type(screen.getByLabelText(/Message the agent/), FOLLOW_UP_TEXT);
+    await userEvent.keyboard("{Enter}");
+    expect(
+      await screen.findByText(
+        "Noted treatment history: infliximab — no response; corticosteroid — responded.",
+      ),
+    ).toBeInTheDocument();
+    const walks = fake.callsTo("POST", "/api/cases/:id/walk").map((c) => c.body);
+    expect(walks.at(-1)).toEqual({ mode: "follow_up", text: FOLLOW_UP_TEXT });
+  });
+
   it("walks the demo: confirm form, needs-data form, cited lines and 0 ungrounded", async () => {
     const fake = await walkDemo();
     expect(screen.getByText(/Confirmed findings: age 34 years/)).toBeInTheDocument();

@@ -66,11 +66,7 @@ test("demo walk: sign in, walk the case, cited answer, audit record", async ({ p
   // Follow-up: chat after the answer is read as treatment history, with no extra button.
   const composer = page.getByLabel(/Message the agent/);
   await composer.fill(FOLLOW_UP_TEXT);
-  await page
-    .locator("form")
-    .filter({ has: composer })
-    .getByRole("button", { name: "Send" })
-    .click();
+  await composer.press("Enter");
   await expect(page.getByText(/^Noted treatment history: infliximab/)).toBeVisible({
     timeout: 30_000,
   });
