@@ -10,8 +10,10 @@ tofacitinib safety update citing the FDA JAK-warning page (fda.gov blocks the
 fetcher's user agent, so a graceful "could not read" reply is expected), then
 the same update from the tofacitinib Wikipedia page (expects a drafted
 proposal). As the reviewer: publishes the proposal and confirms the new live
-version. Exit code 0 means the full loop worked, 2 means it degraded
-gracefully (asked only, or publish blocked), 1 means a crash or HTTP 500.
+version. Finally replays the impossible new-pack request (expects one ask round,
+then an early stop — never repeated questions). Exit code 0 means everything
+behaved, 2 means it degraded gracefully (asked only, or publish blocked),
+1 means a crash, an HTTP 500 or a wrong turn status.
 """
 
 from __future__ import annotations
@@ -34,6 +36,12 @@ WIKI_FOLLOW_UP = (
     "for tofacitinib, paraphrased into the node's safety text. Keep all existing "
     "dose information unchanged. If the page states no boxed warning, say so."
 )
+NEWPACK_ASK = (
+    "Create knowledge on lung cancer. Treatment plan based on mutation. For example "
+    "for PDL1 gene, immunotherapy is done. Give this a different ID outside of IBD "
+    "and URO."
+)
+NEWPACK_REFUSE = "1. yes new, 2. find your own sources, 3. find it all. do your research"
 T0 = time.time()
 
 
@@ -141,6 +149,31 @@ def main() -> int:
         log("GRACEFUL: no new live version")
         return 2
     log(f"FULL LOOP OK: published -> live IBD {live[0].get('version')}")
+
+    log("Impossible request (expect ask, then early stop)...")
+    first = doctor.post("/api/knowledge/updates", json={"text": NEWPACK_ASK})
+    if first.status_code != 200:
+        log(f"FAIL: new-pack ask -> HTTP {first.status_code}: {first.text[:200]}")
+        return 1
+    first_body = first.json()
+    show_thread("NEWPACK1", first_body)
+    if first_body.get("status") != "open":
+        log(f"FAIL: expected open, got {first_body.get('status')}")
+        return 1
+    second = doctor.post(
+        "/api/knowledge/updates",
+        json={"text": NEWPACK_REFUSE, "threadId": first_body.get("threadId")},
+    )
+    if second.status_code != 200:
+        log(f"FAIL: new-pack refuse -> HTTP {second.status_code}: {second.text[:200]}")
+        return 1
+    second_body = second.json()
+    show_thread("NEWPACK2", second_body)
+    last_text = str(second_body.get("messages", [])[-1].get("text", ""))
+    if second_body.get("status") != "stuck" or "instead of asking again" not in last_text:
+        log("FAIL: expected early stop with the explanatory message")
+        return 1
+    log("NEWPACK OK: asked once, then stopped with an explanation")
     return 0
 
 

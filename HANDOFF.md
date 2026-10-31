@@ -108,6 +108,7 @@ python scripts/check_env_example.py && python scripts/check_secrets.py
 8. **Not built — all four confirmed correctly unbuilt Oct 31:** form-draft *restore* in the web UI (API + `formDrafts` done and tested; restore is backlog, demo fills forms in one go); zoom slider (React Flow's own controls suffice); first-run tour (cut by owner); background source checker (structurally off — no server wiring, only the `python -m brahma.updates.check` CLI — and its 24 h interval cannot help a demo).
 9. **Repo is not a git repo yet.** Initialise it, make sure `.env` and `data/` stay ignored (`.gitignore` covers them), run `scripts/check_secrets.py`, then create the public GitHub repo. Tag the commit the demo video is recorded from. No commits after the deadline.
 10. Leftover local files `data/*.db`, `data/*.log` are gitignored.
+11. **Knowledge ask-loop: fixed.** Impossible requests (new pack, "find your own sources") repeated the same questions to 5 rounds, because the flow can only edit existing nodes from doctor-pasted URLs and the prompt's only move for missing info was to ask. The interpret prompt now states the real limits, and `send()` stops at round 2 when a message adds no URL, node ID or number — with an explanatory message naming the limits. Verified live with the exact transcript.
 
 ## Content gaps (clinical content is unverified, needs a human reviewer)
 

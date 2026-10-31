@@ -180,16 +180,49 @@ def test_copied_source_text_is_flagged_and_blocks_publishing(
     assert proposal.copy_flagged_node_ids == ["IBD-N54"]
 
 
-def test_the_conversation_stops_after_five_unanswered_rounds(
+def test_repeated_messages_without_material_stop_early(
     make_service: Callable[..., UpdateService], script: Callable[..., Path]
 ) -> None:
     bot = assistant(make_service, script([("doctor:", ASK)]))
     thread = bot.send(DOCTOR, "update something")
-    for _ in range(MAX_ROUNDS - 1):
-        thread = bot.send(DOCTOR, "still unsure", thread.thread_id)
-    assert thread.status == "stuck" and "could not work this out" in thread.messages[-1].text
+    assert thread.status == "open" and thread.rounds == 1
+    thread = bot.send(DOCTOR, "still unsure", thread.thread_id)
+    last = thread.messages[-1].text
+    assert thread.status == "stuck" and "instead of asking again" in last
+    assert "Which drug" not in last
     with pytest.raises(ThreadClosed):
         bot.send(DOCTOR, "one more", thread.thread_id)
+
+
+def test_an_enumerated_non_answer_stops_early(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path]
+) -> None:
+    bot = assistant(make_service, script([("doctor:", ASK)]))
+    thread = bot.send(DOCTOR, "create knowledge on lung cancer")
+    assert thread.status == "open"
+    thread = bot.send(
+        DOCTOR, "1. yes new, 2. find your own sources, 3. find it all", thread.thread_id
+    )
+    assert thread.status == "stuck" and "can't create a new pack" in thread.messages[-1].text
+
+
+def test_rounds_with_new_material_still_run_to_five(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path]
+) -> None:
+    bot = assistant(make_service, script([("doctor:", ASK)]))
+    thread = bot.send(DOCTOR, "update something")
+    for i in range(MAX_ROUNDS - 1):
+        thread = bot.send(DOCTOR, f"try node IBD-N5{i}", thread.thread_id)
+    assert thread.status == "stuck" and "could not work this out" in thread.messages[-1].text
+
+
+def test_a_number_answer_is_treated_as_progress(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path]
+) -> None:
+    bot = assistant(make_service, script([("doctor:", ASK)]))
+    thread = bot.send(DOCTOR, "update something")
+    thread = bot.send(DOCTOR, "40", thread.thread_id)
+    assert thread.status == "open" and thread.rounds == 2
 
 
 def test_model_failure_stores_nothing_and_inputs_are_validated(

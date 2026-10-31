@@ -14,7 +14,9 @@ Each doctor message runs one turn:
 
 Anything unclear (unknown node, no URL, URL unreachable, the page does not state a value)
 becomes a follow-up question instead of a guess. After ``MAX_ROUNDS`` unanswered rounds in
-a row the conversation stops. Messages are stored so a reload keeps the conversation.
+a row the conversation stops. It also stops early when a new message adds nothing usable
+(no URL, node ID or number) on top of an unanswered round, instead of repeating the same
+questions. Messages are stored so a reload keeps the conversation.
 """
 
 from __future__ import annotations
@@ -75,9 +77,12 @@ INTERPRET_PROMPT = (
     "for each, and which source URL (written by the doctor) supports it. Use only node IDs "
     "from the list. Source URLs are fetched automatically after this step: never ask the "
     "doctor to paste page text when a URL is present, and never mention <source_data> or "
-    "other internal tags in questions. If a node is ambiguous (several could match), a "
-    "source URL is missing, or the wanted change is unclear, set action to ask and give "
-    "1 to 3 short, concrete questions. Never guess and never invent clinical values. "
+    "other internal tags in questions. You can only change existing nodes of this pack, "
+    "and only from a source URL the doctor wrote: you cannot create a new pack or new "
+    "nodes, browse the web or choose sources yourself. If a node is ambiguous (several "
+    "could match), a source URL is missing, or the wanted change is unclear, set action "
+    "to ask and give 1 to 3 short, concrete questions, never repeating one the "
+    "conversation already asked. Never guess and never invent clinical values. "
     "Otherwise set action to draft and list the targets. The summary is one sentence "
     "for the reviewer."
 )
@@ -126,6 +131,28 @@ class NodeDraft(UpModel):
 def _urls(text: str) -> list[str]:
     found = (m.group(0).rstrip(".,;:!?") for m in _URL.finditer(text))
     return list(dict.fromkeys(found))
+
+
+_LIST_MARKER = re.compile(r"(?m)(?:^|[,;])\s*\(?\d+[.)]\s+")
+_NODE_ID = re.compile(r"[A-Za-z]+-N\d+")
+
+_STUCK_EARLY = (
+    "I can't move forward on this yet, so I'll stop here instead of asking again. I can "
+    "only change existing {pack} nodes, and only from a source URL you paste — I can't "
+    "create a new pack or find sources myself. Start a new conversation with the node, "
+    "the change and the source URL."
+)
+
+
+def _has_material(message: str) -> bool:
+    """Whether the doctor's message carries anything a turn can act on: a source URL,
+    a node ID or a number (the usual shape of a value answer). Enumerated-list markers
+    ("1.", "2)") do not count: "1. find it yourself" adds nothing."""
+    if _urls(message):
+        return True
+    if _NODE_ID.search(message):
+        return True
+    return re.search(r"\d", _LIST_MARKER.sub(" ", message)) is not None
 
 
 def _number_in(value: Any, text: str) -> bool:
@@ -185,7 +212,11 @@ class UpdateAssistant:
         reply, proposal, asked = self._turn(pack_code, history, profile_id)
         rounds = ((thread.rounds if thread else 0) + 1) if asked else 0
         status: ThreadStatus = "proposed" if proposal else "open"
-        if asked and rounds >= MAX_ROUNDS:
+        stalled = asked and thread is not None and thread.rounds > 0 and not _has_material(message)
+        if stalled:
+            status = "stuck"
+            reply = _STUCK_EARLY.format(pack=pack_code)
+        elif asked and rounds >= MAX_ROUNDS:
             status = "stuck"
             reply += (
                 f" I could not work this out after {MAX_ROUNDS} rounds. "
