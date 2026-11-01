@@ -179,6 +179,10 @@ def _proposal_body(proposal: Proposal, service: UpdateService) -> dict[str, Any]
     body["copyFlaggedNodeIds"] = proposal.copy_flagged_node_ids
     body["proposerName"] = service.display_name(proposal.proposer_profile_id)
     body["reviewerName"] = service.display_name(proposal.reviewer_profile_id)
+    urls = {c.source_url for c in proposal.changes if c.source_url}
+    known = [*service.knowledge.repo.read_sources(proposal.pack), *proposal.change_set.add_sources]
+    cited = {s.url: s for s in known if s.url in urls}
+    body["citedSources"] = [s.model_dump(mode="json", by_alias=True) for s in cited.values()]
     return body
 
 

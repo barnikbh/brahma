@@ -209,7 +209,13 @@ def test_an_enumerated_non_answer_stops_early(
 def test_rounds_with_new_material_still_run_to_five(
     make_service: Callable[..., UpdateService], script: Callable[..., Path]
 ) -> None:
-    bot = assistant(make_service, script([("doctor:", ASK)]))
+    asked = ("Is this for adults?", "Oral or injected?", "How long a course?", "Any taper wanted?")
+    rounds = [
+        (f"try node IBD-N5{i}", {"action": "ask", "questions": [question]})
+        for i, question in enumerate(asked)
+    ]
+    # The transcript keeps earlier messages, so the latest round's entry must match first.
+    bot = assistant(make_service, script([*reversed(rounds), ("doctor:", ASK)]))
     thread = bot.send(DOCTOR, "update something")
     for i in range(MAX_ROUNDS - 1):
         thread = bot.send(DOCTOR, f"try node IBD-N5{i}", thread.thread_id)
@@ -219,7 +225,8 @@ def test_rounds_with_new_material_still_run_to_five(
 def test_a_number_answer_is_treated_as_progress(
     make_service: Callable[..., UpdateService], script: Callable[..., Path]
 ) -> None:
-    bot = assistant(make_service, script([("doctor:", ASK)]))
+    later = {"action": "ask", "questions": ["Is that per kilogram of weight?"]}
+    bot = assistant(make_service, script([("doctor: 40", later), ("doctor:", ASK)]))
     thread = bot.send(DOCTOR, "update something")
     thread = bot.send(DOCTOR, "40", thread.thread_id)
     assert thread.status == "open" and thread.rounds == 2
@@ -244,6 +251,339 @@ def test_bad_model_output_is_a_draft_failure(
     bot = assistant(make_service, script([("doctor:", {"action": "nonsense"})]))
     with pytest.raises(DraftFailed):
         bot.send(DOCTOR, "update something")
+
+
+# --- source first: read the page, decide add or update, cite it ---------------------------
+
+BAND_URL = "https://guidelines.example.org/synthetic/biologic-dosing"
+# Synthetic test page: made-up wording, not taken from any guideline.
+BAND_PAGE = (
+    "<html><head><title>Synthetic biologic dosing note</title></head><body>"
+    "<h2>Dosing</h2><p>This invented note covers a made up first infusion.</p>"
+    "<p>55 kg or less: 260 mg IV</p><p>Above 55 kg to 85 kg: 390 mg IV</p>"
+    "<p>Above 85 kg: 520 mg IV</p><p>Then 90 mg under the skin every 8 weeks.</p>"
+    "<h2>Other</h2><p>Unrelated text about storage of the invented product.</p>"
+    "</body></html>"
+)
+REQUEST = f"update ustekinumab dose ≤55 kg: 260 mg IV; >55 kg to 85 kg: 390 from {BAND_URL}"
+BANDS = [
+    {"weightMinKg": None, "weightMaxKg": 55, "doseValue": 260, "doseUnit": "mg"},
+    {"weightMinKg": 55, "weightMaxKg": 85, "doseValue": 390, "doseUnit": "mg"},
+    {"weightMinKg": 85, "weightMaxKg": None, "doseValue": 520, "doseUnit": "mg"},
+]
+ADD_PLAN = {
+    "action": "draft",
+    "targets": [
+        {"nodeId": "IBD-N54", "instruction": "add induction", "url": BAND_URL, "mode": "add"},
+        {"nodeId": "IBD-N54", "instruction": "reword", "url": BAND_URL, "mode": "update"},
+    ],
+    "summary": "Add weight-band IV induction beside maintenance.",
+}
+ADD_DRAFT = {
+    "status": "updated",
+    "label": "Ustekinumab IV induction, weight-based",
+    "content": "One intravenous induction infusion chosen by body weight, before maintenance.",
+    "section": "Dosing",
+    "fields": {
+        "route": "intravenous",
+        "doseBands": BANDS,
+        "frequency": "once",
+        "duration": "single induction dose",
+    },
+}
+ADD = {"match": "Mode: add", "reply": ADD_DRAFT}
+UPDATE = {
+    "match": "Mode: update",
+    "reply": {
+        "status": "updated",
+        "content": "After the induction infusion, 90 mg is given under the skin every 8 weeks.",
+    },
+}
+
+
+@pytest.fixture
+def serve_bands(http: respx.MockRouter) -> respx.Route:
+    return http.get(BAND_URL).mock(
+        return_value=httpx.Response(200, text=BAND_PAGE, headers={"content-type": "text/html"})
+    )
+
+
+def test_the_ustekinumab_request_runs_from_url_to_a_published_cited_node(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    folder = script([("Synthetic biologic dosing note", ADD_PLAN)], ADD, UPDATE)
+    service = make_service(folder)
+    thread = UpdateAssistant(service).send(DOCTOR, REQUEST)
+    assert thread.status == "proposed" and thread.rounds == 0
+    assert len(thread.messages) == 2, "no clarifying question"
+    assert "IBD-N104 (new), IBD-N54" in thread.messages[-1].text
+    proposal = service.get_proposal(thread.messages[-1].proposal_id or "")
+
+    added, reworded = proposal.changes
+    assert added.before is None and added.node_id == "IBD-N104"
+    fields = added.after["fields"]
+    assert [b["doseValue"] for b in fields["doseBands"]] == [260, 390, 520]
+    assert fields["doseBasis"] == "weight_band" and fields["route"] == "intravenous"
+    assert fields["drug"] == "ustekinumab", "the rest comes from the neighbour"
+    assert added.after["type"] == "drug" and added.after["column"] == "treatment"
+    assert added.source_url == BAND_URL and not added.copy_flag
+    assert "260 mg" in (added.source_passage or "") and "520 mg" in (added.source_passage or "")
+
+    source = proposal.change_set.add_sources[0]
+    assert source.source_id == "IBD-S21" and source.url == BAND_URL
+    assert source.title == "Synthetic biologic dosing note" and source.section == "Dosing"
+    assert added.after["sourceIds"] == ["IBD-S21"]
+    assert reworded.node_id == "IBD-N54" and reworded.before
+    assert reworded.after["sourceIds"] == ["IBD-S5", "IBD-S19", "IBD-S21"]
+    assert reworded.after["fields"] == reworded.before["fields"], "maintenance dose is untouched"
+
+    service.publish(proposal.proposal_id, REVIEWER, "ok")
+    view = browse.node_view(service, "IBD", None, "IBD-N104")
+    assert view["packVersion"] == "IBD 1.2"
+    assert [s["url"] for s in view["sources"]] == [BAND_URL]
+    assert view["updated"]["updatedByName"] == "Dr. Maya (demo)"
+    tiers = {n["nodeId"] for n in view["incoming"]}
+    assert tiers == {"IBD-N42", "IBD-N45", "IBD-N46"}
+    for tier in tiers:
+        listed = browse.node_view(service, "IBD", None, tier)["node"]["fields"]["drugNodeIds"]
+        assert {"IBD-N54", "IBD-N104"} <= set(listed)
+
+
+def test_the_api_reports_the_cited_source_with_the_proposal(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    service = make_service(script([("Synthetic biologic dosing note", ADD_PLAN)], ADD, UPDATE))
+    app = FastAPI()
+    app.include_router(api.router, prefix="/api/knowledge")
+    app.dependency_overrides[api.get_update_service] = lambda: service
+    with TestClient(app) as client:
+        body = client.post(
+            "/api/knowledge/updates", json={"text": REQUEST}, headers={"X-Brahma-Profile": DOCTOR}
+        ).json()
+    cited = body["proposals"][0]["citedSources"]
+    assert [(s["sourceId"], s["url"]) for s in cited] == [("IBD-S21", BAND_URL)]
+
+
+def test_check_the_website_rereads_the_page_instead_of_asking_again(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    first = {"action": "ask", "questions": ["Is 390 mg IV?", "Does this replace IBD-N54?"]}
+    folder = script([("check the website", ADD_PLAN), ("doctor:", first)], ADD, UPDATE)
+    bot = assistant(make_service, folder)
+    thread = bot.send(DOCTOR, REQUEST)
+    assert thread.status == "open"
+    thread = bot.send(DOCTOR, "check the website", thread.thread_id)
+    assert thread.status == "proposed" and thread.messages[-1].proposal_id
+    assert serve_bands.call_count == 2, "the URL from the first message is read on every turn"
+
+
+def test_the_page_reaches_the_model_before_it_decides(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    folder = script([("Above 85 kg: 520 mg IV", ADD_PLAN)], ADD, UPDATE)
+    thread = assistant(make_service, folder).send(DOCTOR, REQUEST)
+    assert thread.status == "proposed", "the first model call already holds the page text"
+
+
+def test_the_same_question_is_never_asked_twice(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    same = {"action": "ask", "questions": ["What is the dose above 85 kg?"]}
+    bot = assistant(make_service, script([("doctor:", same)]))
+    thread = bot.send(DOCTOR, REQUEST)
+    assert thread.messages[-1].text == "What is the dose above 85 kg?"
+    thread = bot.send(DOCTOR, "try IBD-N54 and 90 mg", thread.thread_id)
+    last = thread.messages[-1].text
+    assert thread.status == "stuck" and "instead of asking again" in last
+    assert "85 kg" not in last
+
+
+def test_only_the_new_question_is_asked_on_a_later_round(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    both = {"action": "ask", "questions": ["What is the dose above 85 kg?", "Which tier applies?"]}
+    one = {"action": "ask", "questions": ["What is the dose above 85 kg?"]}
+    bot = assistant(make_service, script([("it is IBD-N54", both), ("doctor:", one)]))
+    thread = bot.send(DOCTOR, REQUEST)
+    thread = bot.send(DOCTOR, "it is IBD-N54", thread.thread_id)
+    assert thread.status == "open" and thread.messages[-1].text == "Which tier applies?"
+
+
+def test_an_unreadable_source_is_reported_without_a_model_call(
+    make_service: Callable[..., UpdateService], tmp_path: Path, http: respx.MockRouter
+) -> None:
+    http.get(BAND_URL).mock(return_value=httpx.Response(403))
+    thread = assistant(make_service, tmp_path / "no-replies").send(DOCTOR, REQUEST)
+    assert thread.status == "open" and "could not read" in thread.messages[-1].text
+
+
+def test_bands_that_miss_a_weight_are_not_drafted(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    partial = {**ADD_DRAFT, "fields": {**ADD_DRAFT["fields"], "doseBands": BANDS[:2]}}
+    plan = {**ADD_PLAN, "targets": ADD_PLAN["targets"][:1]}
+    folder = script([("Synthetic", plan)], {"match": "Mode: add", "reply": partial})
+    thread = assistant(make_service, folder).send(DOCTOR, REQUEST)
+    assert thread.status == "open" and "I could not draft" in thread.messages[-1].text
+
+
+def test_a_band_dose_the_page_does_not_state_is_not_drafted(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    wrong = [*BANDS[:2], {**BANDS[2], "doseValue": 777}]
+    draft = {**ADD_DRAFT, "fields": {**ADD_DRAFT["fields"], "doseBands": wrong}}
+    plan = {**ADD_PLAN, "targets": ADD_PLAN["targets"][:1]}
+    folder = script([("Synthetic", plan)], {"match": "Mode: add", "reply": draft})
+    thread = assistant(make_service, folder).send(DOCTOR, REQUEST)
+    assert (
+        thread.status == "open" and "does not clearly state doseBands" in thread.messages[-1].text
+    )
+
+
+def test_a_number_in_the_wording_the_page_does_not_state_is_not_drafted(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    draft = {**ADD_DRAFT, "content": "One infusion of 615 mg by body weight."}
+    plan = {**ADD_PLAN, "targets": ADD_PLAN["targets"][:1]}
+    folder = script([("Synthetic", plan)], {"match": "Mode: add", "reply": draft})
+    thread = assistant(make_service, folder).send(DOCTOR, REQUEST)
+    assert thread.status == "open" and "numbers in its wording" in thread.messages[-1].text
+
+
+def test_keys_the_node_type_does_not_have_are_dropped(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    fields = {**ADD_DRAFT["fields"], "indications": ["colitis"], "doseBasis": "weight-tiered"}
+    plan = {**ADD_PLAN, "targets": ADD_PLAN["targets"][:1]}
+    folder = script(
+        [("Synthetic", plan)], {"match": "Mode: add", "reply": {**ADD_DRAFT, "fields": fields}}
+    )
+    bot = assistant(make_service, folder)
+    thread = bot.send(DOCTOR, REQUEST)
+    assert thread.status == "proposed"
+    after = bot._service.get_proposal(thread.messages[-1].proposal_id or "").changes[0].after
+    assert "indications" not in after["fields"] and after["fields"]["doseBasis"] == "weight_band"
+
+
+def test_one_target_per_band_is_merged_into_one_node(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    split = [
+        {"nodeId": "IBD-N54", "instruction": f"band {i}", "url": None, "mode": "add"}
+        for i in ("alpha", "bravo", "charlie")
+    ]
+    folder = script(
+        [("Synthetic", {**ADD_PLAN, "targets": split})],
+        {"match": "band alpha; band bravo; band charlie", "reply": ADD_DRAFT},
+    )
+    bot = assistant(make_service, folder)
+    thread = bot.send(DOCTOR, REQUEST)
+    proposal = bot._service.get_proposal(thread.messages[-1].proposal_id or "")
+    assert [c.node_id for c in proposal.changes] == ["IBD-N104"]
+    assert len(proposal.changes[0].after["fields"]["doseBands"]) == 3
+
+
+def test_a_rejected_draft_is_retried_with_the_reason_before_anything_reaches_the_doctor(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    single = {
+        "status": "updated",
+        "label": "Ustekinumab 260 mg IV",
+        "content": "One infusion of 260 mg.",
+        "fields": {"route": "intravenous", "doseValue": 260, "weightMaxKg": 55},
+    }
+    plan = {**ADD_PLAN, "targets": ADD_PLAN["targets"][:1]}
+    folder = script(
+        [("Synthetic", plan)],
+        {"match": "previous draft was rejected: a dose that depends on weight", "reply": ADD_DRAFT},
+        {"match": "Mode: add", "reply": single},
+    )
+    bot = assistant(make_service, folder)
+    thread = bot.send(DOCTOR, REQUEST)
+    assert thread.status == "proposed" and len(thread.messages) == 2
+    after = bot._service.get_proposal(thread.messages[-1].proposal_id or "").changes[0].after
+    assert [b["doseValue"] for b in after["fields"]["doseBands"]] == [260, 390, 520]
+
+
+def test_a_draft_that_stays_rejected_blames_the_draft_not_the_source(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    long_label = {**ADD_DRAFT, "label": "x" * 79 + " tail"}
+    plan = {**ADD_PLAN, "targets": ADD_PLAN["targets"][:1]}
+    folder = script([("Synthetic", plan)], {"match": "Mode: add", "reply": long_label})
+    thread = assistant(make_service, folder).send(DOCTOR, REQUEST)
+    assert thread.status == "open" and "I could not draft" in thread.messages[-1].text
+
+
+def test_the_passage_follows_the_model_evidence_and_stays_real_page_text(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    plan = {**ADD_PLAN, "targets": ADD_PLAN["targets"][1:]}
+    reply = {**UPDATE["reply"], "evidence": "Unrelated text about storage, invented claim"}
+    folder = script([("Synthetic", plan)], {"match": "Mode: update", "reply": reply})
+    bot = assistant(make_service, folder)
+    thread = bot.send(DOCTOR, REQUEST)
+    passage = bot._service.get_proposal(thread.messages[-1].proposal_id or "").changes[0]
+    assert "storage of the invented product" in (passage.source_passage or "")
+    assert "invented claim" not in (passage.source_passage or "")
+
+
+def test_a_new_node_needs_a_label_and_content(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    plan = {**ADD_PLAN, "targets": ADD_PLAN["targets"][:1]}
+    draft = {**ADD_DRAFT, "label": None}
+    folder = script([("Synthetic", plan)], {"match": "Mode: add", "reply": draft})
+    thread = assistant(make_service, folder).send(DOCTOR, REQUEST)
+    assert thread.status == "open" and "both a label and content" in thread.messages[-1].text
+
+
+def test_a_dose_the_doctor_wrote_that_the_page_lacks_is_called_out(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    folder = script([("Synthetic", ADD_PLAN)], ADD, UPDATE)
+    thread = assistant(make_service, folder).send(DOCTOR, f"set 300 mg IV from {BAND_URL}")
+    assert thread.status == "proposed"
+    assert "You mentioned 300 mg" in thread.messages[-1].text
+
+
+def test_open_proposals_share_a_source_and_never_share_new_ids(
+    make_service: Callable[..., UpdateService], script: Callable[..., Path], serve_bands: Any
+) -> None:
+    plan = {**ADD_PLAN, "targets": ADD_PLAN["targets"][:1]}
+    service = make_service(script([("Synthetic", plan)], ADD))
+    bot = UpdateAssistant(service)
+    first = service.get_proposal(bot.send(DOCTOR, REQUEST).messages[-1].proposal_id or "")
+    second = service.get_proposal(bot.send(DOCTOR, REQUEST).messages[-1].proposal_id or "")
+    assert first.changes[0].node_id == "IBD-N104" and second.changes[0].node_id == "IBD-N105"
+    assert first.change_set.add_sources == second.change_set.add_sources
+    assert not {e.edge_id for e in first.change_set.add_edges} & {
+        e.edge_id for e in second.change_set.add_edges
+    }
+    service.publish(first.proposal_id, REVIEWER, "ok")
+    published = service.publish(second.proposal_id, REVIEWER, "ok")
+    assert published.published_version == "1.3"
+    third = service.get_proposal(bot.send(DOCTOR, REQUEST).messages[-1].proposal_id or "")
+    assert third.change_set.add_sources == [], "the source is already in the pack"
+    assert third.changes[0].after["sourceIds"] == ["IBD-S21"]
+
+
+def test_the_offline_demo_fixture_runs_the_ustekinumab_example(
+    make_service: Callable[..., UpdateService], http: respx.MockRouter
+) -> None:
+    url = "https://reference.medscape.com/drug/stelara-wezlana-ustekinumab-345050"
+    http.get(url).mock(
+        return_value=httpx.Response(200, text=BAND_PAGE, headers={"content-type": "text/html"})
+    )
+    demo = Path(__file__).parents[1] / "agent" / "fixtures" / "recorded" / "demo"
+    bot = assistant(make_service, demo)
+    thread = bot.send(DOCTOR, f"update ustekinumab dose from {url}")
+    assert thread.status == "proposed"
+    change = bot._service.get_proposal(thread.messages[-1].proposal_id or "").changes[0]
+    assert change.before is None
+    assert [b["doseValue"] for b in change.after["fields"]["doseBands"]] == [260, 390, 520]
+    plain = bot.send(DOCTOR, "Update ustekinumab maintenance dose")
+    assert plain.status == "open" and "source URL" in plain.messages[-1].text
 
 
 def test_threads_are_private_to_their_doctor(

@@ -8,12 +8,13 @@ import { Banner } from "@/components/Banner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
-import { formatWhen } from "@/lib/utils";
+import { formatDoseBands, formatWhen } from "@/lib/utils";
 
 const COLUMNS = ["findings", "diagnosis", "tests", "subtype", "treatment", "monitor"];
 
-function show(value: unknown): string {
+function show(value: unknown, key?: string): string {
   if (value === null || value === undefined) return "—";
+  if (key === "doseBands") return formatDoseBands(value).join("; ");
   if (Array.isArray(value)) return value.join(", ");
   return typeof value === "string" ? value : JSON.stringify(value);
 }
@@ -219,7 +220,11 @@ function NodeDetailView({
   onClose: () => void;
   onUpdate: () => void;
 }) {
-  const fields = Object.entries(detail?.node.fields ?? {});
+  // A weight-band node's doseValue is only its first band, so the bands stand alone.
+  const fields = Object.entries(detail?.node.fields ?? {}).filter(
+    ([k]) =>
+      detail?.node.fields.doseBasis !== "weight_band" || !["doseValue", "doseUnit"].includes(k),
+  );
   return (
     <article
       aria-label="Node detail"
@@ -275,7 +280,7 @@ function NodeDetailView({
               {fields.map(([k, v]) => (
                 <div key={k} className="contents">
                   <dt className="text-ink-quiet">{k}</dt>
-                  <dd>{show(v)}</dd>
+                  <dd>{show(v, k)}</dd>
                 </div>
               ))}
             </dl>

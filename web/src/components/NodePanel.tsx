@@ -8,7 +8,7 @@ import { NodeChip } from "@/components/NodeChip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { formatWhen } from "@/lib/utils";
+import { formatDoseBands, formatWhen } from "@/lib/utils";
 
 const CHECK_LABEL: Record<SafetyResult["check"], string> = {
   allergy: "Allergy",
@@ -210,8 +210,14 @@ export function NodePanel(props: NodePanelProps) {
               </dd>
               <dt className="text-ink-quiet">Pack dose</dt>
               <dd>
-                {text(fields.doseValue)} {text(fields.doseUnit)}
-                {fields.doseBasis === "per_kg" ? " per kg" : ""}
+                {fields.doseBasis === "weight_band" ? (
+                  formatDoseBands(fields.doseBands).join("; ")
+                ) : (
+                  <>
+                    {text(fields.doseValue)} {text(fields.doseUnit)}
+                    {fields.doseBasis === "per_kg" ? " per kg" : ""}
+                  </>
+                )}
                 <Edited name="doseValue" />
               </dd>
               <dt className="text-ink-quiet">This patient</dt>

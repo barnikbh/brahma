@@ -25,7 +25,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from brahma.knowledge.errors import BaseNotLive, KnowledgeError
-from brahma.knowledge.models import ChangeSet, Node, PackVersionRef, parse_version
+from brahma.knowledge.models import ChangeSet, Edge, Node, PackVersionRef, Source, parse_version
 from brahma.knowledge.repository import version_id
 from brahma.knowledge.service import SYSTEM_PROFILE_ID, KnowledgeService, _apply_changes
 from brahma.knowledge.validator import iter_strings
@@ -246,13 +246,24 @@ class UpdateService:
         updated: list[Node],
         summary: str,
         sources: list[FetchedSource],
+        *,
+        added: list[Node] | None = None,
+        edges: list[Edge] | None = None,
+        new_sources: list[Source] | None = None,
     ) -> Proposal:
         """Store one proposal holding the conversation's node-by-node changes (origin drafted).
 
-        Dry-run validates the combined change on ``base``; raises PackLoadError when it does
-        not validate. Nothing is stored then.
+        ``added``, ``edges`` and ``new_sources`` carry new nodes, their links into the graph
+        and the pack sources they cite. Dry-run validates the combined change on ``base``;
+        raises PackLoadError when it does not validate. Nothing is stored then.
         """
-        changes = ChangeSet(update_nodes=updated, change_summary=summary)
+        changes = ChangeSet(
+            add_nodes=added or [],
+            update_nodes=updated,
+            add_edges=edges or [],
+            add_sources=new_sources or [],
+            change_summary=summary,
+        )
         self._dry_run(base, changes)
         return self._store(base, "drafted", proposer_profile_id, changes, rows, sources)
 
@@ -489,7 +500,8 @@ class UpdateService:
             {e.edge_id: e for e in repo.read_edges(key)},
             changes,
         )
-        self._knowledge.validator.validate(base.pack, repo.read_sources(base.pack), nodes, edges)
+        sources = KnowledgeService._merge_sources(repo.read_sources(base.pack), changes.add_sources)
+        self._knowledge.validator.validate(base.pack, sources, nodes, edges)
 
     def _drafter_or_fail(self) -> Drafter:
         if self._drafter is None:

@@ -78,7 +78,7 @@ BRAHMA_MODEL_PROVIDER=recorded BRAHMA_RECORDED_DIR=tests/agent/fixtures/recorded
 
 and type: `34-year-old woman, bloody stool 6 months, Hb 10.2 g/dL, calprotectin 850 µg/g`.
 
-On the Knowledge screen, Browse walks the saved nodes and Update takes free text plus source URLs. In demo mode, typing "Update ustekinumab maintenance dose" (no URL) shows the assistant's canned follow-up question.
+On the Knowledge screen, Browse walks the saved nodes. Update takes a source website and a short note: Brahma reads the page, drafts the node change (updating a node, or adding one beside it), cites the page and shows a before and after for a reviewer to approve. In demo mode the page `https://reference.medscape.com/drug/stelara-wezlana-ustekinumab-345050` gives a recorded draft (the page itself is still fetched, so this one step needs network), and a note with no URL shows the canned follow-up question.
 
 For frontend work, `cd web && npm run dev` starts Vite on http://127.0.0.1:5173 and sends
 `/api` to the backend on port 8000.

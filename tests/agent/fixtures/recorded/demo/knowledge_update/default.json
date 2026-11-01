@@ -1,10 +1,22 @@
 {
   "replies": [
     {
+      "match": "Mode: add",
+      "text": "{\"status\": \"updated\", \"label\": \"Ustekinumab IV induction, weight-based\", \"content\": \"A single intravenous infusion, sized by body weight, starts treatment; subcutaneous maintenance follows 8 weeks later.\", \"section\": \"Dosing & Uses\", \"fields\": {\"route\": \"intravenous\", \"doseBands\": [{\"weightMinKg\": null, \"weightMaxKg\": 55, \"doseValue\": 260, \"doseUnit\": \"mg\"}, {\"weightMinKg\": 55, \"weightMaxKg\": 85, \"doseValue\": 390, \"doseUnit\": \"mg\"}, {\"weightMinKg\": 85, \"weightMaxKg\": null, \"doseValue\": 520, \"doseUnit\": \"mg\"}], \"frequency\": \"once, as a single infusion\", \"duration\": \"single induction dose\"}}",
+      "inputTokens": 400,
+      "outputTokens": 120
+    },
+    {
       "match": "Current node (JSON)",
       "text": "{\"status\": \"updated\", \"content\": \"Ustekinumab is given under the skin as maintenance therapy at the interval described in the cited page, after the intravenous induction dose.\"}",
       "inputTokens": 400,
       "outputTokens": 60
+    },
+    {
+      "match": "stelara-wezlana-ustekinumab",
+      "text": "{\"action\": \"draft\", \"questions\": [], \"targets\": [{\"nodeId\": \"IBD-N54\", \"instruction\": \"add the weight-based IV induction dose beside SC maintenance\", \"url\": \"https://reference.medscape.com/drug/stelara-wezlana-ustekinumab-345050\", \"mode\": \"add\"}], \"summary\": \"Add weight-based IV ustekinumab induction beside subcutaneous maintenance.\"}",
+      "inputTokens": 900,
+      "outputTokens": 80
     },
     {
       "match": "https://",

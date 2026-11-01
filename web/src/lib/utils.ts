@@ -32,3 +32,55 @@ export function formatWhen(iso: string): string {
   if (Number.isNaN(date.getTime())) return iso;
   return date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 }
+
+/** Weight bands as readable lines, e.g. "≤55 kg: 260 mg", ">55 to 85 kg: 390 mg". */
+export function formatDoseBands(bands: unknown): string[] {
+  if (!Array.isArray(bands)) return [];
+  return bands.map((band: Record<string, unknown>) => {
+    const { weightMinKg: low, weightMaxKg: high, doseValue, doseUnit } = band;
+    const dose = `${String(doseValue)} ${String(doseUnit)}`;
+    if (low === null || low === undefined) return `≤${String(high)} kg: ${dose}`;
+    if (high === null || high === undefined) return `>${String(low)} kg: ${dose}`;
+    return `>${String(low)} to ${String(high)} kg: ${dose}`;
+  });
+}
+
+export interface DiffPart {
+  kind: "same" | "removed" | "added";
+  text: string;
+}
+
+/** A word-level diff of two texts (longest common subsequence), spaces kept with the words. */
+export function wordDiff(before: string, after: string): DiffPart[] {
+  const a = before.split(/(?<=\s)/);
+  const b = after.split(/(?<=\s)/);
+  const lengths = Array.from({ length: a.length + 1 }, () =>
+    new Array<number>(b.length + 1).fill(0),
+  );
+  for (let i = a.length - 1; i >= 0; i--) {
+    for (let j = b.length - 1; j >= 0; j--) {
+      lengths[i][j] =
+        a[i] === b[j] ? lengths[i + 1][j + 1] + 1 : Math.max(lengths[i + 1][j], lengths[i][j + 1]);
+    }
+  }
+  const parts: DiffPart[] = [];
+  const push = (kind: DiffPart["kind"], text: string) => {
+    const last = parts[parts.length - 1];
+    if (last?.kind === kind) last.text += text;
+    else parts.push({ kind, text });
+  };
+  let i = 0;
+  let j = 0;
+  while (i < a.length || j < b.length) {
+    if (i < a.length && j < b.length && a[i] === b[j]) {
+      push("same", a[i]);
+      i++;
+      j++;
+    } else if (j >= b.length || (i < a.length && lengths[i + 1][j] >= lengths[i][j + 1])) {
+      push("removed", a[i++]);
+    } else {
+      push("added", b[j++]);
+    }
+  }
+  return parts;
+}

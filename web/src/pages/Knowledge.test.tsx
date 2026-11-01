@@ -11,6 +11,7 @@ import {
   sessionView,
   thread,
 } from "@/test/fakeApi";
+import type { Proposal } from "@/api/types";
 import { renderApp } from "@/test/render";
 
 describe("KnowledgePage", () => {
@@ -31,7 +32,7 @@ describe("KnowledgePage", () => {
     expect(screen.getByTestId("copy-flag")).toHaveTextContent(
       "! Possible verbatim copy — publish blocked",
     );
-    expect(screen.getByRole("button", { name: "Publish 1.1" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Approve and publish 1.1" })).toBeDisabled();
   });
 
   it("lets the reviewer publish a clean proposal and shows before and after", async () => {
@@ -42,10 +43,11 @@ describe("KnowledgePage", () => {
     });
     renderApp("/knowledge");
     await userEvent.click(await screen.findByRole("button", { name: /Clarify the review day/ }));
-    expect(screen.getByText("Old paraphrase.")).toBeInTheDocument();
-    expect(screen.getByText("New paraphrase.")).toBeInTheDocument();
+    expect(screen.getByLabelText("Summary before")).toHaveTextContent("Old paraphrase.");
+    expect(screen.getByLabelText("Summary after")).toHaveTextContent("New paraphrase.");
+    expect(screen.getByText("Old")).toContainHTML("<del");
     expect(screen.getByText(/A synthetic source passage./)).toBeInTheDocument();
-    await userEvent.click(screen.getByRole("button", { name: "Publish 1.1" }));
+    await userEvent.click(screen.getByRole("button", { name: "Approve and publish 1.1" }));
     expect(fake.callsTo("POST", "/api/knowledge/proposals/:id/publish")).toHaveLength(1);
   });
 
@@ -54,7 +56,8 @@ describe("KnowledgePage", () => {
     renderApp("/knowledge");
     await userEvent.click(await screen.findByRole("button", { name: /Clarify the review day/ }));
     expect(screen.getByRole("article", { name: "Proposal review" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /Publish/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Approve/ })).not.toBeInTheDocument();
+    expect(screen.getByText(/Waiting for a clinical reviewer/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Reject" })).not.toBeInTheDocument();
     expect(screen.getByText("First version")).toBeInTheDocument();
   });
@@ -142,17 +145,17 @@ describe("KnowledgePage", () => {
     });
     renderApp("/knowledge");
     await userEvent.type(
-      await screen.findByLabelText("Your message"),
+      await screen.findByLabelText("What should change?"),
       "Update ustekinumab maintenance dose",
     );
-    await userEvent.click(screen.getByRole("button", { name: "Send" }));
+    await userEvent.click(screen.getByRole("button", { name: "Read source and draft" }));
     expect(await screen.findByText("Which source URL supports the change?")).toBeInTheDocument();
-    expect(screen.getByLabelText("Your message")).toHaveValue("");
-    await userEvent.type(screen.getByLabelText("Your message"), "Use https://example.org/page");
+    expect(screen.getByLabelText("What should change?")).toHaveValue("");
+    await userEvent.type(screen.getByLabelText("Source website"), "example.org/page");
     await userEvent.click(screen.getByRole("button", { name: "Send" }));
     expect(await screen.findByText(/I drafted changes to 1 node/)).toBeInTheDocument();
     expect(fake.callsTo("POST", "/api/knowledge/updates")[1].body).toEqual({
-      text: "Use https://example.org/page",
+      text: "Update the graph from this source.\n\nSource: https://example.org/page",
       threadId: "th-1",
       pack: "IBD",
     });
@@ -169,13 +172,13 @@ describe("KnowledgePage", () => {
     });
     renderApp("/knowledge");
     expect(await screen.findByText("Earlier question")).toBeInTheDocument();
-    await userEvent.type(screen.getByLabelText("Your message"), "Try again later");
+    await userEvent.type(screen.getByLabelText("What should change?"), "Try again later");
     await userEvent.click(screen.getByRole("button", { name: "Send" }));
     expect(
       await screen.findByText(/the model call failed Your message is kept./),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("Your message")).toHaveValue("Try again later");
-    await userEvent.click(screen.getByRole("button", { name: "New conversation" }));
+    expect(screen.getByLabelText("What should change?")).toHaveValue("Try again later");
+    await userEvent.click(screen.getByRole("button", { name: "Start over" }));
     expect(screen.queryByText("Earlier question")).not.toBeInTheDocument();
   });
 
@@ -183,23 +186,178 @@ describe("KnowledgePage", () => {
     installFakeApi();
     renderApp("/knowledge?node=IBD-N54");
     await userEvent.click(await screen.findByRole("button", { name: "Update this node" }));
-    expect(await screen.findByLabelText("Your message")).toHaveValue(
-      "Update Ustekinumab 90 mg SC (IBD-N54) from ",
+    expect(await screen.findByLabelText("What should change?")).toHaveValue(
+      "Update Ustekinumab 90 mg SC (IBD-N54)",
     );
   });
 
-  it("disables the box when the conversation has ended", async () => {
+  it("starts afresh after a finished update instead of restoring it", async () => {
     installFakeApi({
       "GET /api/knowledge/updates": () => ({
         threads: [thread({ status: "stuck", messages: [msg(0, "assistant", "I could not.")] })],
       }),
     });
     renderApp("/knowledge");
-    expect(await screen.findByText("I could not.")).toBeInTheDocument();
-    expect(screen.getByText(/ended without a draft/)).toBeInTheDocument();
-    expect(screen.getByLabelText("Your message")).toBeDisabled();
+    const box = await screen.findByLabelText("What should change?");
+    expect(box).toBeEnabled();
+    expect(screen.queryByText("I could not.")).not.toBeInTheDocument();
+  });
+
+  it("keeps going after an update stops, in a new conversation", async () => {
+    const stuck = thread({
+      status: "stuck",
+      messages: [msg(0, "doctor", "Update it"), msg(1, "assistant", "I could not.")],
+    });
+    const fake = installFakeApi({ "POST /api/knowledge/updates": () => stuck });
+    renderApp("/knowledge");
+    await userEvent.type(await screen.findByLabelText("What should change?"), "Update it");
+    await userEvent.click(screen.getByRole("button", { name: "Read source and draft" }));
+    expect(await screen.findByText(/stopped without a draft/)).toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText("What should change?"), "Again");
+    await userEvent.click(screen.getByRole("button", { name: "Read source and draft" }));
+    await screen.findByText("I could not.");
+    const sent = fake.callsTo("POST", "/api/knowledge/updates")[1].body as { threadId?: string };
+    expect(sent.threadId).toBeUndefined();
+  });
+
+  it("drafts from a source URL and shows the new node with its source, then opens it", async () => {
+    const drafted = bandProposal();
+    let current = drafted;
+    const done = thread({
+      status: "proposed",
+      messages: [
+        msg(0, "doctor", "Update the graph from this source."),
+        msg(1, "assistant", "I drafted changes to 1 node(s): IBD-N104 (new).", drafted.proposalId),
+      ],
+      proposals: [drafted],
+    });
+    const fake = installFakeApi({
+      "GET /api/session": () => sessionView(REVIEWER),
+      "GET /api/knowledge/proposals": () => ({ proposals: [current] }),
+      "POST /api/knowledge/updates": () => done,
+      "POST /api/knowledge/proposals/:id/publish": () => {
+        current = bandProposal({ status: "published", publishedVersion: "1.2" });
+        return current;
+      },
+    });
+    renderApp("/knowledge");
+    await userEvent.type(
+      await screen.findByLabelText("Source website"),
+      "https://example.org/dosing",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Read source and draft" }));
+    const card = await screen.findByTestId("node-change-IBD-N104");
+    expect(within(card).getByText("New node")).toBeInTheDocument();
+    expect(within(card).getByTestId("dose-bands")).toHaveTextContent(
+      "≤55 kg: 260 mg>55 to 85 kg: 390 mg>85 kg: 520 mg",
+    );
+    const source = within(card).getByRole("region", { name: "Source" });
+    expect(within(source).getByRole("link", { name: "Synthetic dosing note" })).toHaveAttribute(
+      "href",
+      "https://example.org/dosing",
+    );
+    expect(source).toHaveTextContent("IBD-S21 · Dosing");
+    expect(card).toHaveTextContent("Offered from");
+    await userEvent.click(screen.getByRole("button", { name: "Approve and publish 1.2" }));
+    expect(fake.callsTo("POST", "/api/knowledge/proposals/:id/publish")).toHaveLength(1);
+    // The card stays on screen through the session refresh, now showing where it went.
+    expect(await screen.findByText(/Live in IBD 1.2/)).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Open node" })).toBeInTheDocument();
+  });
+
+  it("shows only the changed values of an updated node, and the dose as bands", async () => {
+    installFakeApi({
+      "GET /api/knowledge/proposals": () => ({
+        proposals: [
+          proposal({
+            comment: "Reword",
+            changes: [
+              {
+                nodeId: "IBD-N54",
+                before: {
+                  label: "Same",
+                  content: "Same",
+                  fields: { route: "oral", doseValue: 5, doseUnit: "mg/kg", doseBasis: "per_kg" },
+                },
+                after: {
+                  label: "Same",
+                  content: "Same",
+                  fields: {
+                    route: "oral",
+                    doseValue: 260,
+                    doseUnit: "mg",
+                    doseBasis: "weight_band",
+                    doseBands: BANDS,
+                  },
+                },
+                sourcePassage: null,
+                copyFlag: false,
+              },
+            ],
+          }),
+        ],
+      }),
+    });
+    renderApp("/knowledge");
+    await userEvent.click(await screen.findByRole("button", { name: /Reword/ }));
+    expect(screen.getByLabelText("Dose before")).toHaveTextContent("5 mg/kg per kg");
+    expect(screen.getByLabelText("Dose after")).toHaveTextContent("≤55 kg: 260 mg");
+    expect(screen.queryByLabelText("Route before")).not.toBeInTheDocument();
+    expect(screen.getByText("Updated")).toBeInTheDocument();
+  });
+
+  it("opens a published node in Browse", async () => {
+    const published = bandProposal({ status: "published", publishedVersion: "1.2" });
+    installFakeApi({ "GET /api/knowledge/proposals": () => ({ proposals: [published] }) });
+    renderApp("/knowledge");
+    await userEvent.click(await screen.findByRole("button", { name: /Add induction/ }));
+    expect(screen.getByText(/Live in IBD 1.2/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Open node" }));
+    const detail = await screen.findByRole("article", { name: "Node detail" });
+    expect((await within(detail).findAllByText("IBD-N104")).length).toBeGreaterThan(0);
   });
 });
+
+const BANDS = [
+  { weightMinKg: null, weightMaxKg: 55, doseValue: 260, doseUnit: "mg" },
+  { weightMinKg: 55, weightMaxKg: 85, doseValue: 390, doseUnit: "mg" },
+  { weightMinKg: 85, weightMaxKg: null, doseValue: 520, doseUnit: "mg" },
+];
+
+function bandProposal(overrides: Partial<Proposal> = {}): Proposal {
+  return proposal({
+    proposalId: "pr-9",
+    baseVersion: "1.1",
+    targetVersion: "1.2 draft",
+    origin: "drafted",
+    comment: "Add induction",
+    changes: [
+      {
+        nodeId: "IBD-N104",
+        before: null,
+        after: {
+          label: "Ustekinumab IV induction",
+          content: "One infusion by body weight.",
+          fields: { route: "intravenous", doseBasis: "weight_band", doseBands: BANDS },
+        },
+        sourcePassage: "A synthetic passage.",
+        sourceUrl: "https://example.org/dosing",
+        copyFlag: false,
+      },
+    ],
+    changeSet: { addEdges: [{ fromNodeId: "IBD-N42", toNodeId: "IBD-N104" }] },
+    citedSources: [
+      {
+        sourceId: "IBD-S21",
+        title: "Synthetic dosing note",
+        year: 2026,
+        section: "Dosing",
+        url: "https://example.org/dosing",
+      },
+    ],
+    ...overrides,
+  });
+}
 
 function msg(
   position: number,

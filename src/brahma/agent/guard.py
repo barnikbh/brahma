@@ -5,7 +5,8 @@ text, so "100 mg" reads as 100 mg) plus every claim the deterministic ``ClaimSca
 finds in its text, so a dose cannot be hidden by leaving it out of the declared claims
 (BR1.1). Each claim must match a field of a cited node exactly after unit normalisation
 (U1 ``match_claims``); a dose for a per-kg drug may also match the node's per-kg value
-or the case's computed dose (U3 ``compute_dose``) (BR1.2). A line passes only when
+or the case's computed dose (U3 ``compute_dose``) (BR1.2); a dose for a weight-band drug
+must be the band for the case's weight once that weight is known. A line passes only when
 every claim matches and it cites at least one node of the pinned version (BR1.3). Any
 exception inside the guard counts as a failed check (NFR8.5).
 """
@@ -21,6 +22,7 @@ from brahma.agent.scanner import ClaimScanner, merge_claims, normalize_declared
 from brahma.cases.models import DoseResult
 from brahma.cases.service import CaseService
 from brahma.knowledge.errors import NodeNotFound
+from brahma.knowledge.matcher import VALUE_DIFFERS
 from brahma.knowledge.models import Claim, Node, PackVersionRef
 from brahma.knowledge.repository import version_id
 from brahma.knowledge.service import KnowledgeService
@@ -132,6 +134,18 @@ class Guard:
 
     def _claim_failure(self, node: Node, claim: Claim, case_id: str | None) -> str | None:
         """None when ``node`` supports ``claim``, else the failure reason."""
+        if (
+            claim.kind == "dose"
+            and node.type == "drug"
+            and node.fields.get("doseBasis") == "weight_band"
+            and case_id is not None
+        ):
+            dose = self._cases.compute_dose(case_id, node.node_id)
+            if isinstance(dose, DoseResult):
+                # The weight is known, so only this patient's band is grounded.
+                claimed = to_decimal(claim.value)
+                total = None if claimed is None else convert(claimed, claim.unit, dose.unit)
+                return None if total == to_decimal(dose.value) else VALUE_DIFFERS
         result = self._knowledge.match_claims(node, [claim])
         if not result.failures:
             return None
@@ -193,7 +207,10 @@ class Guard:
     def _supported_by_source(
         self, version: PackVersionRef, source_id: str, claims: list[Claim], case_id: str | None
     ) -> bool:
-        if self._knowledge.find_supporting_node(version, source_id, claims) is not None:
+        supporting = self._knowledge.find_supporting_node(version, source_id, claims)
+        if supporting is not None and all(
+            self._claim_failure(supporting, c, case_id) is None for c in claims
+        ):
             return True
         # Same rules as check_line: a per-kg dose is not an exact U1 field match, so try
         # each node citing the source with the guard's own per-claim rules.

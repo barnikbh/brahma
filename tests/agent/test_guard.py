@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import pytest
 
+from brahma.agent.engine import WalkEngine
 from brahma.agent.guard import Guard
 from brahma.agent.scanner import ClaimScanner, merge_claims, normalize_declared, scan_numbers
+from brahma.agent.writer import node_payload
 from brahma.cases import Case, CaseService, NewPatient
 from brahma.knowledge import Claim, KnowledgeService, PackVersionRef
+from brahma.knowledge.models import ChangeSet, Node
 from tests.agent.conftest import DOCTOR
 
 IBD = PackVersionRef(pack="IBD", number="1.1")
@@ -207,3 +212,62 @@ def test_scanner_finds_numbers_and_longest_names(knowledge: KnowledgeService) ->
     assert scan_numbers("day 3, 4 to 7 days") == []
     merged = merge_claims([Claim(kind="dose", value="60", unit="mg")], scan_numbers("60 MG"))
     assert len(merged) == 1
+
+
+def _band_version(knowledge: KnowledgeService) -> PackVersionRef:
+    """IBD 1.2 with a weight-band drug node citing IBD-S5."""
+    base = knowledge.get_node(IBD, "IBD-N54").model_dump(by_alias=True, exclude={"pack_version"})
+    bands = [
+        {"weightMaxKg": 55, "doseValue": 260, "doseUnit": "mg"},
+        {"weightMinKg": 55, "weightMaxKg": 85, "doseValue": 390, "doseUnit": "mg"},
+        {"weightMinKg": 85, "doseValue": 520, "doseUnit": "mg"},
+    ]
+    fields = {**base["fields"], "doseBasis": "weight_band", "doseValue": 260, "doseBands": bands}
+    node = Node.model_validate(
+        {**base, "nodeId": "IBD-N104", "fields": fields, "sourceIds": ["IBD-S5"]}
+    )
+    change = ChangeSet(add_nodes=[node], change_summary="Add a weight-band node.")
+    return knowledge.create_version("IBD", IBD, change, "seed")
+
+
+def test_a_weight_band_dose_must_be_this_patients_band(
+    guard: Guard, knowledge: KnowledgeService, cases: CaseService, demo_patient: NewPatient
+) -> None:
+    version = _band_version(knowledge)
+    case = cases.create_case(demo_patient, DOCTOR)  # 58 kg, so the middle band
+    good = guard.check_line("Ustekinumab 390 mg.", ["IBD-N104"], version, case.case_id)
+    assert good.passed, good.failures
+    wrong = guard.check_line("Ustekinumab 260 mg.", ["IBD-N104"], version, case.case_id)
+    assert not wrong.passed and "value_differs" in _reasons(wrong)
+    by_source = guard.check_line_by_source("Ustekinumab 520 mg.", ["IBD-S5"], version, case.case_id)
+    assert not by_source.passed
+
+
+def test_any_stated_band_passes_until_a_weight_is_known(
+    guard: Guard, knowledge: KnowledgeService, cases: CaseService
+) -> None:
+    version = _band_version(knowledge)
+    case = cases.create_case(
+        NewPatient(synthetic_name="No Weight (synthetic)", age=40, sex="male"), DOCTOR
+    )
+    assert guard.check_line("Ustekinumab 520 mg.", ["IBD-N104"], version, case.case_id).passed
+    assert not guard.check_line("Ustekinumab 615 mg.", ["IBD-N104"], version, case.case_id).passed
+
+
+def test_the_writer_sees_only_this_patients_band_once_the_weight_is_known(
+    make_engine: Callable[..., WalkEngine],
+    knowledge: KnowledgeService,
+    cases: CaseService,
+    demo_patient: NewPatient,
+) -> None:
+    node = knowledge.get_node(_band_version(knowledge), "IBD-N104")
+    engine = make_engine()
+    case = cases.create_case(demo_patient, DOCTOR)  # 58 kg
+    fields = engine._one_band(case.case_id, node_payload(node))["fields"]
+    assert fields["doseValue"] == 390 and "doseBands" not in fields
+    unweighed = cases.create_case(
+        NewPatient(synthetic_name="No Weight (synthetic)", age=40, sex="male"), DOCTOR
+    )
+    assert len(engine._one_band(unweighed.case_id, node_payload(node))["fields"]["doseBands"]) == 3
+    other = knowledge.get_node(IBD, "IBD-N51")
+    assert engine._one_band(case.case_id, node_payload(other))["fields"] == other.fields

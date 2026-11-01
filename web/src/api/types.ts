@@ -446,6 +446,9 @@ export interface Proposal {
   decidedAt: string | null;
   changes: ProposalChange[];
   copyFlaggedNodeIds: string[];
+  /** New links into the graph, and the pack sources the changes cite. */
+  changeSet?: { addEdges?: { fromNodeId: string; toNodeId: string }[] };
+  citedSources?: Source[];
 }
 
 export interface ProposalIn {

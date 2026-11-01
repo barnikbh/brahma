@@ -7,6 +7,8 @@ Python attributes are snake_case; the wire and pack-file names are camelCase ali
 from __future__ import annotations
 
 import re
+from decimal import Decimal
+from itertools import pairwise
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -248,6 +250,16 @@ class TreatmentTierFields(KgModel):
     drug_node_ids: list[str]
 
 
+class DoseBand(KgModel):
+    """One fixed dose for a weight range: above ``weight_min_kg``, up to and including
+    ``weight_max_kg``. A missing end means no limit on that side."""
+
+    weight_min_kg: Number | None = None
+    weight_max_kg: Number | None = None
+    dose_value: Number
+    dose_unit: str = Field(min_length=1)
+
+
 class DrugFields(KgModel):
     drug: str = Field(min_length=1)
     synonyms: list[str]
@@ -255,11 +267,37 @@ class DrugFields(KgModel):
     route: str = Field(min_length=1)
     dose_value: Number
     dose_unit: str = Field(min_length=1)
-    dose_basis: Literal["absolute", "per_kg"]
+    dose_basis: Literal["absolute", "per_kg", "weight_band"]
     rounding: str = Field(min_length=1)
     frequency: str = Field(min_length=1)
     duration: str = Field(min_length=1)
     contraindications: list[str]
+    dose_bands: list[DoseBand] | None = None
+
+    @model_validator(mode="after")
+    def _bands_cover_every_weight(self) -> DrugFields:
+        """A weight-band dose lists ascending bands with no gap, so every weight has a dose."""
+        if self.dose_basis != "weight_band":
+            return self
+        bands = self.dose_bands or []
+        if not bands:
+            raise ValueError("a weight_band dose needs doseBands")
+        if bands[0].weight_min_kg is not None or bands[-1].weight_max_kg is not None:
+            raise ValueError("doseBands must cover every weight")
+        for lower, upper in pairwise(bands):
+            if lower.weight_max_kg is None or lower.weight_max_kg != upper.weight_min_kg:
+                raise ValueError("doseBands must be ascending with no gap")
+        if all(band.dose_value != self.dose_value for band in bands):
+            raise ValueError("doseValue must be one of the doseBands")
+        return self
+
+    def band_for(self, weight_kg: Decimal) -> DoseBand:
+        """The band holding this weight; the validator guarantees there is one."""
+        for band in self.dose_bands or []:
+            top = band.weight_max_kg
+            if top is None or weight_kg <= Decimal(str(top)):
+                return band
+        raise ValueError("no dose band for this weight")
 
 
 class MonitoringFields(KgModel):

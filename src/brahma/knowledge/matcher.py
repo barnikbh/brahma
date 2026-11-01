@@ -95,6 +95,12 @@ def _match_tier(claim: Claim, node: Node) -> str | None:
 
 def _match_dose(claim: Claim, node: Node) -> str | None:
     fields = node.fields
+    if fields.get("doseBasis") == "weight_band":
+        reasons = [
+            _number_matches(claim, band.get("doseValue"), band.get("doseUnit"), None)
+            for band in fields.get("doseBands") or []
+        ]
+        return None if None in reasons else (reasons[0] if reasons else NO_FIELD)
     if fields.get("doseBasis") != "absolute":
         return PER_KG_DOSE
     return _number_matches(claim, fields.get("doseValue"), fields.get("doseUnit"), None)

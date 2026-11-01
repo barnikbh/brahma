@@ -14,7 +14,7 @@ import pytest
 from brahma.knowledge import KnowledgeService
 from brahma.knowledge.repository import version_id
 from brahma.platform.models import ModelGateway
-from brahma.updates.copycheck import CopyChecker, best_passage, normalise_words
+from brahma.updates.copycheck import CopyChecker, best_excerpt, best_passage, normalise_words
 from brahma.updates.drafter import Drafter
 from brahma.updates.errors import DraftFailed
 from brahma.updates.models import FetchedSource
@@ -135,3 +135,11 @@ def test_a_model_failure_or_off_schema_output_raises_draft_failed(
     with pytest.raises(DraftFailed) as long_text:
         Drafter(make_gateway(too_long)).draft(base, nodes, _fetched())
     assert long_text.value.cause_label == "ValidationError"
+
+
+def test_best_excerpt_keeps_a_table_of_short_lines_together() -> None:
+    lines = "Storage of the product\nFirst dose\nup to 55 kg: 260 mg\nabove 55 kg: 390 mg\nOther"
+    excerpt = best_excerpt(lines, "first dose 260 390", max_lines=3)
+    assert excerpt == "First dose\nup to 55 kg: 260 mg\nabove 55 kg: 390 mg"
+    assert best_excerpt(lines, "nothing shared") is None
+    assert len(best_excerpt("word " * 2000, "word") or "") <= 1200

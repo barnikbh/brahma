@@ -60,3 +60,26 @@ def best_passage(source_text: str, change_text: str) -> str | None:
     if best is None:
         return None
     return best if len(best) <= MAX_PASSAGE_CHARS else best[: MAX_PASSAGE_CHARS - 1] + "…"
+
+
+def best_excerpt(source_text: str, change_text: str, max_lines: int = 7) -> str | None:
+    """The run of up to ``max_lines`` source lines that best matches the change, so a table
+    split over short lines reads whole. A shared number counts for more than a shared word,
+    since numbers are what a reviewer checks. Ties keep the earlier run."""
+    wanted = set(normalise_words(change_text))
+    lines = split_passages(source_text)
+    best: list[str] = []
+    best_score = 0
+    for start in range(len(lines)):
+        run = lines[start : start + max_lines]
+        # Anchor the run on a line that matches, so it does not open on unrelated text.
+        if not wanted & set(normalise_words(run[0])):
+            continue
+        shared = wanted & set(normalise_words(" ".join(run)))
+        score = len(shared) + 2 * sum(word.isdigit() for word in shared)
+        if score > best_score:
+            best, best_score = run, score
+    if not best:
+        return None
+    text = "\n".join(best)
+    return text if len(text) <= MAX_PASSAGE_CHARS else text[: MAX_PASSAGE_CHARS - 1] + "…"

@@ -6,11 +6,11 @@ import { useSearchParams } from "react-router-dom";
 import { ApiError, api } from "@/api/client";
 import type { Proposal, VersionHistoryEntry } from "@/api/types";
 import { Banner } from "@/components/Banner";
-import { NodeChip } from "@/components/NodeChip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/input";
 import { BrowsePanel } from "@/components/knowledge/BrowsePanel";
+import { NodeChange } from "@/components/knowledge/NodeChange";
 import { UpdateChat } from "@/components/knowledge/UpdateChat";
 import { formatWhen } from "@/lib/utils";
 import { useSession } from "@/state/session";
@@ -23,6 +23,7 @@ export function KnowledgePage() {
   const [versions, setVersions] = useState<VersionHistoryEntry[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [tab, setTab] = useState<"browse" | "update">(params.get("node") ? "browse" : "update");
+  const [browseNode, setBrowseNode] = useState(params.get("node") ?? undefined);
   const [seed, setSeed] = useState<{ text: string; key: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -90,12 +91,13 @@ export function KnowledgePage() {
             >
               {tab === "browse" ? (
                 <BrowsePanel
+                  key={browseNode}
                   pack={pack}
                   onPack={setPack}
-                  initialNode={params.get("node") ?? undefined}
+                  initialNode={browseNode}
                   onUpdateNode={(node) => {
                     setSeed({
-                      text: `Update ${node.label} (${node.nodeId}) from `,
+                      text: `Update ${node.label} (${node.nodeId})`,
                       key: Date.now(),
                     });
                     setTab("update");
@@ -138,7 +140,8 @@ export function KnowledgePage() {
                       className="flex w-full items-center gap-2 rounded px-2 py-1 text-left text-sm hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700"
                     >
                       <span className="font-mono text-xs">
-                        {p.pack} {p.baseVersion} → {p.targetVersion}
+                        {p.pack} {p.baseVersion} →{" "}
+                        {p.publishedVersion ?? p.targetVersion.replace(" draft", "")}
                       </span>
                       <span className="truncate">{p.comment}</span>
                       <Badge
@@ -164,6 +167,11 @@ export function KnowledgePage() {
                 void load();
                 void refreshHealth();
                 void refresh();
+              }}
+              onOpenNode={(nodeId) => {
+                setBrowseNode(nodeId);
+                setPack(current?.pack ?? pack);
+                setTab("browse");
               }}
             />
           ) : null}
@@ -201,28 +209,28 @@ export function KnowledgePage() {
   );
 }
 
-function show(value: unknown): string {
-  if (value === null || value === undefined) return "—";
-  return typeof value === "string" ? value : JSON.stringify(value);
-}
-
 export function ProposalView({
   proposal,
   reviewer,
   onDecided,
+  onOpenNode,
 }: {
   proposal: Proposal;
   reviewer: boolean;
   onDecided: (proposal: Proposal) => void;
+  onOpenNode?: (nodeId: string) => void;
 }) {
   const [comment, setComment] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [deciding, setDeciding] = useState(false);
   const flagged =
     proposal.changes.some((c) => c.copyFlag) || proposal.copyFlaggedNodeIds.length > 0;
   const open = proposal.status === "proposed";
+  const target = proposal.publishedVersion ?? proposal.targetVersion.replace(" draft", "");
 
   const decide = async (action: "publish" | "reject") => {
     setError(null);
+    setDeciding(true);
     try {
       onDecided(
         action === "publish"
@@ -231,73 +239,55 @@ export function ProposalView({
       );
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "The decision could not be saved.");
+    } finally {
+      setDeciding(false);
     }
   };
 
   return (
     <article
       aria-label="Proposal review"
-      className="space-y-2 rounded-card border-2 border-brand-900 bg-white p-4 text-sm"
+      className="space-y-3 rounded-card border-2 border-brand-900 bg-white p-4 text-sm"
     >
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 className="font-semibold">
-          Proposed version {proposal.pack} {proposal.baseVersion} → {proposal.targetVersion}
-        </h2>
-        <span className="text-ink-quiet">
-          proposed by {proposal.proposerName ?? proposal.proposerProfileId} ·{" "}
+      <header className="space-y-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="font-semibold">
+            {proposal.pack} {proposal.baseVersion} → {target}
+          </h2>
+          <Badge variant={proposal.status === "published" ? "ok" : "quiet"}>
+            {proposal.status}
+          </Badge>
+        </div>
+        <p>{proposal.comment}</p>
+        <p className="text-xs text-ink-quiet">
+          Proposed by {proposal.proposerName ?? proposal.proposerProfileId} ·{" "}
           {formatWhen(proposal.createdAt)}
-        </span>
-        <Badge>{proposal.status}</Badge>
-      </div>
-      <p>
-        <span className="text-ink-quiet">Comment: </span>
-        {proposal.comment}
-      </p>
-      {proposal.changes.map((change) => {
-        const keys = Object.keys(change.after).filter(
-          (k) => show(change.after[k]) !== show(change.before?.[k]),
-        );
-        return (
-          <div key={change.nodeId} className="space-y-1">
-            <NodeChip nodeId={change.nodeId} />
-            <div className="grid grid-cols-2 gap-2">
-              <div className="rounded border border-neutral-200 p-2">
-                <h3 className="text-xs font-semibold uppercase text-ink-quiet">
-                  Before {proposal.baseVersion}
-                </h3>
-                {keys.map((k) => (
-                  <p key={k}>
-                    <span className="text-ink-quiet">{k}: </span>
-                    {show(change.before?.[k])}
-                  </p>
-                ))}
-              </div>
-              <div className="rounded border border-brand-200 p-2">
-                <h3 className="text-xs font-semibold uppercase text-ink-quiet">
-                  After {proposal.targetVersion} draft
-                </h3>
-                {keys.map((k) => (
-                  <p key={k}>
-                    <span className="text-ink-quiet">{k}: </span>
-                    {show(change.after[k])}
-                  </p>
-                ))}
-              </div>
-            </div>
-            {change.sourceUrl ? (
-              <p className="break-all text-xs text-ink-quiet">Source: {change.sourceUrl}</p>
-            ) : null}
-            {change.sourcePassage ? (
-              <p className="italic">Source passage: “{change.sourcePassage}”</p>
-            ) : null}
-            {change.copyFlag ? (
-              <p className="text-result-bad" data-testid="copy-flag">
-                <span aria-hidden="true">! </span>Possible verbatim copy — publish blocked
-              </p>
-            ) : null}
-          </div>
-        );
-      })}
+        </p>
+      </header>
+      {proposal.changes.map((change) => (
+        <NodeChange
+          key={change.nodeId}
+          change={change}
+          baseVersion={proposal.baseVersion}
+          source={proposal.citedSources?.find((s) => s.url === change.sourceUrl)}
+          reachedFrom={(proposal.changeSet?.addEdges ?? [])
+            .filter((e) => e.toNodeId === change.nodeId)
+            .map((e) => e.fromNodeId)}
+          actions={
+            proposal.status === "published" && onOpenNode ? (
+              <Button size="sm" variant="outline" onClick={() => onOpenNode(change.nodeId)}>
+                Open node
+              </Button>
+            ) : undefined
+          }
+        />
+      ))}
+      {proposal.status === "published" ? (
+        <p role="status" className="font-medium text-result-ok">
+          ✓ Live in {proposal.pack} {proposal.publishedVersion}
+          {proposal.decidedAt ? ` · ${formatWhen(proposal.decidedAt)}` : ""}
+        </p>
+      ) : null}
       {proposal.reviewComment ? (
         <p>
           <span className="text-ink-quiet">
@@ -308,24 +298,29 @@ export function ProposalView({
           {proposal.reviewComment}
         </p>
       ) : null}
+      {open && !reviewer ? (
+        <p role="status" className="text-result-pending">
+          ? Waiting for a clinical reviewer to approve. Nothing is live yet.
+        </p>
+      ) : null}
       {reviewer && open ? (
         <div className="space-y-2">
-          <label className="block">
-            Reviewer comment
-            <Textarea value={comment} onChange={(e) => setComment(e.target.value)} />
-          </label>
-          <div className="flex gap-2">
-            <Button disabled={flagged} onClick={() => void decide("publish")}>
-              Publish {proposal.targetVersion}
+          <div className="flex items-center gap-2">
+            <Button disabled={flagged || deciding} onClick={() => void decide("publish")}>
+              Approve and publish {target}
             </Button>
             <Button
               variant="danger"
-              disabled={!comment.trim()}
+              disabled={!comment.trim() || deciding}
               onClick={() => void decide("reject")}
             >
               Reject
             </Button>
           </div>
+          <label className="block text-xs text-ink-quiet">
+            Comment (optional to approve, needed to reject)
+            <Textarea value={comment} onChange={(e) => setComment(e.target.value)} />
+          </label>
         </div>
       ) : null}
       {error ? (

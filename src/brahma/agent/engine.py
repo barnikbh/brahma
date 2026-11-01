@@ -71,7 +71,7 @@ from brahma.agent.models import (
 from brahma.agent.repository import WalkRepository
 from brahma.agent.traverse import Traversal, choose_version, lane_nodes, walk_graph
 from brahma.agent.writer import Writer, node_payload
-from brahma.cases.models import CaseStatus, FindingIn, MessageIn
+from brahma.cases.models import CaseStatus, DoseResult, FindingIn, MessageIn
 from brahma.cases.service import CaseService
 from brahma.knowledge.errors import NodeNotFound
 from brahma.knowledge.models import Fact, Node, PackVersionRef
@@ -469,11 +469,24 @@ class WalkEngine:
             extra: dict[str, Any] = {}
             if node.node_id in trav.entry_tier_ids:
                 extra["entryTier"] = True
-            if node.type == "drug" and node.fields.get("doseBasis") == "per_kg":
+            if node.type == "drug" and node.fields.get("doseBasis") in ("per_kg", "weight_band"):
                 dose = self._cases.compute_dose(walk.case_id, node.node_id)
                 extra["doseForThisPatient"] = views.dose_note(dose)
-            payloads.append(node_payload(node, extra))
+            payloads.append(self._one_band(walk.case_id, node_payload(node, extra)))
         return payloads
+
+    def _one_band(self, case_id: str, payload: dict[str, Any]) -> dict[str, Any]:
+        """Once the weight is known, the writer sees only this patient's dose of a weight-band
+        drug: the guard grounds no other band, and no other band applies to this patient."""
+        fields = payload["fields"]
+        if fields.get("doseBasis") != "weight_band":
+            return payload
+        dose = self._cases.compute_dose(case_id, payload["nodeId"])
+        if not isinstance(dose, DoseResult):
+            return payload
+        value = int(dose.value) if dose.value.is_integer() else dose.value
+        only = {k: v for k, v in fields.items() if k != "doseBands"}
+        return {**payload, "fields": {**only, "doseValue": value, "doseUnit": dose.unit}}
 
     def _write_sections(
         self,
@@ -918,7 +931,7 @@ class WalkEngine:
         graph_nodes = [self._knowledge.get_node(version, n) for n in node_ids]
         drafts = self.writer.write_section(
             EXPLORE_SECTION,
-            [node_payload(n) for n in graph_nodes],
+            [self._one_band(case_id, node_payload(n)) for n in graph_nodes],
             views.sources_for(self._knowledge, version, graph_nodes),
             views.case_context(self._cases.get_patient(case_id)),
         )

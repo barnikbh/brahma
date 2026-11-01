@@ -54,8 +54,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Loading starts true and only the first load clears it: a later refresh runs behind the
+  // current screen, since showing "loading" would unmount the page and lose its state.
   const refresh = useCallback(async () => {
-    setLoading(true);
     await refreshHealth();
     try {
       const view = await api.session();

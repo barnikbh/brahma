@@ -108,6 +108,9 @@ def resolve_edit(
             raise InvalidTreatmentEdit("the new drug has no drug node in this pack version")
         return edit_snapshot(EffectiveDrug(current.node_id, target.node_id, drug_fields(target)))
     merged = {**current.fields.model_dump(by_alias=True), **values}
+    if merged["doseBasis"] == "weight_band" and "doseValue" in values:
+        # compute_dose reads the bands, so a new value here would be silently ignored.
+        raise InvalidTreatmentEdit("this dose follows weight bands; set a fixed dose basis first")
     try:
         fields = DrugFields.model_validate(merged)
     except ValidationError as exc:
@@ -140,6 +143,17 @@ def compute_dose(drug: EffectiveDrug, weight_kg: float | None) -> DoseResult | M
         formula = f"{format_decimal(dose)} {f.dose_unit} (fixed dose)"
         return DoseResult(value=float(dose), unit=f.dose_unit, formula=formula, node_ids=cited)
     weight = to_decimal(weight_kg)
+    if f.dose_basis == "weight_band":
+        if weight is None:
+            return MissingWeight(
+                node_id=drug.drug_node_id, message="Weight needed to pick the weight-band dose"
+            )
+        band = f.band_for(weight)
+        amount = format_decimal(Decimal(str(band.dose_value)))
+        formula = f"{amount} {band.dose_unit} for {format_decimal(weight)} kg (weight band)"
+        return DoseResult(
+            value=float(band.dose_value), unit=band.dose_unit, formula=formula, node_ids=cited
+        )
     if weight is None:
         return MissingWeight(node_id=drug.drug_node_id)
     unit = re.sub(r"/\s*kg$", "", f.dose_unit.strip(), flags=re.IGNORECASE)

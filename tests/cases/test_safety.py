@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 import pytest
+from pydantic import ValidationError
 
 from brahma.cases import (
     NOT_CHECKED_MESSAGE,
@@ -16,7 +19,8 @@ from brahma.cases import (
     SafetyResult,
 )
 from brahma.cases.catalog import NodeCatalog
-from brahma.cases.safety import EffectiveDrug, compute_dose, safety_checks
+from brahma.cases.errors import InvalidTreatmentEdit
+from brahma.cases.safety import EffectiveDrug, compute_dose, resolve_edit, safety_checks
 from brahma.knowledge import NodeNotFound
 from brahma.knowledge.models import DrugFields
 from tests.cases.conftest import OWNER
@@ -167,3 +171,57 @@ def test_pregnancy_check_is_grounded_in_the_drug_contraindications() -> None:
     assert compute_dose(_drug(doseBasis="per_kg", doseUnit="ug/kg"), 60).formula == (
         "10 ug/kg × 60 kg = 600 ug"
     )
+
+
+BANDS = [
+    {"weightMaxKg": 55, "doseValue": 260, "doseUnit": "mg"},
+    {"weightMinKg": 55, "weightMaxKg": 85, "doseValue": 390, "doseUnit": "mg"},
+    {"weightMinKg": 85, "doseValue": 520, "doseUnit": "mg"},
+]
+
+
+@pytest.mark.parametrize(
+    ("weight", "dose"),
+    [(40, 260), (55, 260), (55.5, 390), (85, 390), (85.1, 520), (120, 520)],
+)
+def test_weight_band_dose_picks_the_band_for_the_weight(weight: float, dose: int) -> None:
+    drug = _drug(doseBasis="weight_band", doseValue=260, doseBands=BANDS)
+    result = compute_dose(drug, weight)
+    assert isinstance(result, DoseResult)
+    assert result.value == dose and result.unit == "mg" and "weight band" in result.formula
+
+
+def test_weight_band_dose_needs_a_weight() -> None:
+    drug = _drug(doseBasis="weight_band", doseValue=260, doseBands=BANDS)
+    result = compute_dose(drug, None)
+    assert isinstance(result, MissingWeight) and "weight-band" in result.message
+
+
+@pytest.mark.parametrize(
+    "bands",
+    [
+        None,
+        [],
+        BANDS[:2],  # no band above 85 kg
+        BANDS[1:],  # no band up to 55 kg
+        [BANDS[0], BANDS[2]],  # a gap between 55 and 85 kg
+    ],
+)
+def test_weight_bands_must_cover_every_weight(bands: list[dict[str, object]] | None) -> None:
+    with pytest.raises(ValidationError):
+        _drug(doseBasis="weight_band", doseValue=260, doseBands=bands)
+
+
+def test_the_dose_value_of_a_weight_band_drug_must_be_a_band() -> None:
+    with pytest.raises(ValidationError):
+        _drug(doseBasis="weight_band", doseValue=300, doseBands=BANDS)
+
+
+def test_a_weight_band_dose_value_cannot_be_edited_directly() -> None:
+    drug = _drug(doseBasis="weight_band", doseValue=260, doseBands=BANDS)
+    catalog = cast(NodeCatalog, None)  # only a drug change reads the catalog
+    with pytest.raises(InvalidTreatmentEdit, match="weight bands"):
+        resolve_edit(drug, {"doseValue": 390}, catalog)
+    fixed = resolve_edit(drug, {"doseBasis": "absolute", "doseValue": 300}, catalog)
+    assert fixed["doseBasis"] == "absolute" and fixed["doseValue"] == 300
+    assert resolve_edit(drug, {"frequency": "twice"}, catalog)["frequency"] == "twice"
