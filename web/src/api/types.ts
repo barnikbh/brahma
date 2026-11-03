@@ -200,7 +200,10 @@ export type MapStatus =
   | "bypassed"
   | "not_taken"
   | "exploring"
-  | "tried";
+  | "tried"
+  | "option"
+  | "planned"
+  | "chosen";
 
 /** How a prior therapy went, from the doctor's treatment history. */
 export type TherapyResponse = "failed" | "lost_response" | "intolerant" | "responded";
@@ -353,6 +356,11 @@ export interface EditOutcome {
   edit: TreatmentEdit;
   dose: { value: number; unit: string; formula: string } | { nodeId: string; message: string };
   safety: SafetyResult[];
+}
+
+export interface TraverseResponse {
+  map: MapData;
+  notice: string;
 }
 
 // --- Sessions (history) ----------------------------------------------------------------

@@ -46,6 +46,18 @@ BEGIN SELECT RAISE(ABORT, 'ag_explore_lane: a stopped lane cannot change'); END;
 
 CREATE TRIGGER IF NOT EXISTS ag_explore_lane_no_delete BEFORE DELETE ON ag_explore_lane
 BEGIN SELECT RAISE(ABORT, 'ag_explore_lane rows are kept'); END;
+
+CREATE TABLE IF NOT EXISTS ag_traverse_choice (
+    choice_id  TEXT PRIMARY KEY,
+    walk_id    TEXT NOT NULL REFERENCES ag_walk(walk_id),
+    tier_id    TEXT NOT NULL,
+    node_id    TEXT NOT NULL,
+    body_json  TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS ag_traverse_choice_walk
+    ON ag_traverse_choice(walk_id, created_at);
 """
 
 

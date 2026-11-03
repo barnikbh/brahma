@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
-import type { WalkEvent } from "@/api/types";
+import type { MapNode, WalkEvent } from "@/api/types";
 import {
   ANSWER_EVENTS,
   DEMO_TEXT,
@@ -287,6 +287,64 @@ describe("WorkspacePage", () => {
       nodeId: "IBD-N51",
       newValues: { frequency: "three times daily" },
     });
+  });
+
+  it("chooses a grey option from the panel and lights its tier", async () => {
+    const optionMap: MapNode[] = [
+      {
+        nodeId: "IBD-N41",
+        type: "treatment_tier",
+        label: "UC Tier 2",
+        column: "treatment",
+        status: "entry",
+        result: null,
+      },
+      {
+        nodeId: "IBD-N51",
+        type: "drug",
+        label: "Hydrocortisone 100 mg IV",
+        column: "treatment",
+        status: "option",
+        result: null,
+      },
+      {
+        nodeId: "IBD-N52",
+        type: "drug",
+        label: "Methylprednisolone 60 mg IV",
+        column: "treatment",
+        status: "option",
+        result: null,
+      },
+    ];
+    const fake = installFakeApi();
+    fake.walkStreams.push([
+      { type: "map_update", payload: { walkId: "wk-1", nodes: optionMap, edges: [] } },
+      ...ANSWER_EVENTS.slice(-1),
+    ]);
+    fake.on("POST /api/cases/:id/traverse", () => ({
+      map: {
+        version: "IBD 1.0",
+        nodes: optionMap.map((n) => (n.nodeId === "IBD-N51" ? { ...n, status: "chosen" } : n)),
+        edges: [],
+        selectedPath: ["IBD-N41", "IBD-N51"],
+      },
+      notice: "Hydrocortisone 100 mg IV chosen. Its tier's monitoring is now highlighted.",
+    }));
+    renderApp("/cases/BR-000001");
+    await userEvent.type(await screen.findByLabelText(/Describe the patient/), "case");
+    await userEvent.click(screen.getByRole("button", { name: "Send" }));
+    await screen.findByTestId("walk-summary");
+    const drug = document.querySelector<HTMLElement>('[data-map-node="IBD-N51"]')!;
+    expect(drug).toHaveTextContent("○ Option");
+    await userEvent.click(drug);
+    await userEvent.click(await screen.findByRole("button", { name: "Choose this option" }));
+    expect(fake.callsTo("POST", "/api/cases/:id/traverse")[0].body).toEqual({
+      nodeId: "IBD-N51",
+    });
+    await waitFor(() =>
+      expect(document.querySelector('[data-map-node="IBD-N51"]')).toHaveTextContent("✓ Chosen"),
+    );
+    expect(await screen.findByText(/Hydrocortisone 100 mg IV chosen/)).toBeInTheDocument();
   });
 
   it("shows the synthetic patient card with the allergy and saves new details", async () => {

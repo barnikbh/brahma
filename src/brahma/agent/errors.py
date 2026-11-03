@@ -61,6 +61,17 @@ class ExploreInvalid(AgentError):
         self.reason = reason
 
 
+class TraverseInvalid(AgentError):
+    """A traverse request names no option, no answered walk, or no offering tier."""
+
+    code = "traverse_invalid"
+
+    def __init__(self, node_id: str, reason: str) -> None:
+        super().__init__(f"cannot traverse {node_id}: {reason}")
+        self.node_id = node_id
+        self.reason = reason
+
+
 class WalkRequestInvalid(AgentError):
     """A walk request is missing a field its mode needs."""
 

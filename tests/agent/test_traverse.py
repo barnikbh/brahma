@@ -4,6 +4,7 @@ AC3.2.1, AC3.2.5, AC3.3.1, AC3.3.2, AC3.4.1, AC9.1.1, AC9.1.2)."""
 from __future__ import annotations
 
 from brahma.agent.traverse import choose_version, lane_nodes, walk_graph
+from brahma.agent.views import build_map
 from brahma.knowledge import Fact, KnowledgeService, PackVersionRef
 
 IBD = PackVersionRef(pack="IBD", number="1.1")
@@ -108,3 +109,90 @@ def test_a_urology_case_uses_the_urology_pack(knowledge: KnowledgeService) -> No
 def test_the_explore_lane_holds_the_branch_and_its_tests(knowledge: KnowledgeService) -> None:
     assert lane_nodes(knowledge, IBD, "IBD-N13") == ["IBD-N13", "IBD-N20"]
     assert choose_version(knowledge, DEMO_FINDINGS, IBD) == IBD
+
+
+def test_offered_drugs_are_options_and_tier_downstream_is_planned(
+    knowledge: KnowledgeService,
+) -> None:
+    trav = walk_graph(knowledge, IBD, [*DEMO_FINDINGS, *DEMO_TESTS])
+    statuses = trav.statuses()
+    assert statuses["IBD-N41"] == "entry"
+    assert statuses["IBD-N51"] == "option"
+    assert statuses["IBD-N52"] == "option"
+    for node_id in (
+        "IBD-N70",
+        "IBD-N71",
+        "IBD-N80",
+        "IBD-N81",
+        "IBD-N90",
+        "IBD-N91",
+        "IBD-N96",
+    ):
+        assert statuses[node_id] == "planned"
+    assert statuses["IBD-N42"] == "planned"  # the escalation tier is a future step
+    assert statuses["IBD-N60"] == "used"  # diet comes from the traversed subtype
+    assert statuses["IBD-N94"] == "used"  # exclusion comes from the traversed diagnosis
+    assert statuses["IBD-N13"] == "not_taken"
+
+
+def test_a_choice_marks_the_drug_chosen_and_lights_its_tier(
+    knowledge: KnowledgeService,
+) -> None:
+    trav = walk_graph(knowledge, IBD, [*DEMO_FINDINGS, *DEMO_TESTS])
+    trav.choices = {"IBD-N41": "IBD-N51"}
+    statuses = trav.statuses()
+    assert statuses["IBD-N51"] == "chosen"
+    assert statuses["IBD-N52"] == "option"
+    for node_id in (
+        "IBD-N70",
+        "IBD-N71",
+        "IBD-N80",
+        "IBD-N81",
+        "IBD-N90",
+        "IBD-N91",
+        "IBD-N96",
+    ):
+        assert statuses[node_id] == "used"
+    assert statuses["IBD-N42"] == "planned"
+    assert statuses["IBD-N41"] == "entry"
+
+
+def test_tried_beats_option_and_a_stale_choice_lights_nothing(
+    knowledge: KnowledgeService,
+) -> None:
+    trav = walk_graph(knowledge, IBD, [*DEMO_FINDINGS, *DEMO_TESTS])
+    trav.tried = {"IBD-N51": "failed"}
+    trav.choices = {"IBD-N41": "IBD-N51", "IBD-N42": "IBD-N99"}
+    statuses = trav.statuses()
+    assert statuses["IBD-N51"] == "tried"
+    assert statuses["IBD-N70"] == "planned"
+
+
+def test_crohns_options_cover_the_entry_tiers_drugs(knowledge: KnowledgeService) -> None:
+    facts = [
+        Fact(kind="finding", name="abdominal pain"),
+        Fact(kind="finding", name="weight loss"),
+        Fact(kind="test", name="colonoscopy", value="crohn's disease"),
+        Fact(kind="test", name="crohn's location", value="L1"),
+        Fact(kind="test", name="crohn's activity", value="moderate"),
+    ]
+    trav = walk_graph(knowledge, IBD, facts)
+    statuses = trav.statuses()
+    assert statuses["IBD-N43"] == "entry"
+    assert trav.option_ids
+    assert all(statuses[n] == "option" for n in trav.option_ids)
+
+
+def test_option_edges_are_dashed_until_their_drug_is_chosen(
+    knowledge: KnowledgeService,
+) -> None:
+    trav = walk_graph(knowledge, IBD, [*DEMO_FINDINGS, *DEMO_TESTS])
+    before = {e.edge_id: e.style for e in build_map(knowledge, IBD, trav, "IBD 1.1").edges}
+    assert before["IBD-E30"] == "not_taken"
+    assert before["IBD-E31"] == "not_taken"
+    assert before["IBD-E37"] == "not_taken"
+    trav.choices = {"IBD-N41": "IBD-N51"}
+    after = {e.edge_id: e.style for e in build_map(knowledge, IBD, trav, "IBD 1.1").edges}
+    assert after["IBD-E30"] == "walked"
+    assert after["IBD-E31"] == "not_taken"
+    assert after["IBD-E37"] == "walked"

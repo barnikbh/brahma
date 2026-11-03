@@ -89,6 +89,28 @@ describe("NodePanel", () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it("offers Choose this option only when the node can be chosen", async () => {
+    installFakeApi();
+    const onChoose = vi.fn();
+    const { rerender } = render(
+      <NodePanel nodeId="IBD-N51" version="IBD 1.0" caseId="BR-000001" onClose={vi.fn()} />,
+    );
+    await screen.findByTestId("dose");
+    expect(screen.queryByRole("button", { name: "Choose this option" })).not.toBeInTheDocument();
+    rerender(
+      <NodePanel
+        nodeId="IBD-N51"
+        version="IBD 1.0"
+        caseId="BR-000001"
+        onClose={vi.fn()}
+        canChoose
+        onChoose={onChoose}
+      />,
+    );
+    await userEvent.click(await screen.findByRole("button", { name: "Choose this option" }));
+    expect(onChoose).toHaveBeenCalledTimes(1);
+  });
+
   it("shows the stored edit marker with no in-memory outcome (reload)", async () => {
     installFakeApi({
       "GET /api/nodes/:v/:n": () =>

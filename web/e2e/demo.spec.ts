@@ -63,6 +63,17 @@ test("demo walk: sign in, walk the case, cited answer, audit record", async ({ p
   await page.locator("[data-line-id]").first().click();
   await expect(page.getByTestId("node-panel")).toBeVisible();
 
+  // Traverse: the drug options are grey; choosing one lights its tier's path.
+  await page.keyboard.press("Escape");
+  const option = page.locator('[data-map-node="IBD-N51"]');
+  await expect(option).toContainText("○ Option");
+  await option.click();
+  await page.getByRole("button", { name: "Choose this option" }).click();
+  await expect(option).toContainText("✓ Chosen");
+  await expect(page.locator('[data-map-node="IBD-N52"]')).toContainText("○ Option");
+  await expect(page.locator('[data-map-node="IBD-N70"]')).toContainText("→ Suggested");
+  await expect(page.getByText(/Hydrocortisone 100 mg IV four times daily chosen/)).toBeVisible();
+
   // Follow-up: chat after the answer is read as treatment history, with no extra button.
   const composer = page.getByLabel(/Message the agent/);
   await composer.fill(FOLLOW_UP_TEXT);

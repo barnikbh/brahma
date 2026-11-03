@@ -14,6 +14,9 @@
    condition from any walked tier. The tiers they reach become the entry ("start here")
    and their drugs, monitoring and watch-outs form ``history_sections``, the part of the
    plan a follow-up writes. Drugs the history names are marked ``tried`` on the map.
+6. Offered drugs render as grey ``option`` nodes and tier-sourced monitoring, watch-outs
+   and escalation tiers as grey ``planned`` nodes; the doctor's recorded choice (per
+   tier) marks one drug ``chosen`` and lights its tier's downstream ``used``.
 """
 
 from __future__ import annotations
@@ -36,6 +39,8 @@ from brahma.knowledge.service import KnowledgeService
 
 TraversalOutcome = Literal["walked", "out_of_knowledge"]
 ENTRY_TYPES = frozenset({"symptom", "metric"})
+# Map statuses on the traversed path: an edge renders walked only between two of these.
+TRAVERSED_STATUSES = frozenset({"used", "entry", "chosen", "tried", "test_needed"})
 TREATMENT_RELATIONS = ("offers_drug", "escalate_to")
 MONITOR_RELATIONS = ("responds_if", "monitor_with")
 WATCH_RELATIONS = ("watch_for", "surgery_if")
@@ -59,6 +64,14 @@ class Traversal:
     history_tier_ids: list[str] = field(default_factory=list)
     history_sections: dict[str, list[str]] = field(default_factory=dict)
     tried: dict[str, str] = field(default_factory=dict)
+    # Drugs the entry tiers offer (the clickable grey options), and the tier-sourced
+    # monitoring, watch-outs and escalation tiers (grey until a drug is chosen).
+    option_ids: list[str] = field(default_factory=list)
+    planned_ids: list[str] = field(default_factory=list)
+    # Entry tier -> the planned downstream that lights up when one of its drugs is chosen.
+    tier_downstream: dict[str, list[str]] = field(default_factory=dict)
+    # Entry tier -> chosen drug. Applied last, so a choice beats option/planned.
+    choices: dict[str, str] = field(default_factory=dict)
 
     def section(self, section_id: str) -> list[str]:
         """The node IDs walked for a section, in walk order (empty when none)."""
@@ -71,15 +84,28 @@ class Traversal:
         return list(dict.fromkeys(ordered))
 
     def statuses(self) -> dict[str, MapStatus]:
-        """The map status of each walked, needed or alternative node."""
+        """The map status of each walked, needed, offered, planned or alternative node."""
         result: dict[str, MapStatus] = {n: "used" for n in self.path_node_ids}
         for test_id in self.section("tests"):
             if test_id not in self.test_results:
                 result[test_id] = "test_needed"
+        for node_id in self.option_ids:
+            if node_id in result:
+                result[node_id] = "option"
+        for node_id in self.planned_ids:
+            if node_id in result:
+                result[node_id] = "planned"
         for tier_id in self.entry_tier_ids:
             result[tier_id] = "entry"
         for drug_id in self.tried:
             result[drug_id] = "tried"
+        for tier_id, drug_id in self.choices.items():
+            if result.get(drug_id) != "option":
+                continue  # stale choice (e.g. the drug is tried): light nothing
+            result[drug_id] = "chosen"
+            for member in self.tier_downstream.get(tier_id, []):
+                if result.get(member) == "planned":
+                    result[member] = "used"
         for alt in self.alternative_ids:
             result.setdefault(alt, "not_taken")
         return result
@@ -241,10 +267,13 @@ class GraphWalker:
         treatment = self._section("treatment")
         for tier in tiers:
             _add(treatment, [tier])
-            _add(treatment, self._follow(tier, ["offers_drug"]))
+            drugs = self._follow(tier, ["offers_drug"])
+            _add(treatment, drugs)
+            _add(self.result.option_ids, drugs)
             for step in self.steps(tier):
                 if step.edge.relation == "escalate_to" and step.status != "not_taken":
                     _add(treatment, [step.node.node_id])
+                    _add(self.result.planned_ids, [step.node.node_id])
         return tiers
 
     def _tests_for(self, blocked: list[Step]) -> list[str]:
@@ -320,10 +349,15 @@ class GraphWalker:
             for d in self._follow(tier, ["offers_drug"])
             if self.result.tried.get(d) not in NOT_AGAIN
         ]
+        _add(self.result.option_ids, drugs)
+        monitor = self._follow(tier, MONITOR_RELATIONS)
+        watch = self._follow(tier, WATCH_RELATIONS)
+        _add(self.result.planned_ids, [*monitor, *watch])
+        _add(self.result.tier_downstream.setdefault(tier, []), [*monitor, *watch])
         parts = {
             "treatment": [tier, *drugs],
-            "monitor": self._follow(tier, MONITOR_RELATIONS),
-            "watch_outs": self._follow(tier, WATCH_RELATIONS),
+            "monitor": monitor,
+            "watch_outs": watch,
         }
         for section_id in HISTORY_SECTIONS:
             _add(plan.setdefault(section_id, []), parts[section_id])
@@ -332,14 +366,22 @@ class GraphWalker:
 
     def _monitor(self, tiers: list[str]) -> None:
         for tier in tiers:
-            _add(self._section("monitor"), self._follow(tier, MONITOR_RELATIONS))
+            found = self._follow(tier, MONITOR_RELATIONS)
+            _add(self._section("monitor"), found)
+            _add(self.result.planned_ids, found)
+            _add(self.result.tier_downstream.setdefault(tier, []), found)
 
     def _diet_and_watch(self, tiers: list[str]) -> None:
         path = [*self.result.section("diagnosis"), *self.result.section("subtype")]
         for node_id in path:
             _add(self._section("diet"), self._follow(node_id, ["diet"]))
+        tier_set = set(tiers)
         for node_id in [*path, *tiers]:
-            _add(self._section("watch_outs"), self._follow(node_id, WATCH_RELATIONS))
+            found = self._follow(node_id, WATCH_RELATIONS)
+            _add(self._section("watch_outs"), found)
+            if node_id in tier_set:
+                _add(self.result.planned_ids, found)
+                _add(self.result.tier_downstream.setdefault(node_id, []), found)
 
 
 def walk_graph(

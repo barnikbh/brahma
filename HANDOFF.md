@@ -1,6 +1,6 @@
 # Brahma: handoff for the next coding agent
 
-Last updated: Sat Oct 31, 2026, by Claude. Read this first, then `README.md`.
+Last updated: Tue Nov 3, 2026, by Claude. Read this first, then `README.md`.
 
 ## What this is
 
@@ -39,6 +39,7 @@ Recent additions (all done, tested):
 - **Map labels:** "→ Suggested", "▶ Start here", "✓ Matched", "✓ Result in", never "Done" for plan steps.
 - **Patients page** lists recent patients on open.
 - **Knowledge screen** has a Browse tab (free exploration of nodes and edges) and an Update tab (free text and source URLs, one model call per node, follow-up questions, "updated by who and when"). A reviewer still publishes.
+- **Pathway traversal (Nov 3):** offered drugs render as grey ○ Option boxes and tier-sourced monitoring/watch-outs plus escalation tiers as grey planned steps. The doctor opens an option (dose/safety first) and presses "Choose this option" in the node panel: `POST /api/cases/{id}/traverse` records an append-only choice plus a `traverse_choice` audit event (no model call) and re-lights the map — chosen drug ✓ Chosen, its tier's monitoring blue, siblings grey. Re-choosing moves the highlight. History replay shows the recorded choice (session replay now reads the walk's stored map instead of rebuilding all-used).
 
 ## Run it
 

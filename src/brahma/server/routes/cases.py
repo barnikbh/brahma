@@ -41,6 +41,12 @@ class TreatmentEditBody(Body):
     new_values: dict[str, Any]
 
 
+class TraverseBody(Body):
+    """``POST /api/cases/{caseId}/traverse``: the chosen option node."""
+
+    node_id: str
+
+
 def case_view(shared: Services, case_id: str, tab_id: str | None = None) -> dict[str, Any]:
     """The C8 ``CaseView``, plus the latest walk's state for Retry (NFR8.4)."""
     case = shared.cases.get_case(case_id)
@@ -169,6 +175,20 @@ def treatment_edit(
     """Apply a doctor's treatment edit; dose and safety are re-run (FR6)."""
     outcome = shared.cases.apply_edit(case_id, body.node_id, body.new_values, profile)
     return outcome.model_dump(by_alias=True)
+
+
+@router.post("/cases/{case_id}/traverse", status_code=201)
+def traverse(
+    case_id: str,
+    body: TraverseBody,
+    shared: ServicesDep,
+    profile: ProfileDep,
+    _lock: LockDep,
+) -> dict[str, Any]:
+    """Record the doctor's chosen drug option and re-light its tier's path."""
+    shared.cases.get_case(case_id)
+    data, notice = shared.engine.traverse_choice(case_id, body.node_id, profile)
+    return {"map": data.model_dump(by_alias=True), "notice": notice}
 
 
 @router.get("/cases/{case_id}/map")

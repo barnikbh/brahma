@@ -41,6 +41,9 @@ export const STATUS_BADGE: Record<MapStatus, { symbol: string; word: string }> =
   not_taken: { symbol: "⋯", word: "Not taken" },
   exploring: { symbol: "⤳", word: "Exploring" },
   tried: { symbol: "↺", word: "Tried" },
+  option: { symbol: "○", word: "Option" },
+  planned: { symbol: "→", word: "Suggested" },
+  chosen: { symbol: "✓", word: "Chosen" },
 };
 
 // How a prior therapy went, as the doctor gave it in the treatment history.
@@ -102,11 +105,15 @@ const GraphNode = memo(function GraphNode({ data }: NodeProps<Node<MapNodeData>>
         style={{ width: NODE_W, height: NODE_H, animationDelay: `${Math.min(order * 60, 1500)}ms` }}
         className={cn(
           "nopan nodrag brahma-light-up flex flex-col items-stretch gap-1 overflow-hidden rounded-md border bg-white px-2.5 py-2 text-left text-xs leading-snug focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700 focus-visible:ring-offset-2",
-          node.status === "used" && "border-2 border-brand-700 bg-brand-50",
+          (node.status === "used" || node.status === "chosen") &&
+            "border-2 border-brand-700 bg-brand-50",
           node.status === "entry" && "border-2 border-brand-900 bg-brand-50",
           node.status === "test_needed" && "border-dashed border-result-pending",
           node.status === "not_in_pack" && "border-dashed border-neutral-400 text-ink-quiet",
-          (node.status === "bypassed" || node.status === "not_taken") &&
+          (node.status === "bypassed" ||
+            node.status === "not_taken" ||
+            node.status === "option" ||
+            node.status === "planned") &&
             "border-dashed border-neutral-400 text-ink-quiet",
           node.status === "exploring" && "border-2 border-dashed border-explore bg-fuchsia-50",
           node.status === "tried" && "border-dashed border-neutral-500 bg-neutral-50",
@@ -274,7 +281,10 @@ export function GraphCanvas(props: GraphCanvasProps) {
           <li>
             <span className="text-explore">╌</span> Exploring
           </li>
-          <li>✓ Matched · → Suggested · ▶ Start here · ↺ Tried · ? Test needed · ⊘ Not in pack</li>
+          <li>
+            ✓ Matched · → Suggested · ▶ Start here · ↺ Tried · ○ Option · ✓ Chosen · ? Test needed ·
+            ⊘ Not in pack
+          </li>
         </ul>
       </div>
       <div

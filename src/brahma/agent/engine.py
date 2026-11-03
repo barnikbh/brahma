@@ -41,6 +41,7 @@ from brahma.agent.errors import (
     ExploreInvalid,
     FindingsNotReady,
     GuardFailed,
+    TraverseInvalid,
     WalkNotFound,
     WalkNotResumable,
     WalkRequestInvalid,
@@ -60,8 +61,11 @@ from brahma.agent.models import (
     FormField,
     FormKind,
     MapData,
+    MapEdge,
+    MapNode,
     Outcome,
     ProgressStep,
+    TraverseChoice,
     Walk,
     WalkEvent,
     WalkRequest,
@@ -285,14 +289,89 @@ class WalkEngine:
         if walk is None or walk.map is None:
             return None
         base = MapData.model_validate(walk.map)
+        lanes = self._open_lanes(walk)
+        return views.with_lanes(base, lanes) if lanes else base
+
+    def _open_lanes(self, walk: Walk) -> list[tuple[str, list[MapNode], list[MapEdge]]]:
+        """The walk's open explore lanes as map fragments (empty when none)."""
         if walk.pack_version is None:
-            return base
-        lanes = [
-            (lane.lane_id, *views.lane_map(self._knowledge, walk.pack_version, lane.node_ids))
+            return []
+        return [
+            (
+                lane.lane_id,
+                *views.lane_map(self._knowledge, walk.pack_version, lane.node_ids),
+            )
             for lane in self.repo.lanes_for_walk(walk.walk_id)
             if lane.status == "open"
         ]
-        return views.with_lanes(base, lanes) if lanes else base
+
+    def traverse_choice(self, case_id: str, node_id: str, profile_id: str) -> tuple[MapData, str]:
+        """Record the doctor's chosen drug option and re-light its tier's path.
+
+        Deterministic: the walk is re-walked from its stored facts (no model call),
+        prior choices are re-applied, and the map snapshot is rebuilt. Re-choosing
+        another drug of the same tier moves the highlight; the audit keeps every event.
+        """
+        walk = self.repo.latest_for_case(case_id)
+        if walk is None:
+            raise TraverseInvalid(node_id, "this case has no walk yet")
+        if walk.status != "answered":
+            raise TraverseInvalid(node_id, "the walk has not answered yet")
+        if walk.pack_version is None or walk.map is None:
+            raise TraverseInvalid(node_id, "the walk has no map yet")
+        on_map = {n["nodeId"]: n["status"] for n in walk.map.get("nodes", [])}
+        if on_map.get(node_id) != "option":
+            raise TraverseInvalid(node_id, "not an option on this walk's map")
+        version = walk.pack_version
+        tier = next(
+            (
+                t
+                for t, status in on_map.items()
+                if status == "entry" and self._offers(version, t, node_id)
+            ),
+            None,
+        )
+        if tier is None:
+            raise TraverseInvalid(node_id, "no entry tier offers this drug")
+        previous = self.repo.choices_for_walk(walk.walk_id)
+        trav = walk_graph(self._knowledge, version, self._facts(walk, version))
+        trav.choices = {**previous, tier: node_id}
+        label = str(walk.map.get("version") or "")
+        data = views.build_map(self._knowledge, version, trav, label)
+        walk.map = data.model_dump(by_alias=True)
+        self.repo.save_progress(walk)
+        lanes = self._open_lanes(walk)
+        data = views.with_lanes(data, lanes) if lanes else data
+        self.repo.add_choice(
+            TraverseChoice(
+                choice_id=new_id("ch"),
+                walk_id=walk.walk_id,
+                tier_id=tier,
+                node_id=node_id,
+                profile_id=profile_id,
+                created_at=utc_now(),
+            )
+        )
+        self._append_audit(
+            walk,
+            "traverse_choice",
+            {
+                "walkId": walk.walk_id,
+                "tierId": tier,
+                "nodeId": node_id,
+                "previousNodeId": previous.get(tier),
+            },
+        )
+        drug = self._knowledge.get_node(version, node_id).label
+        return data, f"{drug} chosen. Its tier's monitoring is now highlighted on the map."
+
+    def _offers(self, version: PackVersionRef, tier_id: str, node_id: str) -> bool:
+        """Whether the tier offers the drug (relation match only; option status on the
+        map already proved the edge was followable when the walk ran)."""
+        return any(
+            step.node.node_id == node_id
+            for step in self._knowledge.neighbours(version, tier_id, [], "offers_drug")
+        )
 
     # --- start and continue ------------------------------------------------------------
 

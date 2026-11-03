@@ -80,7 +80,17 @@ ProgressStep = Literal[
     "writing_explanation",
 ]
 MapStatus = Literal[
-    "used", "entry", "test_needed", "not_in_pack", "bypassed", "not_taken", "exploring", "tried"
+    "used",
+    "entry",
+    "test_needed",
+    "not_in_pack",
+    "bypassed",
+    "not_taken",
+    "exploring",
+    "tried",
+    "option",
+    "planned",
+    "chosen",
 ]
 EdgeStyle = Literal["walked", "bypassed", "not_taken", "exploring"]
 
@@ -255,6 +265,18 @@ class Walk(AgEntity):
             cited=sum(len(s.lines) for s in self.sections),
             ungrounded=sum(s.rejected for s in self.sections),
         )
+
+
+class TraverseChoice(AgEntity):
+    """A doctor's chosen drug for one tier of a walk. Rows are append-only; the latest
+    choice per walk and tier wins, so re-choosing never rewrites history."""
+
+    choice_id: str
+    walk_id: str
+    tier_id: str
+    node_id: str
+    profile_id: str
+    created_at: str
 
 
 class ExploreLane(AgEntity):

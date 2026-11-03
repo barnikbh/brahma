@@ -19,6 +19,7 @@ import type {
   Outcome,
   PatientChange,
   Profile,
+  TraverseResponse,
   PackGraph,
   PackInfo,
   Proposal,
@@ -214,6 +215,11 @@ export const api = {
     request<EditOutcome>(`/api/cases/${enc(caseId)}/treatment-edits`, {
       method: "POST",
       body: { nodeId, newValues },
+    }),
+  traverse: (caseId: string, nodeId: string) =>
+    request<TraverseResponse>(`/api/cases/${enc(caseId)}/traverse`, {
+      method: "POST",
+      body: { nodeId },
     }),
   caseMap: (caseId: string, params: { walkId?: string; sessionId?: string } = {}) => {
     const query = new URLSearchParams();

@@ -20,7 +20,7 @@ from brahma.agent.models import (
     TherapyItem,
     Walk,
 )
-from brahma.agent.traverse import Traversal
+from brahma.agent.traverse import TRAVERSED_STATUSES, Traversal
 from brahma.cases.models import DoseResult, Finding, Patient
 from brahma.knowledge.errors import NodeNotFound
 from brahma.knowledge.matcher import drug_class, drug_names, normalise_text
@@ -236,7 +236,13 @@ def build_map(
                 "edgeId": e.edge_id,
                 "from": e.from_node_id,
                 "to": e.to_node_id,
-                "style": "walked" if e.edge_id in walked else "not_taken",
+                "style": (
+                    "walked"
+                    if e.edge_id in walked
+                    and statuses.get(e.from_node_id) in TRAVERSED_STATUSES
+                    and statuses.get(e.to_node_id) in TRAVERSED_STATUSES
+                    else "not_taken"
+                ),
             }
         )
         for e in sub.edges

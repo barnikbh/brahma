@@ -69,8 +69,10 @@ export interface NodePanelProps {
   readOnly?: boolean;
   canExplore?: boolean;
   exploring?: boolean;
+  canChoose?: boolean;
   onClose: () => void;
   onEdit?: (detail: NodeDetail) => void;
+  onChoose?: () => void;
   onExplore?: () => void;
   onStopExplore?: () => void;
   onSuggest?: () => void;
@@ -302,6 +304,16 @@ export function NodePanel(props: NodePanelProps) {
                 onClick={() => props.onEdit?.(detail)}
               >
                 Edit treatment
+              </Button>
+            ) : null}
+            {props.canChoose && props.onChoose ? (
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={props.readOnly}
+                onClick={props.onChoose}
+              >
+                Choose this option
               </Button>
             ) : null}
             {props.exploring && props.onStopExplore ? (

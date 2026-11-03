@@ -135,6 +135,26 @@ export function WorkspacePage() {
     }
   };
 
+  const chooseOption = () => {
+    if (!caseId || !selectedNodeId) return;
+    void (async () => {
+      try {
+        const result = await api.traverse(caseId, selectedNodeId);
+        dispatch({ type: "map_loaded", map: result.map });
+        dispatch({ type: "notice", text: result.notice });
+      } catch (e) {
+        dispatch({
+          type: "request_failed",
+          error: {
+            code: e instanceof ApiError ? e.code : "traverse_failed",
+            message: e instanceof ApiError ? e.message : "The choice could not be recorded.",
+            retryable: false,
+          },
+        });
+      }
+    })();
+  };
+
   const openEdit = (detail: NodeDetail) => {
     const current = { ...detail.node.fields, ...(edits[detail.node.nodeId]?.edit.newValues ?? {}) };
     const fields: FormField[] = EDIT_FIELDS.map((f) => ({
@@ -359,8 +379,10 @@ export function WorkspacePage() {
               readOnly={readOnly}
               canExplore={Boolean(settled && selectedNode && selectedNode.status === "not_taken")}
               exploring={Boolean(laneOpen && laneOpen !== "pending")}
+              canChoose={Boolean(settled && selectedNode && selectedNode.status === "option")}
               onClose={closePanel}
               onEdit={openEdit}
+              onChoose={chooseOption}
               onExplore={() => {
                 if (state.walkId && selectedNodeId) {
                   void walk({

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import sqlite3
 
-from brahma.agent.models import ExploreLane, Walk
+from brahma.agent.models import ExploreLane, TraverseChoice, Walk
 from brahma.platform.base import utc_now
 from brahma.platform.db import transaction
 
@@ -105,3 +105,33 @@ class WalkRepository:
             (walk_id,),
         )
         return [ExploreLane.model_validate_json(r["body_json"]) for r in rows]
+
+    # --- traverse choices ------------------------------------------------------------
+
+    def add_choice(self, choice: TraverseChoice) -> None:
+        """Append a choice; rows are never updated, the latest per tier wins."""
+        with transaction(self._conn):
+            self._conn.execute(
+                "INSERT INTO ag_traverse_choice (choice_id, walk_id, tier_id, node_id, "
+                "body_json, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+                (
+                    choice.choice_id,
+                    choice.walk_id,
+                    choice.tier_id,
+                    choice.node_id,
+                    choice.model_dump_json(by_alias=True),
+                    choice.created_at,
+                ),
+            )
+
+    def choices_for_walk(self, walk_id: str) -> dict[str, str]:
+        """The latest chosen drug per tier, oldest tier first."""
+        rows = self._conn.execute(
+            "SELECT body_json FROM ag_traverse_choice WHERE walk_id = ? ORDER BY created_at, rowid",
+            (walk_id,),
+        )
+        choices: dict[str, str] = {}
+        for row in rows:
+            choice = TraverseChoice.model_validate_json(row["body_json"])
+            choices[choice.tier_id] = choice.node_id
+        return choices

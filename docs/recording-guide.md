@@ -24,8 +24,9 @@ Record November 2-4 on the live Meta model. Submit before Nov 4, 9 PM ET.
    sub-type -> treatment tier -> monitoring.
 4. **The grounded badge** (20 s). End of walk: 0 ungrounded lines. Open one
    line's citations to show the source trail.
-5. **Treatment detail + edit** (30 s). Open Tier 2, show hydrocortisone dose
-   and day-3 review, edit a note, show the edited marker.
+5. **Choose the drug + edit** (45 s). The Tier 2 drugs are grey options.
+   Open Hydrocortisone, show dose and day-3 review, press Choose this option,
+   show its monitoring lighting up blue. Edit a note, show the edited marker.
 6. **Follow-up** (40 s). "Remicade failed, steroids work." Show the walk
    switching to the post-anti-TNF tier with the tried drug marked.
 7. **Why + audit** (30 s). Open the why panel, then the audit trail replay.

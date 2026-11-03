@@ -20,8 +20,15 @@ def parse_version(text: str) -> PackVersionRef | None:
 
 
 def session_map(shared: Services, session_id: str) -> MapData:
-    """The map of a recorded session: its node path, all marked as used."""
+    """The map of a recorded session: the walk's stored map, choices included.
+
+    Falls back to rebuilding the path (all marked as used) when the walk's stored
+    map is gone, e.g. data recorded before maps were stored.
+    """
     record = shared.audit.get_session(session_id).record
+    stored = shared.engine.repo.get(record.walk_id)
+    if stored is not None and stored.map is not None:
+        return MapData.model_validate(stored.map)
     version = parse_version(record.pack_version)
     if version is None or not record.path_node_ids:
         return MapData(version=record.pack_version, nodes=[], edges=[], selected_path=[])

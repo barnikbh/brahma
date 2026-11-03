@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+import type { MapNode } from "@/api/types";
 import { DEMO_NODES, FOLLOW_UP_NODES } from "@/test/fakeApi";
 import { GraphCanvas, badgeFor, layout } from "./GraphCanvas";
 import { ResultBadge, resultKind } from "./ResultBadge";
@@ -79,6 +80,60 @@ describe("GraphCanvas", () => {
     expect(node("IBD-N1")).toHaveFocus();
     await userEvent.keyboard("{Enter}");
     expect(onSelect).toHaveBeenLastCalledWith("IBD-N1");
+  });
+
+  it("renders options and planned steps grey and the chosen drug blue", () => {
+    const nodes: MapNode[] = [
+      {
+        nodeId: "IBD-N41",
+        type: "treatment_tier",
+        label: "UC Tier 2",
+        column: "treatment",
+        status: "entry",
+        result: null,
+      },
+      {
+        nodeId: "IBD-N51",
+        type: "drug",
+        label: "Hydrocortisone",
+        column: "treatment",
+        status: "option",
+        result: null,
+      },
+      {
+        nodeId: "IBD-N70",
+        type: "monitoring",
+        label: "Stool frequency",
+        column: "monitor",
+        status: "planned",
+        result: null,
+      },
+      {
+        nodeId: "IBD-N52",
+        type: "drug",
+        label: "Methylprednisolone",
+        column: "treatment",
+        status: "chosen",
+        result: null,
+      },
+    ];
+    render(
+      <GraphCanvas
+        nodes={nodes}
+        edges={[]}
+        version="IBD 1.1"
+        selectedNodeId={null}
+        onSelectNode={() => undefined}
+      />,
+    );
+    expect(node("IBD-N51")).toHaveTextContent("○ Option");
+    expect(node("IBD-N51")).toHaveClass("border-dashed");
+    expect(node("IBD-N70")).toHaveTextContent("→ Suggested");
+    expect(node("IBD-N70")).toHaveClass("border-dashed");
+    expect(node("IBD-N52")).toHaveTextContent("✓ Chosen");
+    expect(node("IBD-N52")).toHaveClass("border-brand-700");
+    expect(screen.getByLabelText("Legend")).toHaveTextContent("○ Option");
+    expect(node("IBD-N51")).toHaveAttribute("aria-label", "drug, Hydrocortisone, Option");
   });
 
   it("shows the empty hint before a walk", () => {

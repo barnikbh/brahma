@@ -30,6 +30,7 @@ PROTECTED = [
     ("POST", "/api/cases/BR-000000/walk"),
     ("GET", "/api/cases/BR-000000/map"),
     ("POST", "/api/cases/BR-000000/treatment-edits"),
+    ("POST", "/api/cases/BR-000000/traverse"),
     ("GET", "/api/nodes/IBD@1.1/IBD-N1"),
     ("GET", "/api/nodes/IBD@1.1/IBD-N1/comments"),
     ("POST", "/api/nodes/IBD@1.1/IBD-N1/comments"),
@@ -346,3 +347,30 @@ def test_health_reports_packs_provider_and_database(anon: TestClient) -> None:
     assert health["status"] == "ok" and health["database"] == "ok"
     assert health["packs"] == [{"pack": "IBD", "number": "1.1"}, {"pack": "URO", "number": "0.1"}]
     assert health["provider"] == {"provider": "recorded", "model": "recorded"}
+
+
+def test_traverse_route_records_a_choice_and_replays_it(client: TestClient) -> None:
+    case_id = new_case(client)
+    events = _demo_walk(client, case_id)
+    done = _payloads(events, "done")[0]
+    response = client.post(
+        f"/api/cases/{case_id}/traverse", json={"nodeId": "IBD-N51"}, headers=TAB_HEADERS
+    )
+    assert response.status_code == 201, response.text
+    body = response.json()
+    assert "Hydrocortisone" in body["notice"]
+    statuses = {n["nodeId"]: n["status"] for n in body["map"]["nodes"]}
+    assert statuses["IBD-N51"] == "chosen"
+    assert statuses["IBD-N52"] == "option"
+    assert statuses["IBD-N70"] == "used"
+    assert statuses["IBD-N42"] == "planned"
+    replay = client.get(f"/api/cases/{case_id}/map", params={"sessionId": done["sessionId"]}).json()
+    assert replay["selectedPath"][0] == "IBD-N1"
+    assert {n["nodeId"]: n["status"] for n in replay["nodes"]}["IBD-N51"] == "chosen"
+    bad = client.post(
+        f"/api/cases/{case_id}/traverse", json={"nodeId": "IBD-N41"}, headers=TAB_HEADERS
+    )
+    assert bad.status_code == 422
+    assert bad.json()["error"]["code"] == "traverse_invalid"
+    no_tab = client.post(f"/api/cases/{case_id}/traverse", json={"nodeId": "IBD-N52"})
+    assert no_tab.status_code == 409
