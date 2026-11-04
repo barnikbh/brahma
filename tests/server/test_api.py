@@ -424,6 +424,44 @@ def test_an_unmet_day3_review_keeps_the_tier_standing(client: TestClient) -> Non
     view = client.get(f"/api/cases/{case_id}", headers=TAB_HEADERS).json()
     assert view["walk"]["walkId"] == first["walkId"]
     assert any("CRP 20 mg/L" in m.get("body", {}).get("text", "") for m in view["messages"])
+    # Only what the criterion node says: no "still responding" verdict from one measure.
+    assert "does not meet" in reviewed["text"]
+    assert "responding" not in reviewed["text"]
+
+
+def test_a_review_after_a_follow_up_keeps_the_failed_drug_out(client: TestClient) -> None:
+    case_id = new_case(client)
+    _demo_walk(client, case_id)
+    text = "Remicade failed. steroids work. Suggest alternate treatment plan"
+    _walk(client, case_id, mode="follow_up", text=text)
+    events = _walk(client, case_id, mode="review", branchNodeId="IBD-N81", reviewValue="60")
+    assert _payloads(events, "done")[0]["outcome"] == "answered"
+    statuses = {
+        n["nodeId"]: n["status"] for n in client.get(f"/api/cases/{case_id}/map").json()["nodes"]
+    }
+    assert statuses["IBD-N53"] == "tried"
+    assert statuses["IBD-N46"] == "entry"
+    lines = [p["text"] for p in _payloads(events, "line")]
+    assert not any("nfliximab" in line for line in lines)
+    # A later follow-up still carries the history the review walk kept.
+    _walk(client, case_id, mode="follow_up", text="vedolizumab failed")
+    statuses = {
+        n["nodeId"]: n["status"] for n in client.get(f"/api/cases/{case_id}/map").json()["nodes"]
+    }
+    assert statuses["IBD-N53"] == "tried"
+
+
+@pytest.mark.parametrize("value", ["nan", "inf", "-inf", "-5"])
+def test_a_review_value_must_be_a_finite_number_of_0_or_more(
+    client: TestClient, value: str
+) -> None:
+    case_id = new_case(client)
+    _demo_walk(client, case_id)
+    events = _walk(client, case_id, mode="review", branchNodeId="IBD-N81", reviewValue=value)
+    assert _payloads(events, "error")[0]["code"] == "invalid_request"
+    assert _payloads(events, "reviewed") == []
+    view = client.get(f"/api/cases/{case_id}", headers=TAB_HEADERS).json()
+    assert not any("Review result" in m.get("body", {}).get("text", "") for m in view["messages"])
 
 
 def test_a_review_needs_an_answered_walk_a_criterion_and_a_number(

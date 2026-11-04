@@ -27,6 +27,7 @@ after the last completed section, so no line is sent twice.
 
 from __future__ import annotations
 
+import math
 import time
 from collections.abc import AsyncIterator, Iterator
 from dataclasses import dataclass, field
@@ -923,7 +924,7 @@ class WalkEngine:
         walk.findings = list(previous.findings)
         walk.answers = dict(previous.answers)
         walk.asked_test_ids = list(previous.asked_test_ids)
-        if previous.kind == "follow_up":
+        if previous.kind in ("follow_up", "review"):
             walk.base_history = list(previous.history or [])
         self.repo.create(walk)
         ctx.walk = walk
@@ -994,6 +995,8 @@ class WalkEngine:
             value = float(raw_value)
         except ValueError:
             raise WalkRequestInvalid("a review result must be a number") from None
+        if not math.isfinite(value) or value < 0:
+            raise WalkRequestInvalid("a review result must be a number of 0 or more")
         previous = self.repo.latest_for_case(case_id)
         if previous is None or previous.status != "answered" or previous.pack_version is None:
             label = previous.walk_id if previous is not None else case_id
@@ -1034,7 +1037,10 @@ class WalkEngine:
                 walkId=previous.walk_id,
                 nodeId=node_id,
                 met=False,
-                text=f"Review recorded: {reading} — still responding. Continue the current tier.",
+                text=(
+                    f"Review recorded: {reading} does not meet {node.label}. "
+                    "This result alone does not change the plan."
+                ),
             )
             return
         walk = self._new_walk(case_id, profile_id, text)
@@ -1053,6 +1059,11 @@ class WalkEngine:
         ]
         walk.answers = dict(previous.answers)
         walk.asked_test_ids = list(previous.asked_test_ids)
+        # Treatment history already given stays: a drug that failed must never be
+        # suggested again because a day-3 result was recorded afterwards.
+        if previous.history is not None:
+            walk.history = list(previous.history)
+            walk.base_history = list(previous.history)
         self.repo.create(walk)
         ctx.walk = walk
         self._cases.append_message(
