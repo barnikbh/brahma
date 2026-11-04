@@ -28,14 +28,18 @@ Record November 2-4 on the live Meta model. Submit before Nov 4, 9 PM ET.
    Open Hydrocortisone, show dose and day-3 review, press Choose this option,
    show its monitoring lighting up blue plus the "Now on" next-step card.
    Edit a note, show the edited marker.
-6. **Follow-up** (40 s). "Remicade failed, steroids work." Show the walk
+6. **Day-3 review** (35 s). Open the day-3 CRP criterion from the monitor
+   column ("If met → UC Tier 3"), record 20: the tier stands. Record 60:
+   the review opens Tier 3 as a new walk, still 0 ungrounded. Open Toxic
+   megacolon to show its "Where it leads" colectomy path.
+7. **Follow-up** (40 s). "Remicade failed, steroids work." Show the walk
    switching to the post-anti-TNF tier with the tried drug marked.
-7. **Why + audit** (30 s). Open the why panel, then the audit trail replay.
-8. **Knowledge update** (40 s). Propose a change in plain language with a
+8. **Why + audit** (30 s). Open the why panel, then the audit trail replay.
+9. **Knowledge update** (40 s). Propose a change in plain language with a
    source URL, answer the follow-up question, publish as reviewer.
-9. **Benchmark page** (20 s). Open `results/benchmark.html`: graph vs the
-   same model with no knowledge base, on grounded share and pathway
-   agreement.
+10. **Benchmark page** (20 s). Open `results/benchmark.html`: graph vs the
+    same model with no knowledge base, on grounded share and pathway
+    agreement.
 
 ## 3. Takes and recovery
 

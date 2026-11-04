@@ -1,11 +1,17 @@
 {
-  "_note": "Synthetic recorded replies for the AC3.2.1 demo walk. Paraphrased from the pack's own node content, never guideline text. One reply per section, chosen by the section tag in the request. The first four replies are the follow-up turn after anti-TNF failure, chosen by a node ID in the request.",
+  "_note": "Synthetic recorded replies for the AC3.2.1 demo walk. Paraphrased from the pack's own node content, never guideline text. One reply per section, chosen by the section tag in the request. The node-ID replies serve the follow-up turn after anti-TNF failure (N46, N72, N99, N103) and the day-3 review walk that enters Tier 3 (N53, N95); node-ID replies are ordered so the follow-up still matches first.",
   "replies": [
     {
       "match": "\"nodeId\": \"IBD-N46\"",
       "text": "{\"lines\": [{\"text\": \"Start here: after anti-TNF failure, check drug levels and antibodies, then change to another drug class (Tier 3).\", \"nodeIds\": [\"IBD-N46\"], \"claims\": [{\"kind\": \"tier\", \"value\": \"3\"}]}, {\"text\": \"Ustekinumab starts with one weight-based intravenous induction dose, then 90 mg under the skin every 8 weeks.\", \"nodeIds\": [\"IBD-N54\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"ustekinumab\"}, {\"kind\": \"dose\", \"value\": \"90\", \"unit\": \"mg\"}]}, {\"text\": \"Vedolizumab 300 mg is infused at weeks 0, 2 and 6, then every 8 weeks.\", \"nodeIds\": [\"IBD-N57\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"vedolizumab\"}, {\"kind\": \"dose\", \"value\": \"300\", \"unit\": \"mg\"}, {\"kind\": \"frequency\", \"value\": \"weeks 0, 2 and 6, then every 8 weeks\"}]}, {\"text\": \"Tofacitinib, an oral JAK inhibitor, is started at 10 mg twice daily for 8 weeks of induction.\", \"nodeIds\": [\"IBD-N58\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"tofacitinib\"}, {\"kind\": \"dose\", \"value\": \"10\", \"unit\": \"mg\"}, {\"kind\": \"frequency\", \"value\": \"twice daily\"}]}, {\"text\": \"A second anti-TNF is mainly an option after a loss of response with low levels or antibodies.\", \"nodeIds\": [\"IBD-N46\"], \"claims\": []}]}",
       "inputTokens": 1200,
       "outputTokens": 260
+    },
+    {
+      "match": "\"nodeId\": \"IBD-N53\"",
+      "text": "{\"lines\": [{\"text\": \"Entry point is Tier 3 rescue therapy: without an adequate response by day 3, rescue therapy is the step taken now.\", \"nodeIds\": [\"IBD-N42\"], \"claims\": [{\"kind\": \"tier\", \"value\": \"3\"}]}, {\"text\": \"Infliximab 5 mg/kg intravenously at weeks 0, 2 and 6, then every 8 weeks.\", \"nodeIds\": [\"IBD-N53\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"infliximab\"}, {\"kind\": \"dose\", \"value\": \"5\", \"unit\": \"mg/kg\"}, {\"kind\": \"frequency\", \"value\": \"weeks 0, 2 and 6, then every 8 weeks\"}]}, {\"text\": \"Ustekinumab starts with one weight-based intravenous induction dose, then 90 mg under the skin every 8 weeks.\", \"nodeIds\": [\"IBD-N54\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"ustekinumab\"}, {\"kind\": \"dose\", \"value\": \"90\", \"unit\": \"mg\"}]}]}",
+      "inputTokens": 1200,
+      "outputTokens": 200
     },
     {
       "match": "\"nodeId\": \"IBD-N72\"",
@@ -24,6 +30,12 @@
       "text": "{\"lines\": [{\"text\": \"Screen for latent tuberculosis and hepatitis B before the next biologic.\", \"nodeIds\": [\"IBD-N92\"], \"claims\": []}, {\"text\": \"Before a JAK inhibitor, review the risk of blood clots and heart events, and shingles vaccination.\", \"nodeIds\": [\"IBD-N103\"], \"claims\": []}, {\"text\": \"Steroids are only a short bridge until the new maintenance treatment works, then they are tapered off.\", \"nodeIds\": [\"IBD-N102\"], \"claims\": []}]}",
       "inputTokens": 800,
       "outputTokens": 110
+    },
+    {
+      "match": "\"nodeId\": \"IBD-N95\"",
+      "text": "{\"lines\": [{\"text\": \"Send stool tests for bacterial pathogens and C. difficile toxin before escalating.\", \"nodeIds\": [\"IBD-N94\"], \"claims\": []}, {\"text\": \"Screen for latent tuberculosis and hepatitis B before the next biologic.\", \"nodeIds\": [\"IBD-N92\"], \"claims\": []}, {\"text\": \"With no improvement within 4 to 7 days of rescue therapy, discuss colectomy with a colorectal surgeon.\", \"nodeIds\": [\"IBD-N95\"], \"claims\": []}]}",
+      "inputTokens": 1200,
+      "outputTokens": 140
     },
     {
       "match": "<section id=\"findings\"",

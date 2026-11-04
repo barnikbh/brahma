@@ -442,6 +442,17 @@ export function WorkspacePage() {
                 }
               }}
               onSuggest={() => navigate(`/knowledge?node=${encodeURIComponent(selectedNodeId)}`)}
+              onReview={(reviewNodeId, value) => {
+                if (state.walkId) {
+                  void walk({
+                    mode: "review",
+                    walkId: state.walkId,
+                    branchNodeId: reviewNodeId,
+                    reviewValue: value,
+                  });
+                }
+              }}
+              onSelectNode={selectNode}
             />
           ) : null}
         </div>

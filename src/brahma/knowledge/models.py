@@ -373,6 +373,7 @@ class Fact(KgModel):
     name: str = Field(min_length=1)
     value: str | Number | None = None
     unit: str | None = None
+    context: Literal["presenting", "review"] = "presenting"
 
 
 class Step(KgModel):

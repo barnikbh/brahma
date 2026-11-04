@@ -103,3 +103,82 @@ test("demo walk: sign in, walk the case, cited answer, audit record", async ({ p
   await expect(page.getByRole("article", { name: /Session s-/ })).toContainText("Answered");
   await expect(page.getByTestId("disclaimer-bar")).toBeVisible();
 });
+
+test("day-3 review: a met criterion opens Tier 3, an unmet one keeps the tier", async ({
+  page,
+}) => {
+  await page.goto("/");
+  // A second doctor: disclaimer acceptance is per profile, and the first test
+  // already accepted it as Dr. Maya against this run's shared server.
+  await page.getByRole("button", { name: /Demo urologist/ }).click();
+  await page.getByRole("checkbox", { name: /decision support, not diagnosis/i }).click();
+  await page.getByRole("checkbox", { name: /synthetic cases only/i }).click();
+  await page.getByRole("button", { name: "Accept and continue" }).click();
+
+  await page.getByRole("button", { name: "Create new patient" }).first().click();
+  await page.getByLabel("Synthetic name").fill("Demo Patient B");
+  await page.getByLabel("Age (years)").fill("34");
+  await page.getByLabel("Sex").selectOption("female");
+  await page.getByLabel("Weight (kg)").fill("58");
+  await page.getByRole("button", { name: "Create and open" }).click();
+
+  await expect(page).toHaveURL(/\/cases\/BR-/);
+  await page.getByLabel(/Describe the patient/).fill(DEMO_TEXT);
+  await page.getByRole("button", { name: "Send" }).click();
+  await page.getByRole("button", { name: /Looks right/ }).click();
+  const rounds: [string, string][][] = [
+    [
+      ["Stool culture", "negative"],
+      ["colonoscopy", "ulcerative colitis"],
+    ],
+    [
+      ["Extent", "E3"],
+      ["Severity", "severe"],
+    ],
+  ];
+  for (const round of rounds) {
+    const form = page.getByRole("form", { name: "Needs more data" });
+    await expect(form.getByLabel(new RegExp(round[0][0], "i"))).toBeVisible();
+    for (const [label, value] of round) {
+      await form.getByLabel(new RegExp(label, "i")).selectOption(value);
+    }
+    await form.getByRole("button", { name: "Submit results" }).click();
+  }
+  await expect(page.getByTestId("walk-summary")).toBeVisible({ timeout: 30_000 });
+
+  // An unmet day-3 result keeps Tier 2 standing: no new walk, tier unchanged.
+  await page.locator('[data-map-node="IBD-N81"]').click();
+  await expect(page.getByTestId("node-review")).toBeVisible();
+  await expect(page.getByTestId("node-leads-to")).toContainText("UC Tier 3");
+  await page.getByLabel("Day-3 result").fill("20");
+  await page.getByTestId("node-review").getByRole("button", { name: "Record" }).click();
+  await expect(page.getByText(/Review recorded: CRP 20 mg\/L/)).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(page.locator('[data-map-node="IBD-N41"]')).toContainText("Start here");
+  await expect(page.getByTestId("walk-summary")).toHaveCount(1);
+
+  // A watch-out with an owner-authored branch shows where it leads.
+  await page.keyboard.press("Escape");
+  await page.locator('[data-map-node="IBD-N90"]').click();
+  await expect(page.getByTestId("node-next-paths")).toContainText("Emergency colectomy triggers");
+  await page
+    .getByTestId("node-next-paths")
+    .getByRole("button", { name: "Emergency colectomy triggers" })
+    .click();
+  await expect(page.getByTestId("node-panel")).toContainText("Emergency colectomy triggers");
+
+  // A met result opens Tier 3 as a new review walk.
+  await page.keyboard.press("Escape");
+  await page.locator('[data-map-node="IBD-N81"]').click();
+  await page.getByLabel("Day-3 result").fill("60");
+  await page.getByTestId("node-review").getByRole("button", { name: "Record" }).click();
+  await expect(page.getByText(/Review recorded: CRP 60 mg\/L/)).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(page.getByTestId("walk-summary")).toHaveCount(2, { timeout: 30_000 });
+  await expect(page.getByTestId("walk-summary").last()).toContainText("0 ungrounded");
+  await expect(page.locator('[data-map-node="IBD-N42"]')).toContainText("Start here", {
+    timeout: 30_000,
+  });
+});

@@ -151,6 +151,98 @@ describe("NodePanel", () => {
     expect(screen.queryByTestId("node-leads-to")).not.toBeInTheDocument();
   });
 
+  it("records a day-3 result from a wired criterion", async () => {
+    installFakeApi({
+      "GET /api/nodes/:v/:n": () =>
+        nodeDetail({
+          node: {
+            nodeId: "IBD-N81",
+            type: "response_criterion",
+            label: "Day 3 on IV steroids: CRP above 45 mg/L",
+            content: "A CRP above 45 mg/L on day 3 means the patient is not responding.",
+            fields: { measure: "CRP", threshold: 45, comparator: "gt", unit: "mg/L" },
+            sourceIds: ["SRC-1"],
+            column: "monitor",
+          },
+          leadsTo: [{ nodeId: "IBD-N42", label: "UC Tier 3" }],
+        }),
+    });
+    const onReview = vi.fn();
+    render(
+      <NodePanel
+        nodeId="IBD-N81"
+        version="IBD 1.0"
+        caseId="BR-000001"
+        onClose={vi.fn()}
+        onReview={onReview}
+      />,
+    );
+    const form = await screen.findByTestId("node-review");
+    expect(form).toHaveTextContent("Meets when CRP is above 45 mg/L");
+    await userEvent.type(screen.getByLabelText("Day-3 result"), "60");
+    await userEvent.click(screen.getByRole("button", { name: "Record" }));
+    expect(onReview).toHaveBeenCalledWith("IBD-N81", "60");
+  });
+
+  it("shows no review form for unwired nodes or without a review handler", async () => {
+    installFakeApi({
+      "GET /api/nodes/:v/:n": () =>
+        nodeDetail({
+          node: {
+            nodeId: "IBD-N81",
+            type: "response_criterion",
+            label: "Day 3 on IV steroids: CRP above 45 mg/L",
+            content: "A CRP above 45 mg/L on day 3 means the patient is not responding.",
+            fields: { measure: "CRP", threshold: 45, comparator: "gt", unit: "mg/L" },
+            sourceIds: ["SRC-1"],
+            column: "monitor",
+          },
+          leadsTo: [{ nodeId: "IBD-N42", label: "UC Tier 3" }],
+        }),
+    });
+    const { unmount } = render(
+      <NodePanel nodeId="IBD-N81" version="IBD 1.0" caseId="BR-000001" onClose={vi.fn()} />,
+    );
+    await screen.findByTestId("node-leads-to");
+    expect(screen.queryByTestId("node-review")).not.toBeInTheDocument();
+    unmount();
+    render(
+      <NodePanel
+        nodeId="IBD-N81"
+        version="IBD 1.0"
+        caseId="BR-000001"
+        onClose={vi.fn()}
+        onReview={vi.fn()}
+        readOnly
+      />,
+    );
+    await screen.findByTestId("node-review");
+    expect(screen.getByRole("button", { name: "Record" })).toBeDisabled();
+  });
+
+  it("navigates owner-authored next paths", async () => {
+    installFakeApi({
+      "GET /api/nodes/:v/:n": () =>
+        nodeDetail({
+          nextPaths: [{ nodeId: "IBD-N96", label: "Emergency colectomy triggers" }],
+        }),
+    });
+    const onSelectNode = vi.fn();
+    render(
+      <NodePanel
+        nodeId="IBD-N90"
+        version="IBD 1.0"
+        caseId="BR-000001"
+        onClose={vi.fn()}
+        onSelectNode={onSelectNode}
+      />,
+    );
+    await userEvent.click(
+      await screen.findByRole("button", { name: "Emergency colectomy triggers" }),
+    );
+    expect(onSelectNode).toHaveBeenCalledWith("IBD-N96");
+  });
+
   it("shows the stored edit marker with no in-memory outcome (reload)", async () => {
     installFakeApi({
       "GET /api/nodes/:v/:n": () =>

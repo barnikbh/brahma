@@ -152,7 +152,8 @@ export type LockState = "held" | "read_only";
 
 // --- Walk (SSE) ------------------------------------------------------------------------
 
-export type WalkMode = "start" | "continue" | "rewalk" | "explore" | "stop_explore" | "follow_up";
+export type WalkMode =
+  "start" | "continue" | "rewalk" | "explore" | "stop_explore" | "follow_up" | "review";
 
 export interface WalkRequest {
   mode: WalkMode;
@@ -161,6 +162,7 @@ export interface WalkRequest {
   formValues?: Record<string, unknown> | null;
   branchNodeId?: string | null;
   walkId?: string | null;
+  reviewValue?: string | null;
 }
 
 export type FormKind = "confirm-findings" | "needs-data" | "edit-treatment" | "patient-details";
@@ -285,6 +287,10 @@ export type WalkEvent =
   | {
       type: "history";
       payload: { walkId: string; text: string; therapies: TherapyHistoryItem[] };
+    }
+  | {
+      type: "reviewed";
+      payload: { walkId: string; nodeId: string; met: boolean; text: string };
     };
 
 export type WalkEventType = WalkEvent["type"];
@@ -344,6 +350,7 @@ export interface NodeDetail {
   sources: Source[];
   comments: NodeComment[];
   leadsTo: { nodeId: string; label: string }[];
+  nextPaths: { nodeId: string; label: string }[];
   safety: SafetyResult[];
   dose: DoseNote | null;
   edited: TreatmentEdit | null;

@@ -12,11 +12,17 @@ from fastapi import APIRouter, Query
 
 from brahma.agent.models import DISCLAIMER, version_label
 from brahma.agent.views import dose_note
+from brahma.knowledge.errors import NodeNotFound
 from brahma.knowledge.models import NodeComment, PackVersionRef
 from brahma.server.deps import ApiError, Body, ProfileDep, ServicesDep
 from brahma.server.mapview import parse_version
 
 router = APIRouter(tags=["core"])
+
+# Demo-day branch links authored by the case owner (Nov 4): the pack has no edge
+# for these yet. Absorb as real pack edges in v1.2 and re-run the benchmark.
+# Display-only navigation: lines never cite these links, so grounding is untouched.
+BRANCH_LINKS: dict[str, list[str]] = {"IBD-N90": ["IBD-N96"]}
 
 
 class CommentBody(Body):
@@ -43,6 +49,18 @@ def _initial_version(shared: ServicesDep, ref: PackVersionRef) -> str:
     return versions[-1].number if versions else ref.number
 
 
+def _branch_links(shared: ServicesDep, ref: PackVersionRef, node_id: str) -> list[dict[str, str]]:
+    """Owner-authored next paths (see BRANCH_LINKS); missing targets are skipped."""
+    links: list[dict[str, str]] = []
+    for target_id in BRANCH_LINKS.get(node_id, []):
+        try:
+            target = shared.knowledge.get_node(ref, target_id)
+        except NodeNotFound:
+            continue
+        links.append({"nodeId": target.node_id, "label": target.label})
+    return links
+
+
 @router.get("/nodes/{version}/{node_id}")
 def node_detail(
     version: str,
@@ -63,6 +81,7 @@ def node_detail(
             {"nodeId": target.node_id, "label": target.label}
             for target in shared.knowledge.criterion_targets(ref, node_id)
         ],
+        "nextPaths": _branch_links(shared, ref, node_id),
         "safety": [],
         "dose": None,
         "edited": None,

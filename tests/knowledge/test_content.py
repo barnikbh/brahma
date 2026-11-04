@@ -180,3 +180,13 @@ def test_measurements_watchouts_and_unwired_criteria_link_nowhere(
     assert service.criterion_targets(ibd, "IBD-N90") == []  # watch-out, prose only
     assert service.criterion_targets(ibd, "IBD-N82") == []  # no wired consequence
     assert service.criterion_targets(ibd, "IBD-N51") == []  # not a criterion
+
+
+def test_evaluate_criterion_checks_the_value_against_the_wired_edge(
+    service: KnowledgeService, ibd: PackVersionRef
+) -> None:
+    met, targets = service.evaluate_criterion(ibd, "IBD-N81", 60)
+    assert met is True
+    assert [n.node_id for n in targets] == ["IBD-N42"]
+    assert service.evaluate_criterion(ibd, "IBD-N81", 20) == (False, [])
+    assert service.evaluate_criterion(ibd, "IBD-N90", 1) == (False, [])

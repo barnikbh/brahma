@@ -75,6 +75,24 @@ describe("streamWalk", () => {
     });
   });
 
+  it("passes a review through and closes the stream without a connection error", async () => {
+    const fake = installFakeApi();
+    fake.walkStreams.push([
+      { type: "progress", payload: { step: "reading_findings" } },
+      {
+        type: "reviewed",
+        payload: { walkId: "wk-1", nodeId: "IBD-N81", met: false, text: "Review recorded" },
+      },
+    ]);
+    const seen: WalkEvent[] = [];
+    await streamWalk(
+      "BR-000001",
+      { mode: "review", walkId: "wk-1", branchNodeId: "IBD-N81", reviewValue: "20" },
+      (e) => seen.push(e),
+    );
+    expect(seen.map((e) => e.type)).toEqual(["progress", "reviewed"]);
+  });
+
   it("reports a stream that errors mid-way the same way", async () => {
     const encoder = new TextEncoder();
     let pulls = 0;

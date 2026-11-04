@@ -105,6 +105,7 @@ FIRST_STEP: dict[str, ProgressStep] = {
     "explore": "refining",
     "stop_explore": "refining",
     "follow_up": "reading_findings",
+    "review": "reading_findings",
 }
 SECTION_STEP: dict[str, ProgressStep] = {
     "findings": "matching_diagnosis",
@@ -213,6 +214,8 @@ class WalkEngine:
                 yield from self._explore(ctx, case_id, request)
             elif request.mode == "follow_up":
                 yield from self._follow_up(ctx, case_id, request, profile_id)
+            elif request.mode == "review":
+                yield from self._review(ctx, case_id, request, profile_id)
             else:
                 yield from self._stop_explore(ctx, case_id, request)
         except ModelError as exc:
@@ -973,6 +976,111 @@ class WalkEngine:
         )
         self.repo.save_progress(walk)
         yield _event("history", walkId=walk.walk_id, text=note, therapies=added)
+
+    def _review(
+        self, ctx: _Ctx, case_id: str, request: WalkRequest, profile_id: str
+    ) -> Iterator[WalkEvent]:
+        """Record a review result; walk the next tier when a criterion is met.
+
+        The value becomes a review-scoped fact on a new walk, so presenting
+        findings never re-tier. When the criterion is not met there is no new
+        walk: the result is messaged and audited, and the tier stands.
+        """
+        node_id = (request.branch_node_id or "").strip()
+        raw_value = (request.review_value or "").strip()
+        if not node_id or not raw_value:
+            raise WalkRequestInvalid("a review needs the criterion node and a value")
+        try:
+            value = float(raw_value)
+        except ValueError:
+            raise WalkRequestInvalid("a review result must be a number") from None
+        previous = self.repo.latest_for_case(case_id)
+        if previous is None or previous.status != "answered" or previous.pack_version is None:
+            label = previous.walk_id if previous is not None else case_id
+            raise WalkNotResumable(label, "a review needs an answered walk")
+        version = previous.pack_version
+        try:
+            node = self._knowledge.get_node(version, node_id)
+        except NodeNotFound:
+            raise WalkRequestInvalid(f"unknown node {node_id}") from None
+        if not self._knowledge.criterion_targets(version, node_id):
+            raise WalkRequestInvalid(f"{node.label} has no wired next path")
+        met, targets = self._knowledge.evaluate_criterion(version, node_id, value)
+        measure = str(node.fields.get("measure"))
+        unit = node.fields.get("unit")
+        reading = f"{measure} {value:g}" + (f" {unit}" if unit else "")
+        text = f"Review result: {reading}"
+        if not met:
+            self._cases.append_message(
+                case_id,
+                MessageIn(
+                    author="doctor", kind="text", body={"text": text, "walkId": previous.walk_id}
+                ),
+            )
+            self._append_audit(
+                previous,
+                "review_recorded",
+                {
+                    "walkId": previous.walk_id,
+                    "nodeId": node_id,
+                    "value": value,
+                    "met": False,
+                    "newWalkId": None,
+                },
+            )
+            self.logger.log("review_recorded", walkId=previous.walk_id, caseId=case_id, met=False)
+            yield _event(
+                "reviewed",
+                walkId=previous.walk_id,
+                nodeId=node_id,
+                met=False,
+                text=f"Review recorded: {reading} — still responding. Continue the current tier.",
+            )
+            return
+        walk = self._new_walk(case_id, profile_id, text)
+        walk.kind = "review"
+        walk.pack_version = previous.pack_version
+        walk.findings = [
+            *previous.findings,
+            {
+                "kind": "finding",
+                "name": measure,
+                "value": value,
+                "unit": unit,
+                "validationState": "ok",
+                "context": "review",
+            },
+        ]
+        walk.answers = dict(previous.answers)
+        walk.asked_test_ids = list(previous.asked_test_ids)
+        self.repo.create(walk)
+        ctx.walk = walk
+        self._cases.append_message(
+            case_id,
+            MessageIn(author="doctor", kind="text", body={"text": text, "walkId": walk.walk_id}),
+        )
+        tiers = ", ".join(t.label for t in targets)
+        self._append_audit(
+            walk,
+            "review_recorded",
+            {
+                "walkId": walk.walk_id,
+                "previousWalkId": previous.walk_id,
+                "nodeId": node_id,
+                "value": value,
+                "met": True,
+                "targetTierIds": [t.node_id for t in targets],
+            },
+        )
+        self.logger.log("review_recorded", walkId=walk.walk_id, caseId=case_id, met=True)
+        yield _event(
+            "reviewed",
+            walkId=walk.walk_id,
+            nodeId=node_id,
+            met=True,
+            text=f"Review recorded: {reading} meets {node.label} — {tiers} is now the entry path.",
+        )
+        yield from self._walk_on(walk)
 
     # --- rewalk and explore ------------------------------------------------------------
 

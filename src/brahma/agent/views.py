@@ -57,7 +57,16 @@ def finding_facts(findings: list[dict[str, Any]]) -> list[Fact]:
         value = finding.get("value")
         if not isinstance(value, (int, float, str)) or isinstance(value, bool):
             value = None
-        facts.append(Fact(kind="finding", name=name, value=value, unit=finding.get("unit")))
+        context = finding.get("context")
+        facts.append(
+            Fact(
+                kind="finding",
+                name=name,
+                value=value,
+                unit=finding.get("unit"),
+                context=context if context == "review" else "presenting",
+            )
+        )
     return facts
 
 

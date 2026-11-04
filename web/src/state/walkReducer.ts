@@ -379,6 +379,15 @@ function applyEvent(state: WalkState, event: WalkEvent): WalkState {
         items: [...state.items, { kind: "notice", id, text: event.payload.text }],
       };
     }
+    case "reviewed": {
+      const [id, seq] = nextId(state, "n");
+      return {
+        ...state,
+        seq,
+        walkId: event.payload.walkId,
+        items: [...state.items, { kind: "notice", id, text: event.payload.text }],
+      };
+    }
     case "lane_closed": {
       const openLanes = { ...state.openLanes };
       delete openLanes[event.payload.branchNodeId];

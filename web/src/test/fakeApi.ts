@@ -360,6 +360,7 @@ export function nodeDetail(overrides: Partial<NodeDetail> = {}): NodeDetail {
     dose: { value: 100, unit: "mg", formula: "100 mg (fixed dose)" },
     edited: null,
     leadsTo: [],
+    nextPaths: [],
     packVersion: "IBD 1.0",
     disclaimer: "Decision support, not diagnosis",
     ...overrides,

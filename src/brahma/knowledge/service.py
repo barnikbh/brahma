@@ -186,8 +186,13 @@ class KnowledgeService:
         return self._index(version).node(node_id)
 
     def search(self, version: PackVersionRef, facts: list[Fact]) -> SearchResult:
-        """Entry nodes matching the facts by name, synonym and converted value (BR2.1)."""
-        return self._index(version).search(facts)
+        """Entry nodes matching the facts by name, synonym and converted value (BR2.1).
+
+        Review-scoped facts never open entries: a day-3 result refines the plan,
+        it must not re-diagnose the patient.
+        """
+        presenting = [f for f in facts if f.context == "presenting"]
+        return self._index(version).search(presenting)
 
     def neighbours(
         self,
@@ -209,9 +214,56 @@ class KnowledgeService:
         and prose-only criteria have no wired consequence and link nowhere.
         """
         index = self._index(version)
+        _, links = self._criterion_links(version, node_id)
+        targets: list[Node] = []
+        seen: set[str] = set()
+        for _, edge in links:
+            if edge.to_node_id not in seen:
+                seen.add(edge.to_node_id)
+                targets.append(index.node(edge.to_node_id))
+        return targets
+
+    def evaluate_criterion(
+        self, version: PackVersionRef, node_id: str, value: float
+    ) -> tuple[bool, list[Node]]:
+        """Whether the recorded review value meets the criterion, and where it leads.
+
+        The value is checked with the real matcher against the linked escalation
+        conditions only; anything unwired never meets.
+        """
+        index = self._index(version)
+        node, links = self._criterion_links(version, node_id)
+        if not links:
+            return False, []
+        fields = node.fields
+        fact = Fact(
+            kind="finding",
+            name=str(fields.get("measure")),
+            value=value,
+            unit=fields.get("unit"),
+            context="review",
+        )
+        targets: list[Node] = []
+        seen: set[str] = set()
+        for tier, edge in links:
+            steps = index.neighbours(tier, [fact], "escalate_to")
+            met = any(
+                step.edge.edge_id == edge.edge_id and step.status == "followable" for step in steps
+            )
+            if met and edge.to_node_id not in seen:
+                seen.add(edge.to_node_id)
+                targets.append(index.node(edge.to_node_id))
+        return len(targets) > 0, targets
+
+    def _criterion_links(
+        self, version: PackVersionRef, node_id: str
+    ) -> tuple[Node, list[tuple[str, Edge]]]:
+        """The node plus (tier, escalate edge) pairs matching its criterion fields."""
+        index = self._index(version)
         node = index.node(node_id)
+        links: list[tuple[str, Edge]] = []
         if node.type != "response_criterion":
-            return []
+            return node, links
         fields = node.fields
         measure, threshold, comparator = (
             fields.get("measure"),
@@ -225,15 +277,13 @@ class KnowledgeService:
             or not comparator
             or threshold is None
         ):
-            return []
+            return node, links
         unit = fields.get("unit")
         tiers = [
             edge.from_node_id
             for edge in index.incoming(node_id)
             if edge.relation in ("responds_if", "monitor_with")
         ]
-        targets: list[Node] = []
-        seen: set[str] = set()
         for tier in tiers:
             for edge in index.outgoing(tier, "escalate_to"):
                 condition = edge.condition
@@ -245,10 +295,8 @@ class KnowledgeService:
                     or (condition.unit or None) != (unit or None)
                 ):
                     continue
-                if edge.to_node_id not in seen:
-                    seen.add(edge.to_node_id)
-                    targets.append(index.node(edge.to_node_id))
-        return targets
+                links.append((tier, edge))
+        return node, links
 
     def reference_range(
         self,

@@ -53,9 +53,9 @@ WHY_INDEX = len(SECTION_ORDER)
 
 WalkStatus = Literal["paused", "answered", "needs_data", "out_of_knowledge", "error"]
 # ``follow_up``: a turn after an ended walk that adds treatment history (no forms).
-WalkKind = Literal["walk", "follow_up"]
+WalkKind = Literal["walk", "follow_up", "review"]
 Outcome = Literal["answered", "needs_data", "out_of_knowledge", "error"]
-WalkMode = Literal["start", "continue", "rewalk", "explore", "stop_explore", "follow_up"]
+WalkMode = Literal["start", "continue", "rewalk", "explore", "stop_explore", "follow_up", "review"]
 FormKind = Literal["confirm-findings", "needs-data", "edit-treatment", "patient-details"]
 LaneStatus = Literal["open", "stopped"]
 EventType = Literal[
@@ -69,6 +69,7 @@ EventType = Literal[
     "error",
     "lane_closed",
     "history",
+    "reviewed",
 ]
 # C8: progress.step is a fixed label and never carries model text.
 ProgressStep = Literal[
@@ -305,6 +306,7 @@ class WalkRequest(AgModel):
     form_values: dict[str, Any] | None = None
     branch_node_id: str | None = None
     walk_id: str | None = None
+    review_value: str | None = None
 
 
 class FormField(AgModel):

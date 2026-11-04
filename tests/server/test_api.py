@@ -387,3 +387,85 @@ def test_traverse_route_records_a_choice_and_replays_it(client: TestClient) -> N
     assert bad.json()["error"]["code"] == "traverse_invalid"
     no_tab = client.post(f"/api/cases/{case_id}/traverse", json={"nodeId": "IBD-N52"})
     assert no_tab.status_code == 409
+
+
+def test_node_detail_carries_owner_authored_next_paths(client: TestClient) -> None:
+    toxic = client.get("/api/nodes/IBD@1.1/IBD-N90").json()
+    assert toxic["nextPaths"] == [{"nodeId": "IBD-N96", "label": "Emergency colectomy triggers"}]
+    assert client.get("/api/nodes/IBD@1.1/IBD-N93").json()["nextPaths"] == []
+
+
+def test_a_met_day3_review_opens_the_tier_3_walk(client: TestClient) -> None:
+    case_id = new_case(client)
+    first = _payloads(_demo_walk(client, case_id), "done")[0]
+    events = _walk(client, case_id, mode="review", branchNodeId="IBD-N81", reviewValue="60")
+    reviewed = _payloads(events, "reviewed")[0]
+    assert reviewed["met"] is True
+    assert reviewed["nodeId"] == "IBD-N81"
+    done = _payloads(events, "done")[0]
+    assert done["outcome"] == "answered" and done["counts"]["ungrounded"] == 0
+    assert done["walkId"] != first["walkId"]
+    view = client.get(f"/api/cases/{case_id}", headers=TAB_HEADERS).json()
+    assert view["walk"]["walkId"] == done["walkId"]
+    assert any("CRP 60 mg/L" in m.get("body", {}).get("text", "") for m in view["messages"])
+    statuses = {
+        n["nodeId"]: n["status"] for n in client.get(f"/api/cases/{case_id}/map").json()["nodes"]
+    }
+    assert statuses["IBD-N42"] == "entry"
+
+
+def test_an_unmet_day3_review_keeps_the_tier_standing(client: TestClient) -> None:
+    case_id = new_case(client)
+    first = _payloads(_demo_walk(client, case_id), "done")[0]
+    events = _walk(client, case_id, mode="review", branchNodeId="IBD-N81", reviewValue="20")
+    reviewed = _payloads(events, "reviewed")[0]
+    assert reviewed["met"] is False
+    assert _payloads(events, "done") == []
+    view = client.get(f"/api/cases/{case_id}", headers=TAB_HEADERS).json()
+    assert view["walk"]["walkId"] == first["walkId"]
+    assert any("CRP 20 mg/L" in m.get("body", {}).get("text", "") for m in view["messages"])
+
+
+def test_a_review_needs_an_answered_walk_a_criterion_and_a_number(
+    client: TestClient,
+) -> None:
+    fresh = new_case(client)
+    assert (
+        _payloads(
+            _walk(client, fresh, mode="review", branchNodeId="IBD-N81", reviewValue="60"),
+            "error",
+        )[0]["code"]
+        == "walk_not_resumable"
+    )
+    assert (
+        _payloads(_walk(client, fresh, mode="review", branchNodeId="IBD-N81"), "error")[0]["code"]
+        == "invalid_request"
+    )
+    assert (
+        _payloads(
+            _walk(
+                client,
+                fresh,
+                mode="review",
+                branchNodeId="IBD-N81",
+                reviewValue="still high",
+            ),
+            "error",
+        )[0]["code"]
+        == "invalid_request"
+    )
+    answered = new_case(client)
+    _demo_walk(client, answered)
+    assert (
+        _payloads(
+            _walk(
+                client,
+                answered,
+                mode="review",
+                branchNodeId="IBD-N90",
+                reviewValue="1",
+            ),
+            "error",
+        )[0]["code"]
+        == "invalid_request"
+    )

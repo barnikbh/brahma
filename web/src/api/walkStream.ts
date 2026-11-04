@@ -20,6 +20,7 @@ const KNOWN: ReadonlySet<WalkEventType> = new Set<WalkEventType>([
   "error",
   "lane_closed",
   "history",
+  "reviewed",
 ]);
 
 /** Parse one SSE block ("event: x\ndata: {...}") into a message, or null for a comment. */
@@ -78,7 +79,13 @@ export function toWalkEvent(message: SseMessage): WalkEvent | null {
 }
 
 export const CONNECTION_LOST = "The connection to the server dropped. Your entries are kept.";
-const TERMINAL: ReadonlySet<WalkEventType> = new Set(["done", "paused", "error", "lane_closed"]);
+const TERMINAL: ReadonlySet<WalkEventType> = new Set([
+  "done",
+  "paused",
+  "error",
+  "lane_closed",
+  "reviewed",
+]);
 
 /**
  * POST a walk request and pass each event to `onEvent` as it arrives. HTTP errors (401,

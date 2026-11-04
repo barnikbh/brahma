@@ -62,6 +62,36 @@ describe("walkReducer", () => {
     expect(state.map.version).toBe("IBD 1.1");
   });
 
+  it("shows a recorded review as a notice and follows the new walk", () => {
+    const answered = demoState();
+    const state = run(answered, [
+      {
+        type: "request",
+        request: {
+          mode: "review",
+          walkId: "wk-1",
+          branchNodeId: "IBD-N81",
+          reviewValue: "60",
+        },
+      },
+      ...events([
+        {
+          type: "reviewed",
+          payload: {
+            walkId: "wk-3",
+            nodeId: "IBD-N81",
+            met: true,
+            text: "Review recorded: CRP 60 mg/L meets Day 3 on IV steroids — UC Tier 3 is now the entry path.",
+          },
+        },
+      ]),
+    ]);
+    const tail = state.items.slice(answered.items.length);
+    expect(tail.map((i) => i.kind)).toEqual(["notice"]);
+    expect(tail[0]).toMatchObject({ text: expect.stringContaining("CRP 60 mg/L") });
+    expect(state.walkId).toBe("wk-3");
+  });
+
   it("rebuilds a follow-up's confirmation and its follow-up state from the case view", () => {
     const view = caseView({
       messages: [

@@ -60,6 +60,14 @@ function text(value: unknown): string {
   return String(value);
 }
 
+const COMPARATOR_WORD: Record<string, string> = {
+  gt: "above",
+  ge: "at or above",
+  lt: "below",
+  le: "at or below",
+  eq: "equal to",
+};
+
 export interface NodePanelProps {
   nodeId: string;
   version: string;
@@ -78,6 +86,8 @@ export interface NodePanelProps {
   onExplore?: () => void;
   onStopExplore?: () => void;
   onSuggest?: () => void;
+  onReview?: (nodeId: string, value: string) => void;
+  onSelectNode?: (nodeId: string) => void;
 }
 
 export function NodePanel(props: NodePanelProps) {
@@ -86,6 +96,7 @@ export function NodePanel(props: NodePanelProps) {
   const [error, setError] = useState<string | null>(null);
   const [comment, setComment] = useState("");
   const [commentError, setCommentError] = useState<string | null>(null);
+  const [reviewValue, setReviewValue] = useState("");
   const heading = useRef<HTMLHeadingElement | null>(null);
 
   const load = useCallback(async () => {
@@ -129,6 +140,12 @@ export function NodePanel(props: NodePanelProps) {
     } catch (e) {
       setCommentError(e instanceof ApiError ? e.message : "The comment could not be saved.");
     }
+  };
+
+  const recordReview = (event: FormEvent) => {
+    event.preventDefault();
+    if (!reviewValue.trim() || !detail || !caseId) return;
+    props.onReview?.(nodeId, reviewValue.trim());
   };
 
   const edit = props.edit ?? null;
@@ -207,6 +224,58 @@ export function NodePanel(props: NodePanelProps) {
                 </span>
               ))}
             </p>
+          ) : null}
+          {detail.nextPaths.length > 0 ? (
+            <section aria-label="Where it leads" data-testid="node-next-paths">
+              <h4 className="font-semibold">Where it leads</h4>
+              <ul className="mt-1 space-y-1">
+                {detail.nextPaths.map((target) => (
+                  <li key={target.nodeId}>
+                    <Button
+                      size="sm"
+                      variant="link"
+                      className="h-auto p-0 text-left text-sm"
+                      onClick={() => props.onSelectNode?.(target.nodeId)}
+                    >
+                      {target.label}
+                    </Button>{" "}
+                    <NodeChip nodeId={target.nodeId} />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+          {detail.node.type === "response_criterion" &&
+          detail.leadsTo.length > 0 &&
+          caseId &&
+          props.onReview ? (
+            <section aria-label="Record review result" data-testid="node-review">
+              <h4 className="font-semibold">Record day-3 result</h4>
+              {typeof fields.threshold === "number" ? (
+                <p className="text-xs text-ink-quiet">
+                  Meets when {text(fields.measure)} is{" "}
+                  {COMPARATOR_WORD[String(fields.comparator)] ?? String(fields.comparator)}{" "}
+                  {fields.threshold}
+                  {fields.unit ? ` ${fields.unit}` : ""}
+                </p>
+              ) : null}
+              <form className="mt-1 flex gap-2" onSubmit={recordReview}>
+                <Input
+                  aria-label="Day-3 result"
+                  value={reviewValue}
+                  inputMode="decimal"
+                  disabled={props.readOnly}
+                  onChange={(e) => setReviewValue(e.target.value)}
+                  placeholder="e.g. 60"
+                />
+                <Button type="submit" size="sm" disabled={!reviewValue.trim() || props.readOnly}>
+                  Record
+                </Button>
+              </form>
+              <p className="text-xs text-ink-quiet">
+                A met criterion opens the next tier as a new review walk.
+              </p>
+            </section>
           ) : null}
           <p className="text-xs text-ink-quiet" data-testid="node-updated">
             {detail.updated

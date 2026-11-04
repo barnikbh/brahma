@@ -196,3 +196,20 @@ def test_option_edges_are_dashed_until_their_drug_is_chosen(
     assert after["IBD-E30"] == "walked"
     assert after["IBD-E31"] == "not_taken"
     assert after["IBD-E37"] == "walked"
+
+
+def test_a_review_scoped_crp_moves_the_entry_tier_to_tier_3(
+    knowledge: KnowledgeService,
+) -> None:
+    review_crp = Fact(kind="finding", name="CRP", value=60, unit="mg/L", context="review")
+    trav = walk_graph(knowledge, IBD, [*DEMO_FINDINGS, *DEMO_TESTS, review_crp])
+    assert trav.entry_tier_ids == ["IBD-N42"]
+    assert trav.section("treatment")[0] == "IBD-N42"
+
+
+def test_a_presenting_crp_never_moves_the_entry_tier(
+    knowledge: KnowledgeService,
+) -> None:
+    presenting_crp = Fact(kind="finding", name="CRP", value=60, unit="mg/L")
+    trav = walk_graph(knowledge, IBD, [*DEMO_FINDINGS, *DEMO_TESTS, presenting_crp])
+    assert trav.entry_tier_ids == ["IBD-N41"]

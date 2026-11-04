@@ -17,6 +17,9 @@
 6. Offered drugs render as grey ``option`` nodes and tier-sourced monitoring, watch-outs
    and escalation tiers as grey ``planned`` nodes; the doctor's recorded choice (per
    tier) marks one drug ``chosen`` and lights its tier's downstream ``used``.
+7. Review-scoped facts (day-3 results, never presenting findings) move the entry tier
+   along followable non-therapy ``escalate_to`` edges. Therapy-conditioned and
+   unconditional escalations stay for history and the doctor to decide.
 """
 
 from __future__ import annotations
@@ -263,6 +266,7 @@ class GraphWalker:
             ]
             if blocked and not tiers:
                 self._need(self._tests_for(blocked))
+        tiers = self._review_escalated(tiers)
         self.result.entry_tier_ids = list(tiers)
         treatment = self._section("treatment")
         for tier in tiers:
@@ -340,6 +344,33 @@ class GraphWalker:
                         seen.add(step.node.node_id)
                         frontier.append(step.node.node_id)
         return found
+
+    def _review_escalated(self, tiers: list[str]) -> list[str]:
+        """Entry tiers after review evidence: follow followable non-therapy escalations.
+
+        Only review-scoped facts count, so a presenting value never skips a tier.
+        """
+        review = [f for f in self._facts if f.context == "review"]
+        if not review:
+            return tiers
+        entry: list[str] = []
+        for tier in tiers:
+            node, seen = tier, {tier}
+            while True:
+                nxt = [
+                    s.node.node_id
+                    for s in self._knowledge.neighbours(self._version, node, review, "escalate_to")
+                    if s.status == "followable"
+                    and s.edge.condition is not None
+                    and s.edge.condition.therapy is None
+                    and s.node.node_id not in seen
+                ]
+                if not nxt:
+                    break
+                node = nxt[0]
+                seen.add(node)
+            _add(entry, [node])
+        return entry
 
     def _history_plan(self, tier: str) -> None:
         """The tier, its drugs (less those that failed), its monitoring and watch-outs."""
