@@ -18,7 +18,7 @@ test("demo walk: sign in, walk the case, cited answer, audit record", async ({ p
   await accept.click();
 
   await expect(page).toHaveURL(/\/patients$/);
-  await expect(page.getByTestId("pack-chip").first()).toContainText("IBD v1.1");
+  await expect(page.getByTestId("pack-chip").first()).toContainText("IBD v1.2");
   await page.getByRole("button", { name: "Create new patient" }).first().click();
   await page.getByLabel("Synthetic name").fill("Demo Patient A");
   await page.getByLabel("Age (years)").fill("34");
@@ -66,12 +66,12 @@ test("demo walk: sign in, walk the case, cited answer, audit record", async ({ p
   // Traverse: the drug options are grey; choosing one lights its tier's path.
   await page.keyboard.press("Escape");
   const option = page.locator('[data-map-node="IBD-N51"]');
-  await expect(option).toContainText("○ Option");
+  await expect(option).toContainText("Option");
   await option.click();
   await page.getByRole("button", { name: "Choose this option" }).click();
-  await expect(option).toContainText("✓ Chosen");
-  await expect(page.locator('[data-map-node="IBD-N52"]')).toContainText("○ Option");
-  await expect(page.locator('[data-map-node="IBD-N70"]')).toContainText("→ Suggested");
+  await expect(option).toContainText("Chosen");
+  await expect(page.locator('[data-map-node="IBD-N52"]')).toContainText("Option");
+  await expect(page.locator('[data-map-node="IBD-N70"]')).toContainText("Due");
   await expect(page.getByText(/Hydrocortisone 100 mg IV four times daily chosen/)).toBeVisible();
   const card = page.getByTestId("path-card");
   await expect(card).toContainText("Now on Hydrocortisone 100 mg IV four times daily");
@@ -90,7 +90,23 @@ test("demo walk: sign in, walk the case, cited answer, audit record", async ({ p
   await expect(page.getByTestId("walk-summary").last()).toContainText("0 ungrounded");
   await expect(page.locator("[data-line-id]", { hasText: /Ustekinumab/ })).toBeVisible();
   await expect(page.locator('[data-map-node="IBD-N53"]')).toContainText("Tried · failed");
-  await expect(page.locator('[data-map-node="IBD-N46"]')).toContainText("Start here");
+  await expect(page.locator('[data-map-node="IBD-N46"]')).toContainText("Now");
+
+  // Care loop: choosing a biologic lights its infection screens as To do first, and a
+  // recorded result turns one Done. Clicking a block only opens the panel.
+  await page.keyboard.press("Escape");
+  await page.locator('[data-map-node="IBD-N57"]').click();
+  await expect(page.locator('[data-map-node="IBD-N110"]')).toHaveCount(0);
+  await page.getByRole("button", { name: "Choose this option" }).click();
+  await expect(page.locator('[data-map-node="IBD-N110"]')).toContainText("To do first");
+  await expect(page.locator('[data-map-node="IBD-N111"]')).toContainText("To do first");
+  await page.keyboard.press("Escape");
+  await page.locator('[data-map-node="IBD-N110"]').click();
+  await page.getByLabel("Result", { exact: true }).selectOption("negative");
+  await page.getByRole("button", { name: "Record result" }).click();
+  await expect(page.locator('[data-map-node="IBD-N110"]')).toContainText("Done");
+  await expect(page.locator('[data-map-node="IBD-N111"]')).toContainText("To do first");
+  await expect(page.getByTestId("timeline")).toContainText("negative");
 
   // The session is in History.
   await page
@@ -155,7 +171,7 @@ test("day-3 review: a met criterion opens Tier 3, an unmet one keeps the tier", 
   await expect(page.getByText(/Review recorded: CRP 20 mg\/L/)).toBeVisible({
     timeout: 30_000,
   });
-  await expect(page.locator('[data-map-node="IBD-N41"]')).toContainText("Start here");
+  await expect(page.locator('[data-map-node="IBD-N41"]')).toContainText("Now");
   await expect(page.getByTestId("walk-summary")).toHaveCount(1);
 
   // A watch-out with an owner-authored branch shows where it leads.
@@ -178,7 +194,7 @@ test("day-3 review: a met criterion opens Tier 3, an unmet one keeps the tier", 
   });
   await expect(page.getByTestId("walk-summary")).toHaveCount(2, { timeout: 30_000 });
   await expect(page.getByTestId("walk-summary").last()).toContainText("0 ungrounded");
-  await expect(page.locator('[data-map-node="IBD-N42"]')).toContainText("Start here", {
+  await expect(page.locator('[data-map-node="IBD-N42"]')).toContainText("Now", {
     timeout: 30_000,
   });
 });

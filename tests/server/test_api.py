@@ -31,9 +31,9 @@ PROTECTED = [
     ("GET", "/api/cases/BR-000000/map"),
     ("POST", "/api/cases/BR-000000/treatment-edits"),
     ("POST", "/api/cases/BR-000000/traverse"),
-    ("GET", "/api/nodes/IBD@1.1/IBD-N1"),
-    ("GET", "/api/nodes/IBD@1.1/IBD-N1/comments"),
-    ("POST", "/api/nodes/IBD@1.1/IBD-N1/comments"),
+    ("GET", "/api/nodes/IBD@1.2/IBD-N1"),
+    ("GET", "/api/nodes/IBD@1.2/IBD-N1/comments"),
+    ("POST", "/api/nodes/IBD@1.2/IBD-N1/comments"),
     ("GET", "/api/sessions"),
     ("GET", "/api/sessions/s-1"),
     ("GET", "/api/sessions/s-1/export"),
@@ -105,7 +105,7 @@ def test_sign_in_and_the_disclaimer(anon: TestClient) -> None:
     assert "HttpOnly" in cookie and "SameSite=Lax" in cookie
     view = signed.json()
     assert view["needsDisclaimer"] is True
-    assert view["packVersions"] == "IBD 1.1; URO 0.1"
+    assert view["packVersions"] == "IBD 1.2; URO 0.1"
     assert view["disclaimer"]["text"].startswith(DISCLAIMER)
     accepted = anon.post("/api/disclaimer").json()
     assert accepted["disclaimer"] == DISCLAIMER
@@ -161,14 +161,14 @@ def test_sse_demo_walk_streams_progress_lines_and_done(client: TestClient) -> No
     done = _payloads(events, "done")[0]
     assert done["outcome"] == "answered" and done["counts"]["ungrounded"] == 0
     assert (done["packVersion"], done["provider"], done["model"], done["disclaimer"]) == (
-        "IBD 1.1",
+        "IBD 1.2",
         "recorded",
         "recorded",
         DISCLAIMER,
     )
     view = client.get(f"/api/cases/{case_id}", headers=TAB_HEADERS).json()
     assert view["walk"]["status"] == "answered" and view["lock"] == "held"
-    assert view["pinnedVersion"] == "IBD 1.1" and view["newerVersion"] is None
+    assert view["pinnedVersion"] == "IBD 1.2" and view["newerVersion"] is None
     assert any(m["kind"] == "pathway" for m in view["messages"])
     mapped = client.get(f"/api/cases/{case_id}/map").json()
     assert {"IBD-N34", "IBD-N41"} <= {n["nodeId"] for n in mapped["nodes"]}
@@ -181,39 +181,39 @@ def test_sse_demo_walk_streams_progress_lines_and_done(client: TestClient) -> No
 def test_case_view_shows_the_newer_version_banner(client: TestClient, services: Services) -> None:
     case_id = new_case(client)
     _demo_walk(client, case_id)
-    base = PackVersionRef(pack="IBD", number="1.1")
+    base = PackVersionRef(pack="IBD", number="1.2")
     node = services.knowledge.get_node(base, "IBD-N60").model_copy(update={"pack_version": None})
     changes = ChangeSet(
         update_nodes=[node.model_copy(update={"label": "Diet (reviewed)"})],
         change_summary="Label review",
     )
     services.knowledge.create_version("IBD", base, changes, DOCTOR)
-    assert client.get(f"/api/cases/{case_id}").json()["newerVersion"] == "IBD 1.2"
+    assert client.get(f"/api/cases/{case_id}").json()["newerVersion"] == "IBD 1.3"
 
 
 def test_node_detail_with_dose_safety_and_comments(client: TestClient) -> None:
     case_id = new_case(client)
-    detail = client.get("/api/nodes/IBD@1.1/IBD-N53", params={"caseId": case_id}).json()
+    detail = client.get("/api/nodes/IBD@1.2/IBD-N53", params={"caseId": case_id}).json()
     assert detail["node"]["nodeId"] == "IBD-N53"
     assert detail["dose"]["value"] == 290.0 and detail["dose"]["unit"] == "mg"
     assert {s["check"] for s in detail["safety"]} >= {"allergy", "pregnancy"}
-    assert (detail["packVersion"], detail["disclaimer"]) == ("IBD 1.1", DISCLAIMER)
+    assert (detail["packVersion"], detail["disclaimer"]) == ("IBD 1.2", DISCLAIMER)
     assert [s["sourceId"] for s in detail["sources"]] == ["IBD-S1", "IBD-S5", "IBD-S6"]
     assert client.get("/api/nodes/IBD@9.9/IBD-N53").status_code == 404
-    assert client.get("/api/nodes/IBD@1.1/IBD-N999").status_code == 404
+    assert client.get("/api/nodes/IBD@1.2/IBD-N999").status_code == 404
 
 
 def test_node_detail_carries_criterion_targets(client: TestClient) -> None:
-    day3 = client.get("/api/nodes/IBD@1.1/IBD-N80").json()
+    day3 = client.get("/api/nodes/IBD@1.2/IBD-N80").json()
     assert day3["leadsTo"] == [
         {"nodeId": "IBD-N42", "label": "UC Tier 3: rescue or advanced therapy"}
     ]
-    watch = client.get("/api/nodes/IBD@1.1/IBD-N90").json()
+    watch = client.get("/api/nodes/IBD@1.2/IBD-N90").json()
     assert watch["leadsTo"] == []
     assert client.get("/api/nodes/nonsense/IBD-N1").status_code == 422
-    added = client.post("/api/nodes/IBD-1.1/IBD-N53/comments", json={"text": "Check TB first"})
+    added = client.post("/api/nodes/IBD-1.2/IBD-N53/comments", json={"text": "Check TB first"})
     assert added.status_code == 201 and added.json()["authorProfileId"] == DOCTOR
-    listed = client.get("/api/nodes/IBD@1.1/IBD-N53/comments").json()["comments"]
+    listed = client.get("/api/nodes/IBD@1.2/IBD-N53/comments").json()["comments"]
     assert [c["text"] for c in listed] == ["Check TB first"]
 
 
@@ -245,16 +245,16 @@ def test_start_up_loads_a_newer_pack_file_as_a_new_version(tmp_path: Path) -> No
     content = tmp_path / "content"
     content.mkdir()
     source = (PROJECT_ROOT / "content" / "ibd.yaml").read_text(encoding="utf-8")
-    older = source.replace('version: "1.1"', 'version: "1.0"', 1)
+    older = source.replace('version: "1.2"', 'version: "1.0"', 1)
     (content / "ibd.yaml").write_text(older, encoding="utf-8")
     knowledge = KnowledgeService(kg_connect(tmp_path / "k.db"))
     try:
         assert load_initial_packs(knowledge, content) == ["IBD 1.0"]
         assert load_initial_packs(knowledge, content) == []  # not newer: skipped
         (content / "ibd.yaml").write_text(source, encoding="utf-8")
-        assert load_initial_packs(knowledge, content) == ["IBD 1.1"]
+        assert load_initial_packs(knowledge, content) == ["IBD 1.2"]
         versions = {v.number: v.status for v in knowledge.list_versions("IBD")}
-        assert versions == {"1.1": "live", "1.0": "superseded"}
+        assert versions == {"1.2": "live", "1.0": "superseded"}
         (content / "broken.yaml").write_text("pack: [", encoding="utf-8")
         assert load_initial_packs(knowledge, content) == []  # unreadable: kept running
     finally:
@@ -303,13 +303,13 @@ def test_node_detail_returns_the_latest_edit_for_its_case(client: TestClient) ->
         headers=TAB_HEADERS,
     )
     assert edit.status_code == 201, edit.text
-    edited = client.get("/api/nodes/IBD@1.1/IBD-N52", params={"caseId": case_id}).json()["edited"]
+    edited = client.get("/api/nodes/IBD@1.2/IBD-N52", params={"caseId": case_id}).json()["edited"]
     assert edited["editId"] == edit.json()["edit"]["editId"]
     assert edited["newValues"]["doseValue"] == 40
     assert edited["editorProfileId"] == DOCTOR
-    other = client.get("/api/nodes/IBD@1.1/IBD-N51", params={"caseId": case_id}).json()
+    other = client.get("/api/nodes/IBD@1.2/IBD-N51", params={"caseId": case_id}).json()
     assert other["edited"] is None
-    assert client.get("/api/nodes/IBD@1.1/IBD-N52").json()["edited"] is None
+    assert client.get("/api/nodes/IBD@1.2/IBD-N52").json()["edited"] is None
 
 
 def test_session_history_detail_and_export(client: TestClient) -> None:
@@ -322,7 +322,7 @@ def test_session_history_detail_and_export(client: TestClient) -> None:
     assert detail["map"]["nodes"] and detail["disclaimer"] == DISCLAIMER
     exported = client.get(f"/api/sessions/{done['sessionId']}/export")
     assert exported.headers["content-type"].startswith("application/json")
-    assert exported.json()["record"]["packVersion"] == "IBD 1.1"
+    assert exported.json()["record"]["packVersion"] == "IBD 1.2"
     pdf = client.get(f"/api/sessions/{done['sessionId']}/export", params={"format": "pdf"})
     assert pdf.headers["content-type"] == "application/pdf" and pdf.content.startswith(b"%PDF")
     assert client.get("/api/sessions/s-unknown").status_code == 404
@@ -354,7 +354,7 @@ def test_knowledge_feature_is_mounted_and_ignores_a_client_profile_header(
 def test_health_reports_packs_provider_and_database(anon: TestClient) -> None:
     health = anon.get("/api/health").json()
     assert health["status"] == "ok" and health["database"] == "ok"
-    assert health["packs"] == [{"pack": "IBD", "number": "1.1"}, {"pack": "URO", "number": "0.1"}]
+    assert health["packs"] == [{"pack": "IBD", "number": "1.2"}, {"pack": "URO", "number": "0.1"}]
     assert health["provider"] == {"provider": "recorded", "model": "recorded"}
 
 
@@ -371,7 +371,7 @@ def test_traverse_route_records_a_choice_and_replays_it(client: TestClient) -> N
     statuses = {n["nodeId"]: n["status"] for n in body["map"]["nodes"]}
     assert statuses["IBD-N51"] == "chosen"
     assert statuses["IBD-N52"] == "option"
-    assert statuses["IBD-N70"] == "used"
+    assert statuses["IBD-N70"] == "due"
     assert statuses["IBD-N42"] == "planned"
     assert body["path"]["drug"]["nodeId"] == "IBD-N51"
     assert body["path"]["tier"]["nodeId"] == "IBD-N41"
@@ -390,9 +390,9 @@ def test_traverse_route_records_a_choice_and_replays_it(client: TestClient) -> N
 
 
 def test_node_detail_carries_owner_authored_next_paths(client: TestClient) -> None:
-    toxic = client.get("/api/nodes/IBD@1.1/IBD-N90").json()
+    toxic = client.get("/api/nodes/IBD@1.2/IBD-N90").json()
     assert toxic["nextPaths"] == [{"nodeId": "IBD-N96", "label": "Emergency colectomy triggers"}]
-    assert client.get("/api/nodes/IBD@1.1/IBD-N93").json()["nextPaths"] == []
+    assert client.get("/api/nodes/IBD@1.2/IBD-N93").json()["nextPaths"] == []
 
 
 def test_a_met_day3_review_opens_the_tier_3_walk(client: TestClient) -> None:
@@ -506,4 +506,41 @@ def test_a_review_needs_an_answered_walk_a_criterion_and_a_number(
             "error",
         )[0]["code"]
         == "invalid_request"
+    )
+
+
+def test_event_routes_light_the_loop_and_write_a_guarded_card(client: TestClient) -> None:
+    case_id = new_case(client)
+    _demo_walk(client, case_id)
+    client.post(f"/api/cases/{case_id}/traverse", json={"nodeId": "IBD-N51"}, headers=TAB_HEADERS)
+    response = client.post(
+        f"/api/cases/{case_id}/events",
+        json={"kind": "present", "nodeId": "IBD-N90"},
+        headers=TAB_HEADERS,
+    )
+    assert response.status_code == 201, response.text
+    body = response.json()
+    statuses = {n["nodeId"]: n["status"] for n in body["map"]["nodes"]}
+    assert statuses["IBD-N90"] == "present" and statuses["IBD-N96"] == "now"
+    assert {item["nodeId"] for item in body["lit"]} == {"IBD-N90", "IBD-N96"}
+    assert body["map"]["timeline"][0]["nodeId"] == "IBD-N90"
+    reloaded = client.get(f"/api/cases/{case_id}/map").json()
+    assert {n["nodeId"]: n["status"] for n in reloaded["nodes"]}["IBD-N96"] == "now"
+    card = client.post(
+        f"/api/cases/{case_id}/events/card",
+        json={"nodeIds": ["IBD-N90"]},
+        headers=TAB_HEADERS,
+    )
+    assert card.status_code == 200 and card.json()["rejected"] == 0
+    bad = client.post(
+        f"/api/cases/{case_id}/events",
+        json={"kind": "present", "nodeId": "IBD-N51"},
+        headers=TAB_HEADERS,
+    )
+    assert bad.status_code == 422 and bad.json()["error"]["code"] == "traverse_invalid"
+    assert (
+        client.post(
+            f"/api/cases/{case_id}/events", json={"kind": "present", "nodeId": "IBD-N90"}
+        ).status_code
+        == 409
     )

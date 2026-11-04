@@ -1,4 +1,8 @@
-# Brahma IBD knowledge pack v1.1. Decision support, not diagnosis.
+# Brahma IBD knowledge pack v1.2. Decision support, not diagnosis.
+# v1.2 turns the pathway into a care loop: pre-biologic infection screens are tests that
+# a treatment requires, and two watch-outs lead on when the patient has the sign.
+# Drug-specific monitoring and watch-outs hang off the drug (infliximab trough level,
+# tofacitinib clot risk); risks of acute severe UC hang off that state, not the tier.
 # v1.1 adds the ulcerative colitis path after anti-TNF failure (treatment history).
 # Paraphrased from the cited guidelines (no verbatim copying) and drafted with Claude for
 # clinical review. Contains no patient data. Every node cites at least one source below.
@@ -8,8 +12,8 @@ pack:
   code: IBD
   name: Inflammatory bowel disease
   specialty: Gastroenterology
-version: "1.1"
-changeSummary: Ulcerative colitis after anti-TNF failure - drug levels, switching class (ustekinumab, vedolizumab, tofacitinib), steroids as a bridge and steroid-refractory escalation
+version: "1.2"
+changeSummary: Care loop - tuberculosis and hepatitis B screens as tests required before a biologic or JAK inhibitor; toxic megacolon leads to colectomy review; new bloody diarrhoea repeats the stool tests; drug-specific monitoring and watch-outs moved from tiers to their drug, acute severe UC risks to that state. Earlier in v1.1, ulcerative colitis after anti-TNF failure - drug levels, switching class (ustekinumab, vedolizumab, tofacitinib), steroids as a bridge and steroid-refractory escalation
 
 sources:
   - sourceId: IBD-S1
@@ -1041,6 +1045,32 @@ nodes:
     sourceIds: [IBD-S20, IBD-S1]
     column: monitor
 
+  # ------------------------------------------------------------ care loop (v1.2)
+  - nodeId: IBD-N110
+    type: test
+    label: Latent tuberculosis screen before a biologic
+    content: >-
+      Before the first dose of an anti-TNF, other biologic or JAK inhibitor, test for
+      latent tuberculosis. Repeat it for each new course of treatment.
+    fields:
+      name: latent tuberculosis screen
+      synonyms: [tb screen, tb test, igra, tuberculosis screening]
+      resultOptions: [negative, positive]
+    sourceIds: [IBD-S15]
+    column: tests
+  - nodeId: IBD-N111
+    type: test
+    label: Hepatitis B screen before a biologic
+    content: >-
+      Before the first dose of an anti-TNF, other biologic or JAK inhibitor, test for
+      hepatitis B infection. A positive result needs specialist advice before starting.
+    fields:
+      name: hepatitis b screen
+      synonyms: [hbv screen, hepatitis b serology, hepatitis b test]
+      resultOptions: [negative, positive]
+    sourceIds: [IBD-S15]
+    column: tests
+
 edges:
   # findings to suspected IBD
   - {edgeId: IBD-E1, fromNodeId: IBD-N1, toNodeId: IBD-N10, relation: suggests}
@@ -1163,13 +1193,12 @@ edges:
   - {edgeId: IBD-E39, fromNodeId: IBD-N42, toNodeId: IBD-N83, relation: responds_if}
   - {edgeId: IBD-E40, fromNodeId: IBD-N41, toNodeId: IBD-N70, relation: monitor_with}
   - {edgeId: IBD-E41, fromNodeId: IBD-N41, toNodeId: IBD-N71, relation: monitor_with}
-  - {edgeId: IBD-E42, fromNodeId: IBD-N42, toNodeId: IBD-N72, relation: monitor_with}
+  - {edgeId: IBD-E42, fromNodeId: IBD-N53, toNodeId: IBD-N72, relation: monitor_with}
   - {edgeId: IBD-E43, fromNodeId: IBD-N11, toNodeId: IBD-N60, relation: diet}
-  - {edgeId: IBD-E44, fromNodeId: IBD-N41, toNodeId: IBD-N90, relation: watch_for}
-  - {edgeId: IBD-E45, fromNodeId: IBD-N41, toNodeId: IBD-N91, relation: watch_for}
-  - {edgeId: IBD-E46, fromNodeId: IBD-N42, toNodeId: IBD-N92, relation: watch_for}
+  - {edgeId: IBD-E44, fromNodeId: IBD-N34, toNodeId: IBD-N90, relation: watch_for}
+  - {edgeId: IBD-E45, fromNodeId: IBD-N34, toNodeId: IBD-N91, relation: watch_for}
   - {edgeId: IBD-E47, fromNodeId: IBD-N42, toNodeId: IBD-N95, relation: surgery_if}
-  - {edgeId: IBD-E48, fromNodeId: IBD-N41, toNodeId: IBD-N96, relation: surgery_if}
+  - {edgeId: IBD-E48, fromNodeId: IBD-N34, toNodeId: IBD-N96, relation: surgery_if}
   - {edgeId: IBD-E49, fromNodeId: IBD-N10, toNodeId: IBD-N94, relation: watch_for}
   # Crohn's disease: location, behaviour, activity
   - {edgeId: IBD-E50, fromNodeId: IBD-N12, toNodeId: IBD-N24, relation: confirmed_by}
@@ -1249,9 +1278,6 @@ edges:
   - {edgeId: IBD-E71, fromNodeId: IBD-N43, toNodeId: IBD-N84, relation: responds_if}
   - {edgeId: IBD-E72, fromNodeId: IBD-N44, toNodeId: IBD-N85, relation: responds_if}
   - {edgeId: IBD-E73, fromNodeId: IBD-N45, toNodeId: IBD-N86, relation: responds_if}
-  - {edgeId: IBD-E74, fromNodeId: IBD-N44, toNodeId: IBD-N72, relation: monitor_with}
-  - {edgeId: IBD-E75, fromNodeId: IBD-N44, toNodeId: IBD-N92, relation: watch_for}
-  - {edgeId: IBD-E76, fromNodeId: IBD-N45, toNodeId: IBD-N92, relation: watch_for}
   - {edgeId: IBD-E77, fromNodeId: IBD-N39, toNodeId: IBD-N93, relation: watch_for}
   - {edgeId: IBD-E78, fromNodeId: IBD-N38, toNodeId: IBD-N97, relation: surgery_if}
   - {edgeId: IBD-E79, fromNodeId: IBD-N35, toNodeId: IBD-N98, relation: surgery_if}
@@ -1279,8 +1305,7 @@ edges:
   - {edgeId: IBD-E87, fromNodeId: IBD-N46, toNodeId: IBD-N58, relation: offers_drug}
   - {edgeId: IBD-E88, fromNodeId: IBD-N46, toNodeId: IBD-N72, relation: monitor_with}
   - {edgeId: IBD-E89, fromNodeId: IBD-N46, toNodeId: IBD-N83, relation: responds_if}
-  - {edgeId: IBD-E90, fromNodeId: IBD-N46, toNodeId: IBD-N92, relation: watch_for}
-  - {edgeId: IBD-E91, fromNodeId: IBD-N46, toNodeId: IBD-N103, relation: watch_for}
+  - {edgeId: IBD-E91, fromNodeId: IBD-N58, toNodeId: IBD-N103, relation: watch_for}
   - edgeId: IBD-E92
     fromNodeId: IBD-N46
     toNodeId: IBD-N102
@@ -1291,3 +1316,13 @@ edges:
     toNodeId: IBD-N99
     relation: surgery_if
     condition: {therapy: corticosteroid, comparator: eq, value: failed}
+  - {edgeId: IBD-E94, fromNodeId: IBD-N53, toNodeId: IBD-N110, relation: requires, strength: must}
+  - {edgeId: IBD-E95, fromNodeId: IBD-N53, toNodeId: IBD-N111, relation: requires, strength: must}
+  - {edgeId: IBD-E96, fromNodeId: IBD-N54, toNodeId: IBD-N110, relation: requires, strength: must}
+  - {edgeId: IBD-E97, fromNodeId: IBD-N54, toNodeId: IBD-N111, relation: requires, strength: must}
+  - {edgeId: IBD-E98, fromNodeId: IBD-N57, toNodeId: IBD-N110, relation: requires, strength: must}
+  - {edgeId: IBD-E99, fromNodeId: IBD-N57, toNodeId: IBD-N111, relation: requires, strength: must}
+  - {edgeId: IBD-E100, fromNodeId: IBD-N58, toNodeId: IBD-N110, relation: requires, strength: must}
+  - {edgeId: IBD-E101, fromNodeId: IBD-N58, toNodeId: IBD-N111, relation: requires, strength: must}
+  - {edgeId: IBD-E102, fromNodeId: IBD-N90, toNodeId: IBD-N96, relation: if_present}
+  - {edgeId: IBD-E103, fromNodeId: IBD-N94, toNodeId: IBD-N20, relation: if_present}

@@ -54,7 +54,7 @@ def ibd(service: KnowledgeService) -> PackVersionRef:
 def test_both_packs_validate(capsys: pytest.CaptureFixture[str]) -> None:
     assert validate_main([str(IBD), str(URO)]) == 0
     out = capsys.readouterr().out
-    assert "OK" in out and "pack IBD v1.1" in out and "pack URO v0.1" in out
+    assert "OK" in out and "pack IBD v1.2" in out and "pack URO v0.1" in out
     assert validate_main([str(IBD), str(IBD)]) == 1
     assert validate_main([str(FIXTURES / "email.yaml")]) == 1
     assert validate_main([]) == 2

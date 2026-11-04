@@ -22,6 +22,7 @@ from brahma.knowledge.models import (
     EdgeCondition,
     Node,
     Source,
+    node_kind,
 )
 from brahma.knowledge.units import convert, to_decimal
 
@@ -169,10 +170,27 @@ class PackValidator:
                     raise PackLoadError(edge.edge_id, f"edge end {end} is not in this version")
             if edge.from_node_id == edge.to_node_id:
                 raise PackLoadError(edge.edge_id, "self-edge")
+            self._check_care_edge(edge, by_id)
             if edge.condition is not None and edge.condition.therapy is not None:
                 self._check_therapy(edge.edge_id, edge.condition, therapies)
             elif edge.condition is not None:
                 self._check_condition(edge.edge_id, edge.condition, names)
+
+    @staticmethod
+    def _check_care_edge(edge: Edge, by_id: dict[str, Node]) -> None:
+        """Care-loop edges: ``requires`` joins an action to a test and says must or should;
+        ``if_present`` leaves an observation; the extra edge fields belong to ``requires``."""
+        start, end = by_id[edge.from_node_id], by_id[edge.to_node_id]
+        if edge.relation == "requires":
+            if node_kind(start.type) != "action" or end.type != "test":
+                raise PackLoadError(edge.edge_id, "requires must join an action to a test")
+            if edge.strength is None:
+                raise PackLoadError(edge.edge_id, "requires must say must or should")
+        else:
+            if edge.strength is not None or edge.valid_for_days is not None:
+                raise PackLoadError(edge.edge_id, "only requires edges take strength or validity")
+            if edge.relation == "if_present" and node_kind(start.type) != "observation":
+                raise PackLoadError(edge.edge_id, "if_present must leave an observation")
 
     @staticmethod
     def _check_therapy(edge_id: str, condition: EdgeCondition, therapies: set[str]) -> None:

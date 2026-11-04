@@ -21,7 +21,7 @@ from tests.agent.conftest import (
     walk_through,
 )
 
-IBD = PackVersionRef(pack="IBD", number="1.1")
+IBD = PackVersionRef(pack="IBD", number="1.2")
 FOLLOW_TEXT = "Remicade failed. steroids work. Suggest alternate treatment plan"
 REFRACTORY_TEXT = "Infliximab stopped working and steroids did not work"
 

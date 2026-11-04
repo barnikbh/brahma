@@ -15,7 +15,7 @@ from brahma.knowledge import Claim, KnowledgeService, PackVersionRef
 from brahma.knowledge.models import ChangeSet, Node
 from tests.agent.conftest import DOCTOR
 
-IBD = PackVersionRef(pack="IBD", number="1.1")
+IBD = PackVersionRef(pack="IBD", number="1.2")
 
 
 @pytest.fixture
@@ -215,7 +215,7 @@ def test_scanner_finds_numbers_and_longest_names(knowledge: KnowledgeService) ->
 
 
 def _band_version(knowledge: KnowledgeService) -> PackVersionRef:
-    """IBD 1.2 with a weight-band drug node citing IBD-S5."""
+    """IBD 1.3 with a weight-band drug node citing IBD-S5."""
     base = knowledge.get_node(IBD, "IBD-N54").model_dump(by_alias=True, exclude={"pack_version"})
     bands = [
         {"weightMaxKg": 55, "doseValue": 260, "doseUnit": "mg"},
@@ -224,7 +224,7 @@ def _band_version(knowledge: KnowledgeService) -> PackVersionRef:
     ]
     fields = {**base["fields"], "doseBasis": "weight_band", "doseValue": 260, "doseBands": bands}
     node = Node.model_validate(
-        {**base, "nodeId": "IBD-N104", "fields": fields, "sourceIds": ["IBD-S5"]}
+        {**base, "nodeId": "IBD-N112", "fields": fields, "sourceIds": ["IBD-S5"]}
     )
     change = ChangeSet(add_nodes=[node], change_summary="Add a weight-band node.")
     return knowledge.create_version("IBD", IBD, change, "seed")
@@ -235,9 +235,9 @@ def test_a_weight_band_dose_must_be_this_patients_band(
 ) -> None:
     version = _band_version(knowledge)
     case = cases.create_case(demo_patient, DOCTOR)  # 58 kg, so the middle band
-    good = guard.check_line("Ustekinumab 390 mg.", ["IBD-N104"], version, case.case_id)
+    good = guard.check_line("Ustekinumab 390 mg.", ["IBD-N112"], version, case.case_id)
     assert good.passed, good.failures
-    wrong = guard.check_line("Ustekinumab 260 mg.", ["IBD-N104"], version, case.case_id)
+    wrong = guard.check_line("Ustekinumab 260 mg.", ["IBD-N112"], version, case.case_id)
     assert not wrong.passed and "value_differs" in _reasons(wrong)
     by_source = guard.check_line_by_source("Ustekinumab 520 mg.", ["IBD-S5"], version, case.case_id)
     assert not by_source.passed
@@ -250,8 +250,8 @@ def test_any_stated_band_passes_until_a_weight_is_known(
     case = cases.create_case(
         NewPatient(synthetic_name="No Weight (synthetic)", age=40, sex="male"), DOCTOR
     )
-    assert guard.check_line("Ustekinumab 520 mg.", ["IBD-N104"], version, case.case_id).passed
-    assert not guard.check_line("Ustekinumab 615 mg.", ["IBD-N104"], version, case.case_id).passed
+    assert guard.check_line("Ustekinumab 520 mg.", ["IBD-N112"], version, case.case_id).passed
+    assert not guard.check_line("Ustekinumab 615 mg.", ["IBD-N112"], version, case.case_id).passed
 
 
 def test_the_writer_sees_only_this_patients_band_once_the_weight_is_known(
@@ -260,7 +260,7 @@ def test_the_writer_sees_only_this_patients_band_once_the_weight_is_known(
     cases: CaseService,
     demo_patient: NewPatient,
 ) -> None:
-    node = knowledge.get_node(_band_version(knowledge), "IBD-N104")
+    node = knowledge.get_node(_band_version(knowledge), "IBD-N112")
     engine = make_engine()
     case = cases.create_case(demo_patient, DOCTOR)  # 58 kg
     fields = engine._one_band(case.case_id, node_payload(node))["fields"]

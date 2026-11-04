@@ -12,7 +12,13 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Header, Query, Response
 from fastapi import Body as BodyParam
 
-from brahma.agent.models import DISCLAIMER, MAX_TEXT_LENGTH, MapData, version_label
+from brahma.agent.models import (
+    DISCLAIMER,
+    MAX_TEXT_LENGTH,
+    CareEventKind,
+    MapData,
+    version_label,
+)
 from brahma.cases.models import MessageIn, NewPatient, PatientChange
 from brahma.knowledge.models import PackVersionRef
 from brahma.server.deps import TAB_HEADER, ApiError, Body, LockDep, ProfileDep, ServicesDep
@@ -45,6 +51,20 @@ class TraverseBody(Body):
     """``POST /api/cases/{caseId}/traverse``: the chosen option node."""
 
     node_id: str
+
+
+class EventBody(Body):
+    """``POST /api/cases/{caseId}/events``: something that happened to the patient."""
+
+    kind: CareEventKind
+    node_id: str
+    value: str | None = None
+
+
+class EventCardBody(Body):
+    """``POST /api/cases/{caseId}/events/card``: the nodes an event newly lit."""
+
+    node_ids: list[str]
 
 
 def case_view(shared: Services, case_id: str, tab_id: str | None = None) -> dict[str, Any]:
@@ -193,6 +213,39 @@ def traverse(
         "notice": notice,
         "path": path.model_dump(by_alias=True),
     }
+
+
+@router.post("/cases/{case_id}/events", status_code=201)
+def care_event(
+    case_id: str,
+    body: EventBody,
+    shared: ServicesDep,
+    profile: ProfileDep,
+    _lock: LockDep,
+) -> dict[str, Any]:
+    """Record a sign present, a result in or a step done, and re-light the map."""
+    shared.cases.get_case(case_id)
+    data, lit, notice = shared.engine.record_event(
+        case_id, body.kind, body.node_id, body.value, profile
+    )
+    return {
+        "map": data.model_dump(by_alias=True),
+        "lit": [item.model_dump(by_alias=True) for item in lit],
+        "notice": notice,
+    }
+
+
+@router.post("/cases/{case_id}/events/card")
+def care_event_card(
+    case_id: str,
+    body: EventCardBody,
+    shared: ServicesDep,
+    _profile: ProfileDep,
+    _lock: LockDep,
+) -> dict[str, Any]:
+    """One cited card (model-written, grounding-checked) for the newly lit nodes."""
+    shared.cases.get_case(case_id)
+    return shared.engine.event_card(case_id, body.node_ids)
 
 
 @router.get("/cases/{case_id}/map")

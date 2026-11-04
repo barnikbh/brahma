@@ -25,7 +25,7 @@ Record November 2-4 on the live Meta model. Submit before Nov 4, 9 PM ET.
 4. **The grounded badge** (20 s). End of walk: 0 ungrounded lines. Open one
    line's citations to show the source trail.
 5. **Choose the drug + edit** (45 s). The Tier 2 drugs are grey options.
-   Open Hydrocortisone, show dose and day-3 review, press Choose this option,
+   Open Hydrocortisone, show dose and day-3 review, press Choose this option (a click only opens the panel; the buttons record),
    show its monitoring lighting up blue plus the "Now on" next-step card.
    Edit a note, show the edited marker.
 6. **Day-3 review** (35 s). Open the day-3 CRP criterion from the monitor

@@ -97,3 +97,10 @@ IBD v1.1, URO v0.1 (regenerate with
       N53, N61, N72, N85, N92, N93, N94
     uro-distal-small (6): URO-N2, N3, N5-N8
     uro-large (3): URO-N2, N3, N5
+
+## New in IBD 1.2 (care loop) for the reviewer
+
+Clinical links added in 1.2 (all cite existing sources; please confirm each):
+- IBD-N110 latent tuberculosis screen and IBD-N111 hepatitis B screen (source IBD-S15), required (must) before infliximab (N53), ustekinumab (N54), vedolizumab (N57) and tofacitinib (N58). Is "must" right for all four, and should a result stay valid for some days (the pack supports `validForDays`)?
+- Toxic megacolon (N90) leads to Emergency colectomy triggers (N96) when present; new or worsening bloody diarrhoea (N94) brings the stool tests (N20) back.
+- Moved in 1.2 (logic review, Nov 4): infliximab trough level (N72) now hangs off infliximab (N53), not the Tier 3 / Crohn's anti-TNF tiers (the after-anti-TNF tier N46 keeps its own "check levels" link); the JAK clot and heart risk (N103) hangs off tofacitinib (N58); toxic megacolon (N90), clot risk in hospital (N91) and emergency colectomy triggers (N96) hang off acute severe UC (N34), so they are watched from admission rather than after a steroid is chosen. The tier links to "Screen for infection before biologics" (N92) were removed: the real screens (N110, N111) replace that note.

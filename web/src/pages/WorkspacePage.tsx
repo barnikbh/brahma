@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ApiError, api } from "@/api/client";
-import type { EditOutcome, FormField, MapEdge, MapNode, NodeDetail } from "@/api/types";
+import type { EditOutcome, FormField, MapData, MapEdge, MapNode, NodeDetail } from "@/api/types";
 import { Banner } from "@/components/Banner";
 import { ChatThread } from "@/components/ChatThread";
 import { GraphCanvas } from "@/components/GraphCanvas";
@@ -61,6 +61,8 @@ function contextLineFor(
   else if (selected.type === "treatment_tier") prefix = "Next tier after";
   return { prefix, nodeId: parent.nodeId, label: parent.label };
 }
+
+const LIT_STATUSES = new Set(["todo_first", "due", "watch", "present", "now"]);
 
 export function WorkspacePage() {
   const { caseId } = useParams<{ caseId: string }>();
@@ -170,6 +172,7 @@ export function WorkspacePage() {
     if (!caseId || !selectedNodeId) return;
     void (async () => {
       try {
+        const before = new Map(state.map.nodes.map((n) => [n.nodeId, n.status]));
         const result = await api.traverse(caseId, selectedNodeId);
         dispatch({
           type: "traversed",
@@ -177,12 +180,57 @@ export function WorkspacePage() {
           card: result.path,
           notice: result.notice,
         });
+        const lit = result.map.nodes
+          .filter((n) => LIT_STATUSES.has(n.status) && before.get(n.nodeId) !== n.status)
+          .map((n) => ({ nodeId: n.nodeId, label: n.label, type: n.type }));
+        if (lit.length > 0)
+          void writeCard(`ch-${Date.now()}`, result.map, lit, "Newly lit by this choice.");
       } catch (e) {
         dispatch({
           type: "request_failed",
           error: {
             code: e instanceof ApiError ? e.code : "traverse_failed",
             message: e instanceof ApiError ? e.message : "The choice could not be recorded.",
+            retryable: false,
+          },
+        });
+      }
+    })();
+  };
+
+  // Record what happened. The map re-lights at once from the pack's edges; the model then
+  // writes one cited card about only the newly lit nodes (checked by the grounding guard).
+  const writeCard = async (
+    id: string,
+    map: MapData,
+    lit: { nodeId: string; label: string; type: string }[],
+    notice: string,
+  ) => {
+    if (!caseId) return;
+    dispatch({ type: "care_event", id, map, lit, notice });
+    try {
+      const card = await api.careEventCard(
+        caseId,
+        lit.map((n) => n.nodeId),
+      );
+      dispatch({ type: "care_card", id, lines: card.lines });
+    } catch {
+      dispatch({ type: "care_card", id, lines: [] });
+    }
+  };
+
+  const recordEvent = (kind: "present" | "result" | "done", value?: string) => {
+    if (!caseId || !selectedNodeId) return;
+    void (async () => {
+      try {
+        const result = await api.careEvent(caseId, { kind, nodeId: selectedNodeId, value });
+        await writeCard(`ev-${Date.now()}`, result.map, result.lit, result.notice);
+      } catch (e) {
+        dispatch({
+          type: "request_failed",
+          error: {
+            code: e instanceof ApiError ? e.code : "event_failed",
+            message: e instanceof ApiError ? e.message : "That could not be recorded.",
             retryable: false,
           },
         });
@@ -391,9 +439,12 @@ export function WorkspacePage() {
                 size="sm"
                 variant="ghost"
                 disabled={status === "working"}
-                onClick={() => void walk({ mode: "rewalk" })}
+                onClick={() => {
+                  setBannerDismissed(true);
+                  void walk({ mode: "rewalk" });
+                }}
               >
-                Re-walk
+                Re-walk on the latest knowledge base
               </Button>
             ) : null}
           </form>
@@ -405,6 +456,7 @@ export function WorkspacePage() {
             version={version}
             selectedNodeId={selectedNodeId}
             onSelectNode={selectNode}
+            timeline={state.map.timeline}
           />
           {panelOpen && selectedNodeId && version ? (
             <NodePanel
@@ -423,6 +475,9 @@ export function WorkspacePage() {
               onClose={closePanel}
               onEdit={openEdit}
               onChoose={chooseOption}
+              careStatus={selectedNode?.status}
+              careReason={selectedNode?.reason}
+              onEvent={settled ? recordEvent : undefined}
               onExplore={() => {
                 if (state.walkId && selectedNodeId) {
                   void walk({

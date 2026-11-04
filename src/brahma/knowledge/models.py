@@ -47,7 +47,34 @@ Relation = Literal[
     "surgery_if",
     "alternative_to",
     "responds_if",
+    "requires",
+    "if_present",
 ]
+# The five node kinds of the care graph (colour on the map), derived from the node type.
+NodeKind = Literal["state", "observation", "test", "action", "escalation"]
+KIND_BY_TYPE: dict[str, NodeKind] = {
+    "diagnosis": "state",
+    "subtype": "state",
+    "symptom": "observation",
+    "metric": "observation",
+    "monitoring": "observation",
+    "response_criterion": "observation",
+    "watch_out": "observation",
+    "interaction": "observation",
+    "allergy_cross_reactivity": "observation",
+    "test": "test",
+    "treatment_tier": "action",
+    "drug": "action",
+    "diet": "action",
+    "escalation": "escalation",
+}
+
+
+def node_kind(node_type: str) -> NodeKind:
+    """The care-graph kind of a node type (state, observation, test, action, escalation)."""
+    return KIND_BY_TYPE.get(node_type, "observation")
+
+
 Comparator = Literal["lt", "le", "gt", "ge", "eq"]
 VersionStatus = Literal["live", "superseded"]
 StepStatus = Literal["followable", "not_taken", "alternative", "unknown_input"]
@@ -152,6 +179,8 @@ class Node(KgModel):
     reference_ranges: list[ReferenceRange] | None = None
     column: Column
     alternative: bool = False
+    # Optional pack-authored map position (x, y); absent nodes are placed automatically.
+    pos: tuple[int, int] | None = None
 
 
 class EdgeCondition(KgModel):
@@ -190,6 +219,10 @@ class Edge(KgModel):
     to_node_id: str
     relation: Relation
     condition: EdgeCondition | None = None
+    # ``requires`` only: must or should be done first, and for how many days a result
+    # stays valid (absent: a result must be recorded for this treatment).
+    strength: Literal["must", "should"] | None = None
+    valid_for_days: int | None = Field(default=None, ge=1)
 
 
 class NodeComment(KgModel):
@@ -273,6 +306,16 @@ class DrugFields(KgModel):
     duration: str = Field(min_length=1)
     contraindications: list[str]
     dose_bands: list[DoseBand] | None = None
+    # A different starting (induction) dose, e.g. 200 mg IV before 100 mg SC maintenance.
+    # ``dose_value`` stays the maintenance dose; both induction fields or neither.
+    induction_dose_value: Number | None = Field(default=None, gt=0)
+    induction_dose_unit: str | None = Field(default=None, min_length=1)
+
+    @model_validator(mode="after")
+    def _induction_is_whole(self) -> DrugFields:
+        if (self.induction_dose_value is None) != (self.induction_dose_unit is None):
+            raise ValueError("inductionDoseValue and inductionDoseUnit go together")
+        return self
 
     @model_validator(mode="after")
     def _bands_cover_every_weight(self) -> DrugFields:

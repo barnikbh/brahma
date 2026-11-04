@@ -1,5 +1,6 @@
-// The graph region used, on React Flow with fixed columns (BR3.5, interaction-spec
-// NetworkMap). Positions are computed once per map; light-up only changes classes.
+// The care map on React Flow: nodes are colour-coded by kind and placed freely (pack-set
+// positions, else an automatic relaxed layout). A focus view shows only what is current
+// and its neighbours; a timeline strip lists what has happened in the case so far.
 
 import {
   Background,
@@ -12,37 +13,43 @@ import {
   type NodeProps,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { memo, useMemo, type CSSProperties, type KeyboardEvent } from "react";
-import type { MapEdge, MapNode, MapStatus, TherapyResponse } from "@/api/types";
+import {
+  memo,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
+import type {
+  MapEdge,
+  MapNode,
+  MapStatus,
+  NodeKind,
+  TherapyResponse,
+  TimelineItem,
+} from "@/api/types";
 import { ResultBadge, resultKind } from "@/components/ResultBadge";
 import { cn } from "@/lib/utils";
-
-export const COLUMNS = ["findings", "diagnosis", "tests", "subtype", "treatment", "monitor"];
-const COLUMN_TITLES: Record<string, string> = {
-  findings: "Findings",
-  diagnosis: "Diagnosis",
-  tests: "Tests",
-  subtype: "Sub-type",
-  treatment: "Treatment",
-  monitor: "Monitor · watch",
-};
-const NODE_W = 190;
-const NODE_H = 92;
-const COL_WIDTH = NODE_W + 70;
-const ROW_HEIGHT = NODE_H + 24;
-const TOP = 40;
+import { NODE_H, NODE_W, focusIds, freeLayout } from "@/lib/mapLayout";
 
 export const STATUS_BADGE: Record<MapStatus, { symbol: string; word: string }> = {
-  used: { symbol: "✓", word: "Matched" },
-  entry: { symbol: "▶", word: "Start here" },
-  test_needed: { symbol: "?", word: "Test needed" },
+  used: { symbol: "●", word: "On path" },
+  entry: { symbol: "▶", word: "Now" },
+  now: { symbol: "▶", word: "Now" },
+  todo_first: { symbol: "!", word: "To do first" },
+  due: { symbol: "◔", word: "Due" },
+  watch: { symbol: "◉", word: "Watch for" },
+  present: { symbol: "●", word: "Present" },
+  done: { symbol: "✓", word: "Done" },
+  test_needed: { symbol: "◔", word: "Due" },
   not_in_pack: { symbol: "⊘", word: "Not in pack" },
   bypassed: { symbol: "–", word: "Bypassed" },
   not_taken: { symbol: "⋯", word: "Not taken" },
   exploring: { symbol: "⤳", word: "Exploring" },
   tried: { symbol: "↺", word: "Tried" },
   option: { symbol: "○", word: "Option" },
-  planned: { symbol: "→", word: "Suggested" },
+  planned: { symbol: "·", word: "Later" },
   chosen: { symbol: "✓", word: "Chosen" },
 };
 
@@ -54,6 +61,34 @@ export const RESPONSE_WORDS: Record<TherapyResponse, string> = {
   responded: "responded",
 };
 
+export const KIND_LABEL: Record<NodeKind, string> = {
+  state: "Patient state",
+  observation: "Observation",
+  test: "Test",
+  action: "Action",
+  escalation: "Escalation",
+};
+
+// Kind colours: patient state purple, observation amber, test blue, action teal,
+// escalation coral. Statuses change the border and badge, never the kind colour.
+const KIND_CLASS: Record<NodeKind, string> = {
+  state: "border-purple-500 bg-purple-50",
+  observation: "border-amber-500 bg-amber-50",
+  test: "border-blue-500 bg-blue-50",
+  action: "border-teal-600 bg-teal-50",
+  escalation: "border-[#e8604c] bg-[#fdeeea]",
+};
+const KIND_DOT: Record<NodeKind, string> = {
+  state: "bg-purple-500",
+  observation: "bg-amber-500",
+  test: "bg-blue-500",
+  action: "bg-teal-600",
+  escalation: "bg-[#e8604c]",
+};
+
+const LIT = new Set<MapStatus>(["todo_first", "due", "watch", "present", "now", "test_needed"]);
+const GREY = new Set<MapStatus>(["planned", "option", "not_taken", "bypassed", "not_in_pack"]);
+
 interface MapNodeData extends Record<string, unknown> {
   node: MapNode;
   order: number;
@@ -62,22 +97,33 @@ interface MapNodeData extends Record<string, unknown> {
   onKey: (event: KeyboardEvent<HTMLButtonElement>, nodeId: string) => void;
 }
 
-// Columns the walk recommends rather than confirms: a walked node there is a
-// suggestion for the doctor to act on, never something already done.
-const PLAN_COLUMNS = new Set(["treatment", "monitor"]);
+const KIND_BY_TYPE: Record<string, NodeKind> = {
+  diagnosis: "state",
+  subtype: "state",
+  test: "test",
+  treatment_tier: "action",
+  drug: "action",
+  diet: "action",
+  escalation: "escalation",
+};
 
-/** The badge for a node: walked findings and tests are matched; plan steps are suggested. */
+/** The node's kind from the server, else from its type (older maps carry no kind). */
+export function kindOf(node: MapNode): NodeKind {
+  return node.kind ?? KIND_BY_TYPE[node.type] ?? "observation";
+}
+
+/** The badge for a node. A walked test with a result is Done; a walked finding is Present. */
 export function badgeFor(node: MapNode): { symbol: string; word: string } {
   if (node.status === "tried") {
     const response = node.result?.response;
     const word = response ? RESPONSE_WORDS[response] : null;
     return { symbol: "↺", word: word ? `Tried · ${word}` : "Tried" };
   }
-  if (node.status === "used" && PLAN_COLUMNS.has(node.column)) {
-    return { symbol: "→", word: "Suggested" };
-  }
-  if (node.status === "used" && node.column === "tests" && node.result?.value) {
-    return { symbol: "✓", word: "Result in" };
+  if (node.status === "used") {
+    const kind = kindOf(node);
+    if (kind === "test") return { symbol: "✓", word: "Done" };
+    if (kind === "state" || node.column === "findings") return { symbol: "●", word: "Present" };
+    if (kind === "action") return { symbol: "▶", word: "Now" }; // e.g. diet advice on the path
   }
   return STATUS_BADGE[node.status];
 }
@@ -91,6 +137,7 @@ function nodeLabel(node: MapNode): string {
 const GraphNode = memo(function GraphNode({ data }: NodeProps<Node<MapNodeData>>) {
   const { node, order, selected, onSelect, onKey } = data;
   const badge = badgeFor(node);
+  const kind = kindOf(node);
   return (
     <>
       <Handle type="target" position={Position.Left} className="!opacity-0" />
@@ -98,25 +145,21 @@ const GraphNode = memo(function GraphNode({ data }: NodeProps<Node<MapNodeData>>
         type="button"
         data-map-node={node.nodeId}
         data-status={node.status}
+        data-kind={kind}
         aria-label={nodeLabel(node)}
         aria-pressed={selected}
         onClick={() => onSelect(node.nodeId)}
         onKeyDown={(e) => onKey(e, node.nodeId)}
-        style={{ width: NODE_W, height: NODE_H, animationDelay: `${Math.min(order * 60, 1500)}ms` }}
+        style={{ width: NODE_W, height: NODE_H, animationDelay: `${Math.min(order * 40, 1200)}ms` }}
         className={cn(
-          "nopan nodrag brahma-light-up flex flex-col items-stretch gap-1 overflow-hidden rounded-md border bg-white px-2.5 py-2 text-left text-xs leading-snug focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700 focus-visible:ring-offset-2",
-          (node.status === "used" || node.status === "chosen") &&
-            "border-2 border-brand-700 bg-brand-50",
-          node.status === "entry" && "border-2 border-brand-900 bg-brand-50",
-          node.status === "test_needed" && "border-dashed border-result-pending",
-          node.status === "not_in_pack" && "border-dashed border-neutral-400 text-ink-quiet",
-          (node.status === "bypassed" ||
-            node.status === "not_taken" ||
-            node.status === "option" ||
-            node.status === "planned") &&
-            "border-dashed border-neutral-400 text-ink-quiet",
-          node.status === "exploring" && "border-2 border-dashed border-explore bg-fuchsia-50",
-          node.status === "tried" && "border-dashed border-neutral-500 bg-neutral-50",
+          "nopan nodrag brahma-light-up flex flex-col items-stretch gap-1 overflow-hidden rounded-md border-2 px-2.5 py-2 text-left text-xs leading-snug focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700 focus-visible:ring-offset-2",
+          KIND_CLASS[kind],
+          GREY.has(node.status) && "border-dashed opacity-70",
+          node.status === "tried" && "border-dashed opacity-80",
+          node.status === "exploring" && "border-dashed",
+          LIT.has(node.status) && "ring-2 ring-offset-1 ring-neutral-800 shadow-md",
+          (node.status === "chosen" || node.status === "entry") && "ring-2 ring-neutral-900",
+          node.status === "done" && "opacity-90",
           selected && "ring-4 ring-brand-200",
         )}
       >
@@ -128,7 +171,7 @@ const GraphNode = memo(function GraphNode({ data }: NodeProps<Node<MapNodeData>>
           {node.label}
         </span>
         <span className="mt-auto flex w-full min-w-0 items-center gap-2 text-[11px]">
-          <span className="shrink-0">
+          <span className="shrink-0 font-medium">
             <span aria-hidden="true">{badge.symbol} </span>
             {badge.word}
           </span>
@@ -144,15 +187,7 @@ const GraphNode = memo(function GraphNode({ data }: NodeProps<Node<MapNodeData>>
   );
 });
 
-function ColumnTitle({ data }: NodeProps<Node<{ title: string }>>) {
-  return (
-    <span className="block text-xs font-semibold uppercase tracking-wide text-ink-quiet">
-      {data.title}
-    </span>
-  );
-}
-
-const nodeTypes = { brahma: GraphNode, column: ColumnTitle };
+const nodeTypes = { brahma: GraphNode };
 
 function ignoreNodeClick(): void {}
 
@@ -163,25 +198,11 @@ const EDGE_STYLE: Record<MapEdge["style"], CSSProperties> = {
   exploring: { stroke: "#A21CAF", strokeWidth: 2, strokeDasharray: "6 4" },
 };
 
-/**
- * Fixed-column layout: column from the node, row by order within its column.
- * Shorter columns are centred against the tallest one, so edges stay short.
- */
-export function layout(nodes: MapNode[]): Map<string, { x: number; y: number }> {
-  const counts = new Map<string, number>();
-  for (const node of nodes) counts.set(node.column, (counts.get(node.column) ?? 0) + 1);
-  const tallest = Math.max(0, ...counts.values());
-  const rows = new Map<string, number>();
-  const out = new Map<string, { x: number; y: number }>();
-  for (const node of nodes) {
-    const col = Math.max(0, COLUMNS.indexOf(node.column));
-    const row = rows.get(node.column) ?? 0;
-    rows.set(node.column, row + 1);
-    const offset = ((tallest - (counts.get(node.column) ?? 0)) * ROW_HEIGHT) / 2;
-    out.set(node.nodeId, { x: col * COL_WIDTH + 8, y: TOP + offset + row * ROW_HEIGHT });
-  }
-  return out;
-}
+const EVENT_WORD: Record<TimelineItem["kind"], string> = {
+  present: "present",
+  result: "result",
+  done: "done",
+};
 
 export interface GraphCanvasProps {
   nodes: MapNode[];
@@ -191,13 +212,90 @@ export interface GraphCanvasProps {
   onSelectNode: (nodeId: string) => void;
   /** Walk order for arrow-key moves; defaults to the node order. */
   order?: string[];
+  timeline?: TimelineItem[];
+  /** Start in focus view (default) or on the whole map. */
+  defaultFocus?: boolean;
   readOnly?: boolean;
   title?: string;
+  /** A control shown next to the title, e.g. re-walk on a newer pack version. */
+  action?: ReactNode;
+}
+
+function Timeline({
+  nodes,
+  timeline,
+  onSelect,
+}: {
+  nodes: MapNode[];
+  timeline: TimelineItem[];
+  onSelect: (nodeId: string) => void;
+}) {
+  // Earlier choices (now Tried) come first, then the current choice.
+  const tried = nodes.filter((n) => n.status === "tried" && !n.result?.response);
+  const chosen = nodes.filter((n) => n.status === "chosen");
+  if (nodes.length === 0) return null;
+  return (
+    <ol
+      aria-label="Timeline"
+      data-testid="timeline"
+      className="mt-2 flex items-center gap-2 overflow-x-auto pb-1 text-xs"
+    >
+      <li className="shrink-0 rounded-full bg-neutral-100 px-2.5 py-1 font-medium">Presented</li>
+      {tried.map((n) => (
+        <li key={`tried-${n.nodeId}`} className="shrink-0">
+          <button
+            type="button"
+            className="rounded-full bg-neutral-100 px-2.5 py-1"
+            onClick={() => onSelect(n.nodeId)}
+          >
+            Tried {n.label}
+          </button>
+        </li>
+      ))}
+      {chosen.map((n) => (
+        <li key={`chosen-${n.nodeId}`} className="shrink-0">
+          <button
+            type="button"
+            className="rounded-full bg-teal-100 px-2.5 py-1"
+            onClick={() => onSelect(n.nodeId)}
+          >
+            Chose {n.label}
+          </button>
+        </li>
+      ))}
+      {timeline.map((item, i) => (
+        <li key={`${item.nodeId}-${i}`} className="shrink-0">
+          <button
+            type="button"
+            className="rounded-full bg-amber-100 px-2.5 py-1"
+            onClick={() => onSelect(item.nodeId)}
+          >
+            {item.label} · {EVENT_WORD[item.kind]}
+            {item.value ? ` ${item.value}` : ""}
+          </button>
+        </li>
+      ))}
+    </ol>
+  );
 }
 
 export function GraphCanvas(props: GraphCanvasProps) {
-  const { nodes, edges, selectedNodeId, onSelectNode } = props;
-  const positions = useMemo(() => layout(nodes), [nodes]);
+  const { selectedNodeId, onSelectNode } = props;
+  const [focus, setFocus] = useState(props.defaultFocus ?? true);
+  const visible = useMemo(
+    () => (focus ? focusIds(props.nodes, props.edges, selectedNodeId) : null),
+    [focus, props.nodes, props.edges, selectedNodeId],
+  );
+  const nodes = useMemo(
+    () => (visible ? props.nodes.filter((n) => visible.has(n.nodeId)) : props.nodes),
+    [visible, props.nodes],
+  );
+  const edges = useMemo(
+    () =>
+      visible ? props.edges.filter((e) => visible.has(e.from) && visible.has(e.to)) : props.edges,
+    [visible, props.edges],
+  );
+  const positions = useMemo(() => freeLayout(nodes, edges), [nodes, edges]);
   const order = useMemo(() => {
     const known = new Set(nodes.map((n) => n.nodeId));
     const walk = (props.order ?? []).filter((id) => known.has(id));
@@ -215,20 +313,6 @@ export function GraphCanvas(props: GraphCanvasProps) {
     target?.focus();
   };
 
-  const titles: Node[] =
-    nodes.length === 0
-      ? []
-      : COLUMNS.map((column, i) => ({
-          id: `column-${column}`,
-          type: "column",
-          position: { x: i * COL_WIDTH + 8, y: 0 },
-          width: NODE_W,
-          height: 20,
-          data: { title: COLUMN_TITLES[column] },
-          draggable: false,
-          selectable: false,
-          focusable: false,
-        }));
   const mapNodes: Node<MapNodeData>[] = nodes.map((node, i) => ({
     id: node.nodeId,
     type: "brahma",
@@ -246,7 +330,6 @@ export function GraphCanvas(props: GraphCanvasProps) {
     selectable: false,
     focusable: false,
   }));
-  const flowNodes: Node[] = [...titles, ...mapNodes];
   const flowEdges: Edge[] = edges.map((edge) => ({
     id: edge.edgeId,
     source: edge.from,
@@ -254,9 +337,11 @@ export function GraphCanvas(props: GraphCanvasProps) {
     type: "smoothstep",
     style: EDGE_STYLE[edge.style],
     animated: edge.style === "exploring",
+    label: edge.relation === "requires" ? "needs first" : undefined,
     focusable: false,
     selectable: false,
   }));
+  const hidden = props.nodes.length - nodes.length;
 
   return (
     <section
@@ -265,45 +350,52 @@ export function GraphCanvas(props: GraphCanvasProps) {
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-semibold">
-          {props.title ?? "Graph region used"}
+          {props.title ?? "Care map"}
           {props.version ? (
             <span className="ml-2 font-mono text-xs font-normal text-ink-quiet">
-              {props.version} · network map{props.readOnly ? " · read-only replay" : ""}
+              {props.version}
+              {props.readOnly ? " · read-only replay" : ""}
             </span>
           ) : null}
         </h2>
-        <ul className="flex flex-wrap gap-3 text-[11px] text-ink-quiet" aria-label="Legend">
-          <li>
-            <span className="text-brand-700">━</span> Path walked
-          </li>
-          <li>─ Bypassed</li>
-          <li>┄ Not taken</li>
-          <li>
-            <span className="text-explore">╌</span> Exploring
-          </li>
-          <li>
-            ✓ Matched · → Suggested · ▶ Start here · ↺ Tried · ○ Option · ✓ Chosen · ? Test needed ·
-            ⊘ Not in pack
-          </li>
+        {props.action}
+        <button
+          type="button"
+          aria-pressed={focus}
+          onClick={() => setFocus((f) => !f)}
+          className="rounded border border-neutral-300 px-2 py-1 text-xs"
+        >
+          {focus
+            ? `Focus view${hidden > 0 ? ` · ${hidden} hidden` : ""} — show whole map`
+            : "Whole map — focus on now"}
+        </button>
+        <ul className="flex w-full flex-wrap gap-3 text-[11px] text-ink-quiet" aria-label="Legend">
+          {(Object.keys(KIND_LABEL) as NodeKind[]).map((kind) => (
+            <li key={kind} className="flex items-center gap-1">
+              <span className={cn("inline-block h-2.5 w-2.5 rounded-full", KIND_DOT[kind])} />
+              {KIND_LABEL[kind]}
+            </li>
+          ))}
+          <li>Now · To do first · Due · Watch for · Present · Option · Chosen · Tried · Done</li>
         </ul>
       </div>
       <div
         role="application"
-        aria-label="Graph region used: use arrow keys to move between nodes, Enter to open one"
-        className="relative h-[calc(100vh-260px)] min-h-[520px] w-full overflow-hidden rounded border border-neutral-200"
+        aria-label="Care map: use arrow keys to move between nodes, Enter to open one"
+        className="relative h-[calc(100vh-300px)] min-h-[460px] w-full overflow-hidden rounded border border-neutral-200"
       >
-        {nodes.length === 0 ? (
+        {props.nodes.length === 0 ? (
           <p className="absolute inset-0 flex items-center justify-center text-sm text-ink-quiet">
             The map fills in as Brahma walks
           </p>
         ) : null}
         <ReactFlow
-          key={`${props.version}-${nodes.length}`}
-          nodes={flowNodes}
+          key={`${props.version}-${focus}-${nodes.map((n) => n.nodeId).join(",")}`}
+          nodes={mapNodes}
           edges={flowEdges}
           nodeTypes={nodeTypes}
           fitView
-          fitViewOptions={{ padding: 0.08 }}
+          fitViewOptions={{ padding: 0.1 }}
           minZoom={0.2}
           maxZoom={2}
           nodesDraggable={false}
@@ -320,6 +412,7 @@ export function GraphCanvas(props: GraphCanvasProps) {
           <Controls showInteractive={false} />
         </ReactFlow>
       </div>
+      <Timeline nodes={props.nodes} timeline={props.timeline ?? []} onSelect={onSelectNode} />
     </section>
   );
 }

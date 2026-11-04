@@ -7,7 +7,7 @@ from brahma.agent.traverse import choose_version, lane_nodes, walk_graph
 from brahma.agent.views import build_map
 from brahma.knowledge import Fact, KnowledgeService, PackVersionRef
 
-IBD = PackVersionRef(pack="IBD", number="1.1")
+IBD = PackVersionRef(pack="IBD", number="1.2")
 URO = PackVersionRef(pack="URO", number="0.1")
 DEMO_FINDINGS = [
     Fact(kind="finding", name="bloody stool"),
@@ -124,11 +124,11 @@ def test_offered_drugs_are_options_and_tier_downstream_is_planned(
         "IBD-N71",
         "IBD-N80",
         "IBD-N81",
-        "IBD-N90",
-        "IBD-N91",
-        "IBD-N96",
     ):
         assert statuses[node_id] == "planned"
+    # Acute severe UC's own risks are watched from admission, not after a drug choice.
+    for node_id in ("IBD-N90", "IBD-N91", "IBD-N96"):
+        assert statuses[node_id] == "used"
     assert statuses["IBD-N42"] == "planned"  # the escalation tier is a future step
     assert statuses["IBD-N60"] == "used"  # diet comes from the traversed subtype
     assert statuses["IBD-N94"] == "used"  # exclusion comes from the traversed diagnosis
@@ -187,12 +187,12 @@ def test_option_edges_are_dashed_until_their_drug_is_chosen(
     knowledge: KnowledgeService,
 ) -> None:
     trav = walk_graph(knowledge, IBD, [*DEMO_FINDINGS, *DEMO_TESTS])
-    before = {e.edge_id: e.style for e in build_map(knowledge, IBD, trav, "IBD 1.1").edges}
+    before = {e.edge_id: e.style for e in build_map(knowledge, IBD, trav, "IBD 1.2").edges}
     assert before["IBD-E30"] == "not_taken"
     assert before["IBD-E31"] == "not_taken"
     assert before["IBD-E37"] == "not_taken"
     trav.choices = {"IBD-N41": "IBD-N51"}
-    after = {e.edge_id: e.style for e in build_map(knowledge, IBD, trav, "IBD 1.1").edges}
+    after = {e.edge_id: e.style for e in build_map(knowledge, IBD, trav, "IBD 1.2").edges}
     assert after["IBD-E30"] == "walked"
     assert after["IBD-E31"] == "not_taken"
     assert after["IBD-E37"] == "walked"

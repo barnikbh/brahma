@@ -19,7 +19,7 @@ def _proposal(proposal_id: str, pack: str = "IBD", source_id: str | None = None)
         proposal_id=proposal_id,
         pack=pack,
         base_version="1.0",
-        target_version="1.1 draft",
+        target_version="1.2 draft",
         proposer_profile_id="p-maya",
         origin="doctor",
         change_set=ChangeSet(change_summary="Clarify wording"),
@@ -82,7 +82,7 @@ def test_a_status_change_on_a_closed_or_unknown_proposal_is_refused(
 ) -> None:
     with transaction(conn):
         repo.insert_proposal(_proposal("pr-1"))
-        repo.set_status("pr-1", "published", "p-reviewer", None, "1.1")
+        repo.set_status("pr-1", "published", "p-reviewer", None, "1.2")
     with pytest.raises(ProposalClosed) as closed:
         repo.set_status("pr-1", "rejected", "p-reviewer", "too late")
     assert closed.value.status == "published"
@@ -92,7 +92,7 @@ def test_a_status_change_on_a_closed_or_unknown_proposal_is_refused(
         repo.set_status("pr-1", "proposed", "p-reviewer", None)
     stored = repo.get_proposal("pr-1")
     assert stored is not None
-    assert (stored.status, stored.published_version) == ("published", "1.1")
+    assert (stored.status, stored.published_version) == ("published", "1.2")
 
 
 def test_linked_source_upsert_keeps_one_row_per_pack_and_url(

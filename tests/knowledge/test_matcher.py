@@ -131,3 +131,43 @@ def test_unit_helpers() -> None:
     with pytest.raises(ValueError, match="unknown comparator"):
         compare(Decimal(1), "ne", Decimal(1))
     assert sorted(["IBD-N10", "IBD-N2", "X"], key=natural_key) == ["IBD-N2", "IBD-N10", "X"]
+
+
+def test_an_induction_dose_matches_only_its_own_stored_value(
+    service: KnowledgeService, loaded: PackVersionRef
+) -> None:
+    drug = _node(service, loaded, "TST-N8")
+    with_induction = drug.model_copy(
+        update={"fields": {**drug.fields, "inductionDoseValue": 200, "inductionDoseUnit": "mg"}}
+    )
+    induction = Claim(kind="dose", value="200", unit="mg")
+    maintenance = Claim(kind="dose", value="60", unit="mg")
+    other = Claim(kind="dose", value="400", unit="mg")
+    result = service.match_claims(with_induction, [induction, maintenance, other])
+    assert result.matched == [induction, maintenance]
+    assert [f.reason for f in result.failures] == ["value_differs"]
+    # Without the stored induction dose, the same 200 mg claim is still refused.
+    assert _reasons(service, drug, induction) == ["value_differs"]
+
+
+def test_an_induction_dose_needs_both_value_and_unit() -> None:
+    from pydantic import ValidationError
+
+    from brahma.knowledge.models import DrugFields
+
+    base = {
+        "drug": "x",
+        "synonyms": [],
+        "drugClass": "c",
+        "route": "iv",
+        "doseValue": 100,
+        "doseUnit": "mg",
+        "doseBasis": "absolute",
+        "rounding": "none",
+        "frequency": "f",
+        "duration": "d",
+        "contraindications": [],
+    }
+    assert DrugFields.model_validate({**base, "inductionDoseValue": 200, "inductionDoseUnit": "mg"})
+    with pytest.raises(ValidationError):
+        DrugFields.model_validate({**base, "inductionDoseValue": 200})

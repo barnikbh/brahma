@@ -95,6 +95,11 @@ def _match_tier(claim: Claim, node: Node) -> str | None:
 
 def _match_dose(claim: Claim, node: Node) -> str | None:
     fields = node.fields
+    induction = fields.get("inductionDoseValue")
+    if induction is not None and (
+        _number_matches(claim, induction, fields.get("inductionDoseUnit"), None) is None
+    ):
+        return None  # the stated starting dose, held in its own field
     if fields.get("doseBasis") == "weight_band":
         reasons = [
             _number_matches(claim, band.get("doseValue"), band.get("doseUnit"), None)

@@ -256,6 +256,7 @@ export function SessionDetail({ sessionId }: { sessionId: string }) {
         ) : null}
       </div>
       <GraphCanvas
+        defaultFocus={false}
         title="Replay"
         readOnly
         nodes={detail.map.nodes}

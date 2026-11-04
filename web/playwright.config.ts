@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 // Local smoke test of the demo walk (team practice: no hosted URL). Playwright starts the
 // real U4 server with the recorded provider (no keys, no network) on a fresh SQLite file,
 // serving the built app from web/dist. Run `npm run build` first.
-const PORT = 8000;
+const PORT = Number(process.env.E2E_PORT ?? 8000);
 
 export default defineConfig({
   testDir: "./e2e",

@@ -20,6 +20,8 @@
 7. Review-scoped facts (day-3 results, never presenting findings) move the entry tier
    along followable non-therapy ``escalate_to`` edges. Therapy-conditioned and
    unconditional escalations stay for history and the doctor to decide.
+8. A drug's own ``monitor_with`` / ``watch_for`` edges (infliximab trough level,
+   tofacitinib clot risk) are planned under that drug and light only when it is chosen.
 """
 
 from __future__ import annotations
@@ -73,6 +75,8 @@ class Traversal:
     planned_ids: list[str] = field(default_factory=list)
     # Entry tier -> the planned downstream that lights up when one of its drugs is chosen.
     tier_downstream: dict[str, list[str]] = field(default_factory=dict)
+    # Offered drug -> its own monitoring and watch-outs (grey until that drug is chosen).
+    drug_downstream: dict[str, list[str]] = field(default_factory=dict)
     # Entry tier -> chosen drug. Applied last, so a choice beats option/planned.
     choices: dict[str, str] = field(default_factory=dict)
 
@@ -106,7 +110,11 @@ class Traversal:
             if result.get(drug_id) != "option":
                 continue  # stale choice (e.g. the drug is tried): light nothing
             result[drug_id] = "chosen"
-            for member in self.tier_downstream.get(tier_id, []):
+            downstream = [
+                *self.tier_downstream.get(tier_id, []),
+                *self.drug_downstream.get(drug_id, []),
+            ]
+            for member in downstream:
                 if result.get(member) == "planned":
                     result[member] = "used"
         for alt in self.alternative_ids:
@@ -197,6 +205,7 @@ class GraphWalker:
         if history:
             self.result.history_tier_ids = history
             self.result.entry_tier_ids = list(history)
+        self._drug_plans()
         self.result.sections = {s: ids for s, ids in self.result.sections.items() if ids}
         return self.result
 
@@ -394,6 +403,27 @@ class GraphWalker:
             _add(plan.setdefault(section_id, []), parts[section_id])
             _add(self._section(section_id), parts[section_id])
         self.result.history_sections = {s: ids for s, ids in plan.items() if ids}
+
+    def _drug_plans(self) -> None:
+        """Each offered drug's own monitoring and watch-outs (e.g. infliximab trough level),
+        planned until that drug is chosen. A drug the history says failed gets none."""
+        history_drugs = set(self.result.history_sections.get("treatment", []))
+        for drug in self.result.option_ids:
+            if self.result.tried.get(drug) in NOT_AGAIN:
+                continue
+            monitor = self._follow(drug, MONITOR_RELATIONS)
+            watch = self._follow(drug, WATCH_RELATIONS)
+            members = [*monitor, *watch]
+            if not members:
+                continue
+            _add(self.result.planned_ids, members)
+            _add(self.result.drug_downstream.setdefault(drug, []), members)
+            _add(self._section("monitor"), monitor)
+            _add(self._section("watch_outs"), watch)
+            if drug in history_drugs:
+                plan = self.result.history_sections
+                _add(plan.setdefault("monitor", []), monitor)
+                _add(plan.setdefault("watch_outs", []), watch)
 
     def _monitor(self, tiers: list[str]) -> None:
         for tier in tiers:

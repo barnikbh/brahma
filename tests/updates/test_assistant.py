@@ -316,11 +316,11 @@ def test_the_ustekinumab_request_runs_from_url_to_a_published_cited_node(
     thread = UpdateAssistant(service).send(DOCTOR, REQUEST)
     assert thread.status == "proposed" and thread.rounds == 0
     assert len(thread.messages) == 2, "no clarifying question"
-    assert "IBD-N104 (new), IBD-N54" in thread.messages[-1].text
+    assert "IBD-N112 (new), IBD-N54" in thread.messages[-1].text
     proposal = service.get_proposal(thread.messages[-1].proposal_id or "")
 
     added, reworded = proposal.changes
-    assert added.before is None and added.node_id == "IBD-N104"
+    assert added.before is None and added.node_id == "IBD-N112"
     fields = added.after["fields"]
     assert [b["doseValue"] for b in fields["doseBands"]] == [260, 390, 520]
     assert fields["doseBasis"] == "weight_band" and fields["route"] == "intravenous"
@@ -338,15 +338,17 @@ def test_the_ustekinumab_request_runs_from_url_to_a_published_cited_node(
     assert reworded.after["fields"] == reworded.before["fields"], "maintenance dose is untouched"
 
     service.publish(proposal.proposal_id, REVIEWER, "ok")
-    view = browse.node_view(service, "IBD", None, "IBD-N104")
-    assert view["packVersion"] == "IBD 1.2"
+    view = browse.node_view(service, "IBD", None, "IBD-N112")
+    assert view["packVersion"] == "IBD 1.3"
     assert [s["url"] for s in view["sources"]] == [BAND_URL]
     assert view["updated"]["updatedByName"] == "Dr. Maya (demo)"
     tiers = {n["nodeId"] for n in view["incoming"]}
     assert tiers == {"IBD-N42", "IBD-N45", "IBD-N46"}
+    # The new drug gets the neighbour's tests to do first, and nothing drug-specific.
+    assert {n["nodeId"] for n in view["outgoing"]} == {"IBD-N110", "IBD-N111"}
     for tier in tiers:
         listed = browse.node_view(service, "IBD", None, tier)["node"]["fields"]["drugNodeIds"]
-        assert {"IBD-N54", "IBD-N104"} <= set(listed)
+        assert {"IBD-N54", "IBD-N112"} <= set(listed)
 
 
 def test_the_api_reports_the_cited_source_with_the_proposal(
@@ -479,7 +481,7 @@ def test_one_target_per_band_is_merged_into_one_node(
     bot = assistant(make_service, folder)
     thread = bot.send(DOCTOR, REQUEST)
     proposal = bot._service.get_proposal(thread.messages[-1].proposal_id or "")
-    assert [c.node_id for c in proposal.changes] == ["IBD-N104"]
+    assert [c.node_id for c in proposal.changes] == ["IBD-N112"]
     assert len(proposal.changes[0].after["fields"]["doseBands"]) == 3
 
 
@@ -555,14 +557,14 @@ def test_open_proposals_share_a_source_and_never_share_new_ids(
     bot = UpdateAssistant(service)
     first = service.get_proposal(bot.send(DOCTOR, REQUEST).messages[-1].proposal_id or "")
     second = service.get_proposal(bot.send(DOCTOR, REQUEST).messages[-1].proposal_id or "")
-    assert first.changes[0].node_id == "IBD-N104" and second.changes[0].node_id == "IBD-N105"
+    assert first.changes[0].node_id == "IBD-N112" and second.changes[0].node_id == "IBD-N113"
     assert first.change_set.add_sources == second.change_set.add_sources
     assert not {e.edge_id for e in first.change_set.add_edges} & {
         e.edge_id for e in second.change_set.add_edges
     }
     service.publish(first.proposal_id, REVIEWER, "ok")
     published = service.publish(second.proposal_id, REVIEWER, "ok")
-    assert published.published_version == "1.3"
+    assert published.published_version == "1.4"
     third = service.get_proposal(bot.send(DOCTOR, REQUEST).messages[-1].proposal_id or "")
     assert third.change_set.add_sources == [], "the source is already in the pack"
     assert third.changes[0].after["sourceIds"] == ["IBD-S21"]
@@ -604,13 +606,13 @@ def test_attribution_is_recorded_when_a_proposal_is_published(
     thread = UpdateAssistant(service).send(DOCTOR, f"update from {URL}")
     pid = thread.messages[-1].proposal_id or ""
     before = browse.node_view(service, "IBD", None, "IBD-N54")
-    assert before["updated"] is None and before["initialVersion"] == "1.1"
+    assert before["updated"] is None and before["initialVersion"] == "1.2"
     service.publish(pid, REVIEWER, "ok")
     after = browse.node_view(service, "IBD", None, "IBD-N54")
     assert after["updated"]["updatedByName"] == "Dr. Maya (demo)"
     assert after["updated"]["approvedByName"] == "Demo clinical reviewer"
-    assert after["updated"]["version"] == "1.2" and after["updated"]["proposalId"] == pid
-    old = browse.node_view(service, "IBD", "1.1", "IBD-N54")
+    assert after["updated"]["version"] == "1.3" and after["updated"]["proposalId"] == pid
+    old = browse.node_view(service, "IBD", "1.2", "IBD-N54")
     assert old["updated"] is None
     graph = browse.pack_graph(service, "IBD", None)
     stamps = {n["nodeId"]: n["updatedAt"] for n in graph["nodes"]}
@@ -621,12 +623,12 @@ def test_attribution_is_recorded_when_a_proposal_is_published(
 
 def test_browse_reads_the_structure(updates: UpdateService) -> None:
     packs = browse.list_packs(updates)
-    assert packs[0]["pack"] == "IBD" and packs[0]["liveVersion"] == "1.1"
+    assert packs[0]["pack"] == "IBD" and packs[0]["liveVersion"] == "1.2"
     graph = browse.pack_graph(updates, "IBD", None)
     assert len(graph["nodes"]) > 50 and graph["edges"][0]["label"]
     node_id = graph["edges"][0]["from"]
     view = browse.node_view(updates, "IBD", None, node_id)
-    assert view["outgoing"] and view["sources"] and view["packVersion"] == "IBD 1.1"
+    assert view["outgoing"] and view["sources"] and view["packVersion"] == "IBD 1.2"
     target = view["outgoing"][0]["nodeId"]
     incoming = browse.node_view(updates, "IBD", None, target)["incoming"]
     assert node_id in {n["nodeId"] for n in incoming}
@@ -666,8 +668,8 @@ def test_api_conversation_and_browse(
             client.get("/api/knowledge/packs", headers=headers).json()["packs"][0]["pack"] == "IBD"
         )
         graph = client.get("/api/knowledge/graph?pack=IBD", headers=headers).json()
-        assert graph["version"] == "1.1"
-        detail = client.get("/api/knowledge/nodes/IBD-N54?pack=IBD&version=1.1", headers=headers)
+        assert graph["version"] == "1.2"
+        detail = client.get("/api/knowledge/nodes/IBD-N54?pack=IBD&version=1.2", headers=headers)
         assert detail.json()["node"]["nodeId"] == "IBD-N54"
         assert client.get("/api/knowledge/nodes/IBD-NX", headers=headers).status_code == 404
         assert client.get("/api/knowledge/graph?version=9.9", headers=headers).status_code == 404

@@ -30,7 +30,7 @@ from brahma.platform.errors import AuditInvalid
 from tests.cases.conftest import IBD_PACK, OWNER
 
 AuditReader = Callable[[str], list[dict[str, Any]]]
-IBD_LIVE = PackVersionRef(pack="IBD", number="1.1")
+IBD_LIVE = PackVersionRef(pack="IBD", number="1.2")
 
 
 def test_create_case_is_synthetic_and_audited(
@@ -62,7 +62,7 @@ def test_newer_version_after_a_new_version_is_published(
 
     knowledge.create_version("IBD", IBD_LIVE, ChangeSet(change_summary="Wording fix"), OWNER)
 
-    assert cases.newer_version(case_id) == PackVersionRef(pack="IBD", number="1.2")
+    assert cases.newer_version(case_id) == PackVersionRef(pack="IBD", number="1.3")
     assert cases.get_case(case_id).pinned_pack_version == IBD_LIVE
     with pytest.raises(VersionNotFound):
         cases.pin(case_id, PackVersionRef(pack="IBD", number="9.0"))

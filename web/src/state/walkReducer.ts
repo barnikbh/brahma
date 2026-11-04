@@ -17,6 +17,8 @@ import type {
   Message,
   ProgressStep,
   TraversePath,
+  TraversePathItem,
+  TimelineItem,
   WalkCounts,
   WalkEvent,
   WalkRequest,
@@ -103,13 +105,22 @@ export type ChatItem =
     }
   | { kind: "summary"; id: string; info: SummaryInfo }
   | { kind: "notice"; id: string; text: string }
-  | { kind: "path"; id: string; card: TraversePath };
+  | { kind: "path"; id: string; card: TraversePath }
+  | {
+      kind: "lit";
+      id: string;
+      notice: string;
+      items: TraversePathItem[];
+      lines: { text: string; nodeIds: string[] }[];
+      pending: boolean;
+    };
 
 export interface MapState {
   version: string;
   nodes: MapNode[];
   edges: MapEdge[];
   lanes: Record<string, string[]>;
+  timeline: TimelineItem[];
 }
 
 export interface WalkError {
@@ -138,7 +149,7 @@ export const initialWalkState: WalkState = {
   walkId: null,
   progress: null,
   items: [],
-  map: { version: "", nodes: [], edges: [], lanes: {} },
+  map: { version: "", nodes: [], edges: [], lanes: {}, timeline: [] },
   error: null,
   lastRequest: null,
   done: null,
@@ -155,6 +166,8 @@ export type WalkAction =
   | { type: "loaded"; view: CaseView }
   | { type: "map_loaded"; map: MapData }
   | { type: "traversed"; map: MapData; card: TraversePath; notice: string }
+  | { type: "care_event"; id: string; map: MapData; lit: TraversePathItem[]; notice: string }
+  | { type: "care_card"; id: string; lines: { text: string; nodeIds: string[] }[] }
   | { type: "lock"; state: LockState }
   | { type: "open_edit"; nodeId: string; fields: FormField[] }
   | { type: "edit_done"; formId: string; summary: string | null }
@@ -550,6 +563,7 @@ function applyMapLoaded(map: MapState, data: MapData): MapState {
     nodes: data.nodes,
     edges: data.edges,
     lanes: Object.fromEntries((data.exploreLanes ?? []).map((lane) => [lane.laneId, lane.nodeIds])),
+    timeline: data.timeline ?? [],
   };
 }
 
@@ -624,6 +638,31 @@ export function walkReducer(state: WalkState, action: WalkAction): WalkState {
         ],
       };
     }
+    case "care_event":
+      return {
+        ...state,
+        map: applyMapLoaded(state.map, action.map),
+        items: [
+          ...state.items,
+          {
+            kind: "lit",
+            id: action.id,
+            notice: action.notice,
+            items: action.lit,
+            lines: [],
+            pending: action.lit.length > 0,
+          },
+        ],
+      };
+    case "care_card":
+      return {
+        ...state,
+        items: state.items.map((i) =>
+          i.kind === "lit" && i.id === action.id
+            ? { ...i, lines: action.lines, pending: false }
+            : i,
+        ),
+      };
     case "lock":
       return { ...state, readOnly: action.state === "read_only" };
     case "open_edit": {

@@ -92,7 +92,15 @@ MapStatus = Literal[
     "option",
     "planned",
     "chosen",
+    # Care-loop statuses, set by the frontier from the case's events.
+    "now",
+    "todo_first",
+    "due",
+    "watch",
+    "present",
+    "done",
 ]
+CareEventKind = Literal["present", "result", "done"]
 EdgeStyle = Literal["walked", "bypassed", "not_taken", "exploring"]
 
 
@@ -280,6 +288,21 @@ class TraverseChoice(AgEntity):
     created_at: str
 
 
+class CareEvent(AgEntity):
+    """One thing that happened in the case, in order: a sign present now, a test or
+    measurement result, or an action done. ``for_node_id`` scopes it to the action it
+    was done for (a prerequisite result counts for that action); events are append-only."""
+
+    event_id: str
+    case_id: str
+    kind: CareEventKind
+    node_id: str
+    value: str | None = None
+    for_node_id: str | None = None
+    profile_id: str
+    created_at: str
+
+
 class ExploreLane(AgEntity):
     """An explored alternative branch, kept apart from the main sections (FR4.7)."""
 
@@ -359,6 +382,10 @@ class MapNode(AgModel):
     column: str
     status: MapStatus
     result: dict[str, Any] | None = None
+    kind: str = "observation"
+    pos: list[int] | None = None
+    # Why a care-loop status lit this node, e.g. "Needed before Infliximab 5 mg/kg IV".
+    reason: str | None = None
 
 
 class MapEdge(AgModel):
@@ -368,6 +395,7 @@ class MapEdge(AgModel):
     from_: str = Field(alias="from")
     to: str
     style: EdgeStyle
+    relation: str | None = None
 
 
 class PathItem(AgModel):
@@ -383,6 +411,7 @@ class TraversePath(AgModel):
 
     drug: PathItem
     tier: PathItem
+    requires: list[PathItem] = Field(default_factory=list)
     review: list[PathItem] = Field(default_factory=list)
     monitor: list[PathItem] = Field(default_factory=list)
     watch_outs: list[PathItem] = Field(default_factory=list)
@@ -396,6 +425,16 @@ class MapLane(AgModel):
     node_ids: list[str]
 
 
+class TimelineItem(AgModel):
+    """One step of the case so far, for the strip under the map."""
+
+    node_id: str
+    label: str
+    kind: str
+    value: str | None = None
+    at: str
+
+
 class MapData(AgModel):
     """Map data for a walk or a replayed session."""
 
@@ -404,6 +443,7 @@ class MapData(AgModel):
     edges: list[MapEdge]
     selected_path: list[str]
     explore_lanes: list[MapLane] = Field(default_factory=list)
+    timeline: list[TimelineItem] = Field(default_factory=list)
 
 
 def version_label(version: PackVersionRef | None) -> str | None:

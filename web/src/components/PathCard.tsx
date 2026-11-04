@@ -26,6 +26,14 @@ export function PathCard({ path }: { path: TraversePath }) {
       <p>
         <strong>Now on {path.drug.label}</strong> <NodeChip nodeId={path.drug.nodeId} />
       </p>
+      {path.requires && path.requires.length > 0 ? (
+        <section aria-label="To do first">
+          <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-quiet">
+            To do first
+          </h4>
+          <PathRow items={path.requires} />
+        </section>
+      ) : null}
       {path.review.length > 0 ? (
         <section aria-label="Day-3 review">
           <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-quiet">

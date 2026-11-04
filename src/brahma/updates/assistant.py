@@ -117,8 +117,12 @@ NODE_PROMPT = (
     "doseBands, ascending, as objects with "
     "weightMinKg (above this weight; null on the first band), weightMaxKg (up to and "
     "including this weight; null on the last band), doseValue and doseUnit, and leave out "
-    "doseValue and doseUnit. Use only the field names the current node already has, plus "
-    "doseBands. Give section: the heading of the page section you used. Give evidence: the "
+    "doseValue and doseUnit. When a drug starts with a different induction dose (for "
+    "example a higher intravenous dose before a subcutaneous maintenance dose), keep "
+    "doseValue and doseUnit for the maintenance dose and put the induction dose in "
+    "inductionDoseValue and inductionDoseUnit. Use only the field names the current node "
+    "already has, plus doseBands, inductionDoseValue and inductionDoseUnit. "
+    "Give section: the heading of the page section you used. Give evidence: the "
     "few page lines you relied on, as written, for the population the node is about. If the "
     "source does not state a value, do not invent it: return status ask with one short "
     "question for the doctor. If the source does not support the change, return status "
@@ -634,15 +638,24 @@ class UpdateAssistant:
         return source
 
     def _link_new_node(self, base: PackVersionRef, neighbour: Node, new: Node, out: _Draft) -> None:
-        """Give a new node the same incoming links as the node it sits beside."""
+        """Give a new node the same incoming links as the node it sits beside. A new drug
+        also gets the neighbour drug's ``requires`` links (tests to do first, e.g. TB and
+        hepatitis B screens before a biologic). Its other outgoing links stay drug-specific
+        (infliximab's trough level is not another drug's), so they are never copied."""
         edges = self._service.knowledge.repo.read_edges(version_id(base.pack, base.number))
+        both_drugs = new.type == "drug" and neighbour.type == "drug"
         for edge in sorted(edges, key=lambda e: natural_key(e.edge_id)):
             if edge.to_node_id == neighbour.node_id:
-                out.edges.append(
-                    edge.model_copy(
-                        update={"edge_id": out.ids.next("E"), "to_node_id": new.node_id}
-                    )
-                )
+                update = {"edge_id": out.ids.next("E"), "to_node_id": new.node_id}
+            elif (
+                both_drugs
+                and edge.from_node_id == neighbour.node_id
+                and edge.relation == "requires"
+            ):
+                update = {"edge_id": out.ids.next("E"), "from_node_id": new.node_id}
+            else:
+                continue
+            out.edges.append(edge.model_copy(update=update))
 
     @staticmethod
     def _link_tiers(nodes: dict[str, Node], out: _Draft) -> None:

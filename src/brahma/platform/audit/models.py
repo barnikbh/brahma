@@ -19,6 +19,7 @@ AuditKind = Literal[
     "treatment_edit",
     "traverse_choice",
     "review_recorded",
+    "care_event",
     "treatment_history",
     "prescription_signed",
     "prescription_voided",

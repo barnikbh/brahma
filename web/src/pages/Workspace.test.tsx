@@ -12,6 +12,7 @@ import {
   apiError,
   caseView,
   installFakeApi,
+  nodeDetail,
 } from "@/test/fakeApi";
 import { renderApp } from "@/test/render";
 
@@ -119,6 +120,7 @@ describe("WorkspacePage", () => {
     expect(line).toHaveAttribute("aria-pressed", "true");
     expect(await screen.findByTestId("node-panel")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Close node detail" }));
+    await userEvent.click(screen.getByRole("button", { name: /show whole map/ }));
     const node = document.querySelector<HTMLElement>('[data-map-node="IBD-N51"]')!;
     await userEvent.click(node);
     const treatment = screen.getByRole("button", { name: /Intravenous hydrocortisone/ });
@@ -147,6 +149,14 @@ describe("WorkspacePage", () => {
     ).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Re-walk on IBD 1.1" }));
     expect(fake.callsTo("POST", "/api/cases/:id/walk")[0].body).toEqual({ mode: "rewalk" });
+  });
+
+  it("re-walks on the latest knowledge base from the chat", async () => {
+    const fake = await walkDemo();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Re-walk on the latest knowledge base" }),
+    );
+    expect(fake.callsTo("POST", "/api/cases/:id/walk").at(-1)?.body).toEqual({ mode: "rewalk" });
   });
 
   it("shows the read-only banner and disables input in a second tab", async () => {
@@ -274,6 +284,7 @@ describe("WorkspacePage", () => {
       dose: { value: 100, unit: "mg", formula: "100 mg (fixed dose)" },
       safety: [],
     }));
+    await userEvent.click(screen.getByRole("button", { name: /show whole map/ }));
     await userEvent.click(document.querySelector<HTMLElement>('[data-map-node="IBD-N51"]')!);
     await userEvent.click(await screen.findByRole("button", { name: "Edit treatment" }));
     const form = screen.getByRole("form", { name: "Edit treatment" });
@@ -343,17 +354,99 @@ describe("WorkspacePage", () => {
     await userEvent.click(screen.getByRole("button", { name: "Send" }));
     await screen.findByTestId("walk-summary");
     const drug = document.querySelector<HTMLElement>('[data-map-node="IBD-N51"]')!;
-    expect(drug).toHaveTextContent("○ Option");
+    expect(drug).toHaveTextContent("Option");
     await userEvent.click(drug);
     await userEvent.click(await screen.findByRole("button", { name: "Choose this option" }));
     expect(fake.callsTo("POST", "/api/cases/:id/traverse")[0].body).toEqual({
       nodeId: "IBD-N51",
     });
     await waitFor(() =>
-      expect(document.querySelector('[data-map-node="IBD-N51"]')).toHaveTextContent("✓ Chosen"),
+      expect(document.querySelector('[data-map-node="IBD-N51"]')).toHaveTextContent("Chosen"),
     );
     expect(await screen.findByText(/Hydrocortisone 100 mg IV chosen/)).toBeInTheDocument();
     expect(screen.getByTestId("path-card")).toHaveTextContent("Now on Hydrocortisone 100 mg IV");
+  });
+
+  it("records a result from the panel, lights the next step and shows a cited note", async () => {
+    const nodes: MapNode[] = [
+      {
+        nodeId: "IBD-N57",
+        type: "drug",
+        label: "Vedolizumab",
+        column: "treatment",
+        status: "chosen",
+        kind: "action",
+        result: null,
+      },
+      {
+        nodeId: "IBD-N110",
+        type: "test",
+        label: "TB screen",
+        column: "tests",
+        status: "todo_first",
+        kind: "test",
+        reason: "must be done before Vedolizumab",
+        result: null,
+      },
+    ];
+    const fake = installFakeApi({
+      "GET /api/nodes/:v/:n": () =>
+        nodeDetail({
+          node: {
+            nodeId: "IBD-N110",
+            type: "test",
+            label: "TB screen",
+            content: "Screen first.",
+            fields: { resultOptions: ["negative", "positive"] },
+            sourceIds: ["SRC-1"],
+            column: "tests",
+          },
+        }),
+    });
+    fake.walkStreams.push([
+      { type: "map_update", payload: { walkId: "wk-1", nodes, edges: [] } },
+      ...ANSWER_EVENTS.slice(-1),
+    ]);
+    fake.on("POST /api/cases/:id/events", () => ({
+      map: {
+        version: "IBD 1.2",
+        nodes: nodes.map((n) =>
+          n.nodeId === "IBD-N110" ? { ...n, status: "done", result: { value: "negative" } } : n,
+        ),
+        edges: [],
+        selectedPath: [],
+        timeline: [
+          { nodeId: "IBD-N110", label: "TB screen", kind: "result", value: "negative", at: "t" },
+        ],
+      },
+      lit: [{ nodeId: "IBD-N111", label: "Hepatitis B screen", type: "test" }],
+      notice: "TB screen: result recorded.",
+    }));
+    fake.on("POST /api/cases/:id/events/card", () => ({
+      lines: [{ text: "Check hepatitis B before the first dose.", nodeIds: ["IBD-N111"] }],
+      rejected: 0,
+    }));
+    renderApp("/cases/BR-000001");
+    await userEvent.type(await screen.findByLabelText(/Describe the patient/), "case");
+    await userEvent.click(screen.getByRole("button", { name: "Send" }));
+    await screen.findByTestId("walk-summary");
+    const test = document.querySelector<HTMLElement>('[data-map-node="IBD-N110"]')!;
+    expect(test).toHaveTextContent("To do first");
+    await userEvent.click(test);
+    expect(fake.callsTo("POST", "/api/cases/:id/events")).toHaveLength(0); // a click only opens
+    expect(await screen.findByText("must be done before Vedolizumab")).toBeInTheDocument();
+    await userEvent.selectOptions(await screen.findByLabelText("Result"), "negative");
+    await userEvent.click(screen.getByRole("button", { name: "Record result" }));
+    expect(fake.callsTo("POST", "/api/cases/:id/events")[0].body).toEqual({
+      kind: "result",
+      nodeId: "IBD-N110",
+      value: "negative",
+    });
+    await waitFor(() =>
+      expect(document.querySelector('[data-map-node="IBD-N110"]')).toHaveTextContent("Done"),
+    );
+    expect(await screen.findByText("Check hepatitis B before the first dose.")).toBeInTheDocument();
+    expect(screen.getByTestId("timeline")).toHaveTextContent("TB screen · result negative");
   });
 
   it("shows the synthetic patient card with the allergy and saves new details", async () => {

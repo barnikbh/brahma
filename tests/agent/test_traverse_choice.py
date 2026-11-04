@@ -28,13 +28,13 @@ def test_choice_marks_the_drug_chosen_and_lights_its_tier(
     assert path.tier.node_id == "IBD-N41"
     assert [n.node_id for n in path.review] == ["IBD-N80", "IBD-N81"]
     assert [n.node_id for n in path.monitor] == ["IBD-N70", "IBD-N71"]
-    assert [n.node_id for n in path.watch_outs] == ["IBD-N90", "IBD-N91", "IBD-N96"]
+    assert path.watch_outs == []  # acute severe UC risks hang off the state, not the tier
     assert [n.node_id for n in path.next_tiers] == ["IBD-N42"]
     statuses = _statuses(data)
     assert statuses["IBD-N51"] == "chosen"
     assert statuses["IBD-N52"] == "option"
-    assert statuses["IBD-N70"] == "used"
-    assert statuses["IBD-N80"] == "used"
+    assert statuses["IBD-N70"] == "due"
+    assert statuses["IBD-N80"] == "due"
     assert statuses["IBD-N42"] == "planned"
     assert statuses["IBD-N41"] == "entry"
     styles = {e.edge_id: e.style for e in data.edges}
@@ -75,7 +75,7 @@ def test_rechoosing_moves_the_highlight_and_keeps_history(
     statuses = _statuses(data)
     assert statuses["IBD-N51"] == "option"
     assert statuses["IBD-N52"] == "chosen"
-    assert statuses["IBD-N70"] == "used"  # same tier downstream stays lit
+    assert statuses["IBD-N70"] == "due"  # same tier downstream stays lit
     walk_id = repo.latest_for_case(demo_case.case_id).walk_id
     assert repo.choices_for_walk(walk_id) == {"IBD-N41": "IBD-N52"}
     entries = [r for r in audit_rows(demo_case.case_id) if r["kind"] == "traverse_choice"]

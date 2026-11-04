@@ -24,7 +24,7 @@ from brahma.agent.traverse import TRAVERSED_STATUSES, Traversal
 from brahma.cases.models import DoseResult, Finding, Patient
 from brahma.knowledge.errors import NodeNotFound
 from brahma.knowledge.matcher import drug_class, drug_names, normalise_text
-from brahma.knowledge.models import Fact, Node, PackVersionRef, Source
+from brahma.knowledge.models import Fact, Node, PackVersionRef, Source, node_kind
 from brahma.knowledge.repository import version_id
 from brahma.knowledge.service import KnowledgeService
 
@@ -259,6 +259,52 @@ def build_map(
     return MapData(version=label, nodes=nodes, edges=edges, selected_path=trav.path_node_ids)
 
 
+# How an earlier walk's node reads once the case has moved on: the tier it was on is
+# done, the drug chosen then was tried, offers and plans that were not taken are not.
+PAST_STATUS: dict[str, MapStatus] = {
+    "chosen": "tried",
+    "entry": "done",
+    "now": "done",
+    "due": "done",
+    "option": "not_taken",
+    "planned": "not_taken",
+    "todo_first": "not_taken",
+}
+
+
+def with_history(current: MapData, earlier: list[MapData]) -> MapData:
+    """The walk's map plus the nodes and edges of the case's earlier walks, so the past
+    never disappears when a new walk starts. Current statuses win; an earlier node keeps
+    its last status, read as past (``PAST_STATUS``)."""
+    present = {n.node_id for n in current.nodes}
+    past: dict[str, MapNode] = {}
+    past_edges: dict[str, MapEdge] = {}
+    for data in earlier:
+        for node in data.nodes:
+            if node.node_id in present:
+                continue
+            status = PAST_STATUS.get(node.status, node.status)
+            past[node.node_id] = node.model_copy(
+                update={"status": status, "reason": "Earlier in this case"}
+            )
+        for edge in data.edges:
+            past_edges[edge.edge_id] = edge
+    if not past:
+        return current
+    nodes = [*current.nodes, *past.values()]
+    shown = {n.node_id for n in nodes}
+    have = {e.edge_id for e in current.edges}
+    edges = [
+        *current.edges,
+        *(
+            e
+            for e in past_edges.values()
+            if e.edge_id not in have and e.from_ in shown and e.to in shown
+        ),
+    ]
+    return current.model_copy(update={"nodes": nodes, "edges": edges})
+
+
 def lane_map(
     knowledge: KnowledgeService, version: PackVersionRef, node_ids: list[str]
 ) -> tuple[list[MapNode], list[MapEdge]]:
@@ -312,6 +358,8 @@ def _map_node(
         column=node.column,
         status=status,
         result=shown,
+        kind=node_kind(node.type),
+        pos=list(node.pos) if node.pos else None,
     )
 
 

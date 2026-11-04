@@ -205,7 +205,16 @@ export type MapStatus =
   | "tried"
   | "option"
   | "planned"
-  | "chosen";
+  | "chosen"
+  | "now"
+  | "todo_first"
+  | "due"
+  | "watch"
+  | "present"
+  | "done";
+
+/** The five node kinds of the care graph (colour on the map). */
+export type NodeKind = "state" | "observation" | "test" | "action" | "escalation";
 
 /** How a prior therapy went, from the doctor's treatment history. */
 export type TherapyResponse = "failed" | "lost_response" | "intolerant" | "responded";
@@ -220,6 +229,11 @@ export interface MapNode {
   status: MapStatus;
   /** A test result (`value`) or, for a prior therapy, how it went (`response`). */
   result: { value?: string; response?: TherapyResponse } | null;
+  kind?: NodeKind;
+  /** Pack-authored map position, when the pack sets one. */
+  pos?: [number, number] | null;
+  /** Why the care loop lit this node, e.g. "must be done before Vedolizumab". */
+  reason?: string | null;
 }
 
 export interface MapEdge {
@@ -227,6 +241,15 @@ export interface MapEdge {
   from: string;
   to: string;
   style: "walked" | "bypassed" | "not_taken" | "exploring";
+  relation?: string | null;
+}
+
+export interface TimelineItem {
+  nodeId: string;
+  label: string;
+  kind: "present" | "result" | "done";
+  value?: string | null;
+  at: string;
 }
 
 export interface MapData {
@@ -235,6 +258,7 @@ export interface MapData {
   edges: MapEdge[];
   selectedPath: string[];
   exploreLanes?: { laneId: string; nodeIds: string[] }[];
+  timeline?: TimelineItem[];
 }
 
 export interface DonePayload {
@@ -375,10 +399,22 @@ export interface TraversePathItem {
 export interface TraversePath {
   drug: TraversePathItem;
   tier: TraversePathItem;
+  requires?: TraversePathItem[];
   review: TraversePathItem[];
   monitor: TraversePathItem[];
   watchOuts: TraversePathItem[];
   nextTiers: TraversePathItem[];
+}
+
+export interface CareEventResponse {
+  map: MapData;
+  lit: TraversePathItem[];
+  notice: string;
+}
+
+export interface CareCard {
+  lines: { text: string; nodeIds: string[] }[];
+  rejected: number;
 }
 
 export interface TraverseResponse {

@@ -19,6 +19,8 @@ import type {
   Outcome,
   PatientChange,
   Profile,
+  CareCard,
+  CareEventResponse,
   TraverseResponse,
   PackGraph,
   PackInfo,
@@ -220,6 +222,15 @@ export const api = {
     request<TraverseResponse>(`/api/cases/${enc(caseId)}/traverse`, {
       method: "POST",
       body: { nodeId },
+    }),
+  careEvent: (
+    caseId: string,
+    body: { kind: "present" | "result" | "done"; nodeId: string; value?: string },
+  ) => request<CareEventResponse>(`/api/cases/${enc(caseId)}/events`, { method: "POST", body }),
+  careEventCard: (caseId: string, nodeIds: string[]) =>
+    request<CareCard>(`/api/cases/${enc(caseId)}/events/card`, {
+      method: "POST",
+      body: { nodeIds },
     }),
   caseMap: (caseId: string, params: { walkId?: string; sessionId?: string } = {}) => {
     const query = new URLSearchParams();

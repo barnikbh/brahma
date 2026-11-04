@@ -1,0 +1,1435 @@
+[
+ {
+  "tid": "T17",
+  "case_id": "BR-F4CD52",
+  "steps": [
+   {
+    "action": "start walk",
+    "request": {
+     "mode": "start",
+     "text": "34-year-old woman, bloody stool 6 months, Hb 10.2 g/dL, calprotectin 850 µg/g"
+    },
+    "seconds": 8.9,
+    "events": {
+     "progress": 1,
+     "form": 1,
+     "paused": 1
+    },
+    "components": [
+     "ChatForm (confirm-findings chips / needs-data)",
+     "ChatForm waiting state",
+     "ChatThread progress line"
+    ],
+    "progress": [
+     "reading_findings"
+    ],
+    "forms": [
+     {
+      "kind": "confirm-findings",
+      "fields": [
+       {
+        "name": "age",
+        "label": "age 34",
+        "findingKind": "age",
+        "value": 34.0,
+        "validationState": "ok"
+       },
+       {
+        "name": "sex",
+        "label": "sex woman",
+        "findingKind": "sex",
+        "value": "woman",
+        "validationState": "ok"
+       },
+       {
+        "name": "bloody stool",
+        "label": "bloody stool",
+        "findingKind": "symptom",
+        "duration": "6 months",
+        "validationState": "ok"
+       },
+       {
+        "name": "Hb",
+        "label": "Hb 10.2 g/dL",
+        "findingKind": "test",
+        "value": 10.2,
+        "unit": "g/dL",
+        "nodeId": "IBD-N3",
+        "validationState": "ok"
+       },
+       {
+        "name": "calprotectin",
+        "label": "calprotectin 850 µg/g",
+        "findingKind": "test",
+        "value": 850.0,
+        "unit": "ug/g",
+        "nodeId": "IBD-N5",
+        "validationState": "ok"
+       }
+      ]
+     }
+    ],
+    "lines": [],
+    "notices": [],
+    "done": null,
+    "errors": []
+   },
+   {
+    "action": "confirm findings",
+    "request": {
+     "mode": "continue",
+     "walkId": "wk-145347a359a145358f3002895abaae34",
+     "formMessageId": "msg-e5972593753f48fb89ac063519f4286c",
+     "formValues": {
+      "findings": [
+       {
+        "kind": "age",
+        "name": "age",
+        "value": 34.0,
+        "unit": null,
+        "duration": null
+       },
+       {
+        "kind": "sex",
+        "name": "sex",
+        "value": "woman",
+        "unit": null,
+        "duration": null
+       },
+       {
+        "kind": "symptom",
+        "name": "bloody stool",
+        "value": null,
+        "unit": null,
+        "duration": "6 months"
+       },
+       {
+        "kind": "test",
+        "name": "Hb",
+        "value": 10.2,
+        "unit": "g/dL",
+        "duration": null
+       },
+       {
+        "kind": "test",
+        "name": "calprotectin",
+        "value": 850.0,
+        "unit": "ug/g",
+        "duration": null
+       }
+      ]
+     }
+    },
+    "seconds": 0.0,
+    "events": {
+     "progress": 1,
+     "map_update": 1,
+     "form": 1,
+     "paused": 1
+    },
+    "components": [
+     "ChatForm (confirm-findings chips / needs-data)",
+     "ChatForm waiting state",
+     "ChatThread progress line",
+     "GraphCanvas (map)"
+    ],
+    "progress": [
+     "matching_diagnosis"
+    ],
+    "forms": [
+     {
+      "kind": "needs-data",
+      "fields": [
+       {
+        "name": "IBD-N20",
+        "label": "Stool culture and C. difficile testing",
+        "nodeId": "IBD-N20",
+        "options": [
+         "negative",
+         "positive"
+        ]
+       },
+       {
+        "name": "IBD-N21",
+        "label": "Ileocolonoscopy with biopsies",
+        "nodeId": "IBD-N21",
+        "options": [
+         "ulcerative colitis",
+         "crohn's disease",
+         "normal"
+        ]
+       }
+      ]
+     }
+    ],
+    "lines": [],
+    "notices": [],
+    "done": null,
+    "errors": []
+   },
+   {
+    "action": "answer needs-data IBD-N20=negative, IBD-N21=ulcerative colitis",
+    "request": {
+     "mode": "continue",
+     "walkId": "wk-145347a359a145358f3002895abaae34",
+     "formMessageId": "msg-03f35ea2dfc5452797956c68d68f5f62",
+     "formValues": {
+      "IBD-N20": "negative",
+      "IBD-N21": "ulcerative colitis"
+     }
+    },
+    "seconds": 0.0,
+    "events": {
+     "progress": 1,
+     "map_update": 1,
+     "form": 1,
+     "paused": 1
+    },
+    "components": [
+     "ChatForm (confirm-findings chips / needs-data)",
+     "ChatForm waiting state",
+     "ChatThread progress line",
+     "GraphCanvas (map)"
+    ],
+    "progress": [
+     "matching_diagnosis"
+    ],
+    "forms": [
+     {
+      "kind": "needs-data",
+      "fields": [
+       {
+        "name": "IBD-N22",
+        "label": "Extent of ulcerative colitis (Montreal E1 to E3)",
+        "nodeId": "IBD-N22",
+        "options": [
+         "E1",
+         "E2",
+         "E3"
+        ]
+       },
+       {
+        "name": "IBD-N23",
+        "label": "Severity of ulcerative colitis (Truelove and Witts)",
+        "nodeId": "IBD-N23",
+        "options": [
+         "mild",
+         "moderate",
+         "severe"
+        ]
+       }
+      ]
+     }
+    ],
+    "lines": [],
+    "notices": [],
+    "done": null,
+    "errors": []
+   },
+   {
+    "action": "answer needs-data IBD-N22=E3, IBD-N23=severe",
+    "request": {
+     "mode": "continue",
+     "walkId": "wk-145347a359a145358f3002895abaae34",
+     "formMessageId": "msg-f39aabfbd076415a90b84b404ba96067",
+     "formValues": {
+      "IBD-N22": "E3",
+      "IBD-N23": "severe"
+     }
+    },
+    "seconds": 147.1,
+    "events": {
+     "progress": 10,
+     "map_update": 1,
+     "line": 36,
+     "section_done": 9,
+     "done": 1
+    },
+    "components": [
+     "ChatLine + NodeChip (cited line)",
+     "ChatThread progress line",
+     "ChatThread section header",
+     "GraphCanvas (map)",
+     "WalkSummary + ResultBadge"
+    ],
+    "progress": [
+     "matching_diagnosis",
+     "matching_diagnosis",
+     "matching_diagnosis",
+     "refining",
+     "refining",
+     "planning_treatment",
+     "checking_sources",
+     "checking_sources",
+     "checking_sources",
+     "writing_explanation"
+    ],
+    "forms": [],
+    "lines": [
+     {
+      "section": "findings",
+      "text": "Loose stools containing visible blood are a key presenting feature to assess.",
+      "nodeIds": [
+       "IBD-N1"
+      ]
+     },
+     {
+      "section": "findings",
+      "text": "A haemoglobin below 10.5 g/dL counts as a marker of systemic toxicity.",
+      "nodeIds": [
+       "IBD-N3"
+      ]
+     },
+     {
+      "section": "findings",
+      "text": "A calprotectin above 50 ug/g supports referral in adults with recent-onset lower gastrointestinal symptoms.",
+      "nodeIds": [
+       "IBD-N5"
+      ]
+     },
+     {
+      "section": "diagnosis",
+      "text": "Consider inflammatory bowel disease as a working diagnosis when symptoms and raised inflammatory markers suggest it.",
+      "nodeIds": [
+       "IBD-N10"
+      ]
+     },
+     {
+      "section": "diagnosis",
+      "text": "Base confirmation on combined clinical, laboratory, endoscopic and histological findings together, after exclusion of other causes.",
+      "nodeIds": [
+       "IBD-N10"
+      ]
+     },
+     {
+      "section": "diagnosis",
+      "text": "Ulcerative colitis is continuous mucosal inflammation starting in the rectum and extending variably up the colon, with extent and severity guiding treatment.",
+      "nodeIds": [
+       "IBD-N11"
+      ]
+     },
+     {
+      "section": "tests",
+      "text": "Send stool culture when this condition is suspected and with every flare to exclude other causes.",
+      "nodeIds": [
+       "IBD-N20"
+      ]
+     },
+     {
+      "section": "tests",
+      "text": "Use colonoscopy with biopsy with samples from the terminal ileum and each colonic segment to establish the diagnosis and distinguish subtypes.",
+      "nodeIds": [
+       "IBD-N21"
+      ]
+     },
+     {
+      "section": "tests",
+      "text": "Record disease extent by maximal involvement as E1, E2 or E3.",
+      "nodeIds": [
+       "IBD-N22"
+      ]
+     },
+     {
+      "section": "tests",
+      "text": "Assess truelove and witts severity as mild, moderate or severe; severe cases require hospital admission.",
+      "nodeIds": [
+       "IBD-N23"
+      ]
+     },
+     {
+      "section": "subtype",
+      "text": "Extensive disease extends beyond the splenic flexure and includes pancolitis.",
+      "nodeIds": [
+       "IBD-N32"
+      ]
+     },
+     {
+      "section": "subtype",
+      "text": "Severe acute presentation is a medical emergency requiring admission with joint medical and surgical input and early planning for rescue therapy.",
+      "nodeIds": [
+       "IBD-N34"
+      ]
+     },
+     {
+      "section": "treatment",
+      "text": "Hospital treatment for this presentation is categorized as Tier 2.",
+      "nodeIds": [
+       "IBD-N41"
+      ]
+     },
+     {
+      "section": "treatment",
+      "text": "Give hydrocortisone 100 mg intravenously four times daily until response is assessed on day 3.",
+      "nodeIds": [
+       "IBD-N51"
+      ]
+     },
+     {
+      "section": "treatment",
+      "text": "Alternatively, give methylprednisolone 60 mg intravenously once daily until response is assessed on day 3.",
+      "nodeIds": [
+       "IBD-N52"
+      ]
+     },
+     {
+      "section": "treatment",
+      "text": "If intravenous steroids fail, rescue therapy or colectomy is considered, categorized as Tier 3.",
+      "nodeIds": [
+       "IBD-N42"
+      ]
+     },
+     {
+      "section": "monitor",
+      "text": "Record stool frequency each day, with formal review on day 3; more than 8 per day predicts colectomy is likely.",
+      "nodeIds": [
+       "IBD-N70"
+      ]
+     },
+     {
+      "section": "monitor",
+      "text": "Check CRP each day, with formal review on day 3; above 45 mg/L predicts colectomy is likely.",
+      "nodeIds": [
+       "IBD-N71"
+      ]
+     },
+     {
+      "section": "monitor",
+      "text": "On day 3, more than 8 per day means no response, so discuss rescue therapy or surgery.",
+      "nodeIds": [
+       "IBD-N80"
+      ]
+     },
+     {
+      "section": "monitor",
+      "text": "On day 3, CRP above 45 mg/L means no response, so discuss rescue therapy or surgery.",
+      "nodeIds": [
+       "IBD-N81"
+      ]
+     },
+     {
+      "section": "diet",
+      "text": "No specific diet has been shown to bring on or sustain remission.",
+      "nodeIds": [
+       "IBD-N60"
+      ]
+     },
+     {
+      "section": "diet",
+      "text": "Screen for malnutrition and provide individualized dietary advice.",
+      "nodeIds": [
+       "IBD-N60"
+      ]
+     },
+     {
+      "section": "watch_outs",
+      "text": "New or worsening bloody diarrhoea should be checked to exclude infection before escalating treatment.",
+      "nodeIds": [
+       "IBD-N94"
+      ]
+     },
+     {
+      "section": "watch_outs",
+      "text": "Colonic dilatation with signs of systemic toxicity is a surgical emergency needing urgent joint medical and surgical review.",
+      "nodeIds": [
+       "IBD-N90"
+      ]
+     },
+     {
+      "section": "watch_outs",
+      "text": "Hospital admission with active disease carries higher clot risk, so give pharmacological prophylaxis unless contraindicated, even with rectal bleeding.",
+      "nodeIds": [
+       "IBD-N91"
+      ]
+     },
+     {
+      "section": "watch_outs",
+      "text": "Persistent dilatation with toxicity, perforation or major bleeding are triggers for emergency colectomy.",
+      "nodeIds": [
+       "IBD-N96"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Visible blood in loose stools is a key presenting feature to assess.",
+      "nodeIds": [
+       "IBD-N1"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "A haemoglobin below 10.5 g/dL counts as a marker of systemic toxicity.",
+      "nodeIds": [
+       "IBD-N3"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Faecal calprotectin above 50 ug/g supports referral to look for inflammatory bowel disease.",
+      "nodeIds": [
+       "IBD-N5",
+       "IBD-N10"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "When inflammatory bowel disease is suspected, stool culture should be sent to exclude infection.",
+      "nodeIds": [
+       "IBD-N10",
+       "IBD-N20"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Colonoscopy with biopsy with biopsies from each segment is the key test to establish ulcerative colitis.",
+      "nodeIds": [
+       "IBD-N21",
+       "IBD-N11"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Acute severe ulcerative colitis is a medical emergency needing admission with joint medical and surgical care.",
+      "nodeIds": [
+       "IBD-N34"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Hydrocortisone 100 mg given intravenously four times daily is a first-line steroid regimen.",
+      "nodeIds": [
+       "IBD-N51",
+       "IBD-N41"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Methylprednisolone 60 mg given intravenously once daily is an alternative steroid regimen.",
+      "nodeIds": [
+       "IBD-N52",
+       "IBD-N41"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Recorded stool frequency above 8 per day predicts that colectomy is likely.",
+      "nodeIds": [
+       "IBD-N70",
+       "IBD-N80"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "A CRP above 45 mg/L with ongoing stools predicts that colectomy is likely.",
+      "nodeIds": [
+       "IBD-N71",
+       "IBD-N81"
+      ]
+     }
+    ],
+    "notices": [],
+    "done": {
+     "walkId": "wk-145347a359a145358f3002895abaae34",
+     "sessionId": "s-e28f5ae2b7f147309628fb6afdc31eb1",
+     "outcome": "answered",
+     "counts": {
+      "steps": 24,
+      "cited": 36,
+      "ungrounded": 0
+     },
+     "packVersion": "IBD 1.2",
+     "provider": "meta",
+     "model": "muse-spark-1.3",
+     "disclaimer": "Decision support, not diagnosis",
+     "followUp": true,
+     "offers": []
+    },
+    "errors": []
+   },
+   {
+    "action": "follow-up: Remicade failed",
+    "request": {
+     "mode": "follow_up",
+     "text": "Remicade failed. steroids work."
+    },
+    "seconds": 67.7,
+    "events": {
+     "progress": 4,
+     "history": 1,
+     "map_update": 1,
+     "line": 10,
+     "section_done": 3,
+     "done": 1
+    },
+    "components": [
+     "ChatLine + NodeChip (cited line)",
+     "ChatThread notice (treatment history)",
+     "ChatThread progress line",
+     "ChatThread section header",
+     "GraphCanvas (map)",
+     "WalkSummary + ResultBadge"
+    ],
+    "progress": [
+     "reading_findings",
+     "planning_treatment",
+     "checking_sources",
+     "checking_sources"
+    ],
+    "forms": [],
+    "lines": [
+     {
+      "section": "treatment",
+      "text": "After primary non-response, loss of response or intolerance to anti-TNF therapy, check trough levels and anti-drug antibodies to guide the next step; this is a tier 3 pathway.",
+      "nodeIds": [
+       "IBD-N46"
+      ]
+     },
+     {
+      "section": "treatment",
+      "text": "With adequate levels, change to another class such as ustekinumab, vedolizumab or tofacitinib.",
+      "nodeIds": [
+       "IBD-N46",
+       "IBD-N54",
+       "IBD-N57",
+       "IBD-N58"
+      ]
+     },
+     {
+      "section": "treatment",
+      "text": "With low levels or antibodies after loss of response, optimising or changing to a second anti-TNF can be supported.",
+      "nodeIds": [
+       "IBD-N46"
+      ]
+     },
+     {
+      "section": "treatment",
+      "text": "Ustekinumab maintenance is 90 mg given under the skin every 8 weeks after a single weight-based intravenous induction dose, continued while the patient responds.",
+      "nodeIds": [
+       "IBD-N54"
+      ]
+     },
+     {
+      "section": "treatment",
+      "text": "Vedolizumab is given as 300 mg by infusion at weeks 0, 2 and 6, then every 8 weeks, continued while the patient responds.",
+      "nodeIds": [
+       "IBD-N57"
+      ]
+     },
+     {
+      "section": "treatment",
+      "text": "Tofacitinib induction is 10 mg taken orally twice daily for 8 weeks, followed by a lower maintenance dose once the colitis responds.",
+      "nodeIds": [
+       "IBD-N58"
+      ]
+     },
+     {
+      "section": "monitor",
+      "text": "When response is lost, reactive testing helps guide the next step, aiming for a trough of at least 5 ug/mL.",
+      "nodeIds": [
+       "IBD-N72"
+      ]
+     },
+     {
+      "section": "monitor",
+      "text": "An intermediate treatment target is a fall to 250 ug/g or below.",
+      "nodeIds": [
+       "IBD-N83"
+      ]
+     },
+     {
+      "section": "watch_outs",
+      "text": "Before starting anti-TNF or other biologic therapy, screen for latent tuberculosis and hepatitis B and review vaccination status.",
+      "nodeIds": [
+       "IBD-N92"
+      ]
+     },
+     {
+      "section": "watch_outs",
+      "text": "When colitis is responding to corticosteroids during a switch, use them only as a short bridge until the new maintenance treatment takes effect, then taper them off.",
+      "nodeIds": [
+       "IBD-N102"
+      ]
+     }
+    ],
+    "notices": [
+     "Noted treatment history: infliximab — no response; corticosteroid — responded."
+    ],
+    "done": {
+     "walkId": "wk-52241f8f2b824be58316ae21ad9b6787",
+     "sessionId": "s-9a3d50fe55b14c4ea83ffa71977430f9",
+     "outcome": "answered",
+     "counts": {
+      "steps": 34,
+      "cited": 10,
+      "ungrounded": 1
+     },
+     "packVersion": "IBD 1.2",
+     "provider": "meta",
+     "model": "muse-spark-1.3",
+     "disclaimer": "Decision support, not diagnosis",
+     "followUp": true,
+     "offers": []
+    },
+    "errors": []
+   },
+   {
+    "action": "choose Vedolizumab",
+    "request": {
+     "nodeId": "IBD-N57"
+    },
+    "http": 201,
+    "seconds": 0.01,
+    "response": "{\"map\": {\"version\": \"IBD 1.2\", \"nodes\": [{\"nodeId\": \"IBD-N1\", \"type\": \"symptom\", \"label\": \"Bloody diarrhoea\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N3\", \"type\": \"metric\", \"label\": \"Haemoglobin below 10.5 g/dL\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N5\", \"type\": \"metric\", \"label\": \"Faecal calprotectin above 50 ug/g\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N10\", \"type\": \"diagnosis\", \"label\": \"Suspected inflammatory bowel disease\", \"column\": \"diagnosis\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N11\", \"type\": \"diagnosis\", \"label\": \"Ulcerative colitis\", \"column\": \"diagnosis\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N20\", \"type\": \"test\", \"label\": \"Stool culture and C. difficile testing\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"negative\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N21\", \"type\": \"test\", \"label\": \"Ileocolonoscopy with biopsies\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"ulcerative colitis\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N22\", \"type\": \"test\", \"label\": \"Extent of ulcerative colitis (Montreal E1 to E3)\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"E3\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N23\", \"type\": \"test\", \"label\": \"Severity of ulcerative colitis (Truelove and Witts)\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"severe\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N32\", \"type\": \"subtype\", \"label\": \"Extensive ulcerative colitis, pancolitis (E3)\", \"column\": \"subtype\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N34\", \"type\": \"subtype\", \"label\": \"Acute severe ulcerative colitis\", \"column\": \"subtype\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N41\", \"type\": \"treatment_tier\", \"label\": \"UC Tier 2: intravenous corticosteroids\", \"column\": \"treatment\", \"status\": \"used\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N51\", \"type\": \"drug\", \"label\": \"Hydrocortisone 100 mg IV four times daily\", \"column\": \"treatment\", \"status\": \"tried\", \"result\": {\"response\": \"responded\"}, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N52\", \"type\": \"drug\", \"label\": \"Methylprednisolone 60 mg IV once daily\", \"column\": \"treatment\", \"status\": \"tried\", \"result\": {\"response\": \"responded\"}, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N42\", \"type\": \"treatment_tier\", \"label\": \"UC Tier 3: rescue or advanced therapy\", \"column\": \"treatment\", \"status\": \"planned\", \"result\": null, \"kin…"
+   },
+   {
+    "action": "TB screen negative",
+    "request": {
+     "kind": "result",
+     "nodeId": "IBD-N110",
+     "value": "negative"
+    },
+    "http": 201,
+    "seconds": 0.01,
+    "response": "{\"map\": {\"version\": \"IBD 1.2\", \"nodes\": [{\"nodeId\": \"IBD-N1\", \"type\": \"symptom\", \"label\": \"Bloody diarrhoea\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N3\", \"type\": \"metric\", \"label\": \"Haemoglobin below 10.5 g/dL\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N5\", \"type\": \"metric\", \"label\": \"Faecal calprotectin above 50 ug/g\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N10\", \"type\": \"diagnosis\", \"label\": \"Suspected inflammatory bowel disease\", \"column\": \"diagnosis\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N11\", \"type\": \"diagnosis\", \"label\": \"Ulcerative colitis\", \"column\": \"diagnosis\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N20\", \"type\": \"test\", \"label\": \"Stool culture and C. difficile testing\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"negative\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N21\", \"type\": \"test\", \"label\": \"Ileocolonoscopy with biopsies\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"ulcerative colitis\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N22\", \"type\": \"test\", \"label\": \"Extent of ulcerative colitis (Montreal E1 to E3)\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"E3\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N23\", \"type\": \"test\", \"label\": \"Severity of ulcerative colitis (Truelove and Witts)\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"severe\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N32\", \"type\": \"subtype\", \"label\": \"Extensive ulcerative colitis, pancolitis (E3)\", \"column\": \"subtype\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N34\", \"type\": \"subtype\", \"label\": \"Acute severe ulcerative colitis\", \"column\": \"subtype\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N41\", \"type\": \"treatment_tier\", \"label\": \"UC Tier 2: intravenous corticosteroids\", \"column\": \"treatment\", \"status\": \"used\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N51\", \"type\": \"drug\", \"label\": \"Hydrocortisone 100 mg IV four times daily\", \"column\": \"treatment\", \"status\": \"tried\", \"result\": {\"response\": \"responded\"}, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N52\", \"type\": \"drug\", \"label\": \"Methylprednisolone 60 mg IV once daily\", \"column\": \"treatment\", \"status\": \"tried\", \"result\": {\"response\": \"responded\"}, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N42\", \"type\": \"treatment_tier\", \"label\": \"UC Tier 3: rescue or advanced therapy\", \"column\": \"treatment\", \"status\": \"planned\", \"result\": null, \"kin…"
+   },
+   {
+    "action": "cited card for the lit nodes",
+    "request": {
+     "nodeIds": [
+      "IBD-N111"
+     ]
+    },
+    "http": 200,
+    "seconds": 9.09,
+    "response": {
+     "lines": [
+      {
+       "text": "Obtain hepatitis b screen before the first dose, and seek specialist advice before starting if the result is positive.",
+       "nodeIds": [
+        "IBD-N111"
+       ]
+      }
+     ],
+     "rejected": 0
+    }
+   },
+   {
+    "action": "choose Ustekinumab",
+    "request": {
+     "nodeId": "IBD-N54"
+    },
+    "http": 201,
+    "seconds": 0.01,
+    "response": "{\"map\": {\"version\": \"IBD 1.2\", \"nodes\": [{\"nodeId\": \"IBD-N1\", \"type\": \"symptom\", \"label\": \"Bloody diarrhoea\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N3\", \"type\": \"metric\", \"label\": \"Haemoglobin below 10.5 g/dL\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N5\", \"type\": \"metric\", \"label\": \"Faecal calprotectin above 50 ug/g\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N10\", \"type\": \"diagnosis\", \"label\": \"Suspected inflammatory bowel disease\", \"column\": \"diagnosis\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N11\", \"type\": \"diagnosis\", \"label\": \"Ulcerative colitis\", \"column\": \"diagnosis\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N20\", \"type\": \"test\", \"label\": \"Stool culture and C. difficile testing\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"negative\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N21\", \"type\": \"test\", \"label\": \"Ileocolonoscopy with biopsies\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"ulcerative colitis\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N22\", \"type\": \"test\", \"label\": \"Extent of ulcerative colitis (Montreal E1 to E3)\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"E3\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N23\", \"type\": \"test\", \"label\": \"Severity of ulcerative colitis (Truelove and Witts)\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"severe\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N32\", \"type\": \"subtype\", \"label\": \"Extensive ulcerative colitis, pancolitis (E3)\", \"column\": \"subtype\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N34\", \"type\": \"subtype\", \"label\": \"Acute severe ulcerative colitis\", \"column\": \"subtype\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N41\", \"type\": \"treatment_tier\", \"label\": \"UC Tier 2: intravenous corticosteroids\", \"column\": \"treatment\", \"status\": \"used\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N51\", \"type\": \"drug\", \"label\": \"Hydrocortisone 100 mg IV four times daily\", \"column\": \"treatment\", \"status\": \"tried\", \"result\": {\"response\": \"responded\"}, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N52\", \"type\": \"drug\", \"label\": \"Methylprednisolone 60 mg IV once daily\", \"column\": \"treatment\", \"status\": \"tried\", \"result\": {\"response\": \"responded\"}, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N42\", \"type\": \"treatment_tier\", \"label\": \"UC Tier 3: rescue or advanced therapy\", \"column\": \"treatment\", \"status\": \"planned\", \"result\": null, \"kin…"
+   }
+  ],
+  "checks": [
+   {
+    "check": "walk ends answered",
+    "pass": true,
+    "got": "answered"
+   },
+   {
+    "check": "0 ungrounded lines (1 tolerated live)",
+    "pass": true,
+    "got": 0
+   },
+   {
+    "check": "walk ends answered",
+    "pass": true,
+    "got": "answered"
+   },
+   {
+    "check": "0 ungrounded lines (1 tolerated live)",
+    "pass": true,
+    "got": 1
+   },
+   {
+    "check": "choice recorded",
+    "pass": true,
+    "got": 201
+   },
+   {
+    "check": "both screens To do first",
+    "pass": true,
+    "got": [
+     "todo_first",
+     "todo_first"
+    ]
+   },
+   {
+    "check": "result recorded",
+    "pass": true,
+    "got": 201
+   },
+   {
+    "check": "TB screen Done",
+    "pass": true,
+    "got": "done"
+   },
+   {
+    "check": "card lines are grounded (0 rejected)",
+    "pass": true,
+    "got": {
+     "lines": [
+      {
+       "text": "Obtain hepatitis b screen before the first dose, and seek specialist advice before starting if the result is positive.",
+       "nodeIds": [
+        "IBD-N111"
+       ]
+      }
+     ],
+     "rejected": 0
+    }
+   },
+   {
+    "check": "screens asked again",
+    "pass": true,
+    "got": "todo_first"
+   }
+  ],
+  "error": null
+ },
+ {
+  "tid": "T18",
+  "case_id": "BR-2C4F94",
+  "steps": [
+   {
+    "action": "start walk",
+    "request": {
+     "mode": "start",
+     "text": "34-year-old woman, bloody stool 6 months, Hb 10.2 g/dL, calprotectin 850 µg/g"
+    },
+    "seconds": 8.0,
+    "events": {
+     "progress": 1,
+     "form": 1,
+     "paused": 1
+    },
+    "components": [
+     "ChatForm (confirm-findings chips / needs-data)",
+     "ChatForm waiting state",
+     "ChatThread progress line"
+    ],
+    "progress": [
+     "reading_findings"
+    ],
+    "forms": [
+     {
+      "kind": "confirm-findings",
+      "fields": [
+       {
+        "name": "age",
+        "label": "age 34",
+        "findingKind": "age",
+        "value": 34.0,
+        "validationState": "ok"
+       },
+       {
+        "name": "sex",
+        "label": "sex woman",
+        "findingKind": "sex",
+        "value": "woman",
+        "validationState": "ok"
+       },
+       {
+        "name": "bloody stool",
+        "label": "bloody stool",
+        "findingKind": "symptom",
+        "duration": "6 months",
+        "validationState": "ok"
+       },
+       {
+        "name": "Hb",
+        "label": "Hb 10.2 g/dL",
+        "findingKind": "test",
+        "value": 10.2,
+        "unit": "g/dL",
+        "nodeId": "IBD-N3",
+        "validationState": "ok"
+       },
+       {
+        "name": "calprotectin",
+        "label": "calprotectin 850 µg/g",
+        "findingKind": "test",
+        "value": 850.0,
+        "unit": "ug/g",
+        "nodeId": "IBD-N5",
+        "validationState": "ok"
+       }
+      ]
+     }
+    ],
+    "lines": [],
+    "notices": [],
+    "done": null,
+    "errors": []
+   },
+   {
+    "action": "confirm findings",
+    "request": {
+     "mode": "continue",
+     "walkId": "wk-d80fb0d0802b4ecdbb46105c921b8ce6",
+     "formMessageId": "msg-3cc5d80950f741f48d5dda691883ab3c",
+     "formValues": {
+      "findings": [
+       {
+        "kind": "age",
+        "name": "age",
+        "value": 34.0,
+        "unit": null,
+        "duration": null
+       },
+       {
+        "kind": "sex",
+        "name": "sex",
+        "value": "woman",
+        "unit": null,
+        "duration": null
+       },
+       {
+        "kind": "symptom",
+        "name": "bloody stool",
+        "value": null,
+        "unit": null,
+        "duration": "6 months"
+       },
+       {
+        "kind": "test",
+        "name": "Hb",
+        "value": 10.2,
+        "unit": "g/dL",
+        "duration": null
+       },
+       {
+        "kind": "test",
+        "name": "calprotectin",
+        "value": 850.0,
+        "unit": "ug/g",
+        "duration": null
+       }
+      ]
+     }
+    },
+    "seconds": 0.0,
+    "events": {
+     "progress": 1,
+     "map_update": 1,
+     "form": 1,
+     "paused": 1
+    },
+    "components": [
+     "ChatForm (confirm-findings chips / needs-data)",
+     "ChatForm waiting state",
+     "ChatThread progress line",
+     "GraphCanvas (map)"
+    ],
+    "progress": [
+     "matching_diagnosis"
+    ],
+    "forms": [
+     {
+      "kind": "needs-data",
+      "fields": [
+       {
+        "name": "IBD-N20",
+        "label": "Stool culture and C. difficile testing",
+        "nodeId": "IBD-N20",
+        "options": [
+         "negative",
+         "positive"
+        ]
+       },
+       {
+        "name": "IBD-N21",
+        "label": "Ileocolonoscopy with biopsies",
+        "nodeId": "IBD-N21",
+        "options": [
+         "ulcerative colitis",
+         "crohn's disease",
+         "normal"
+        ]
+       }
+      ]
+     }
+    ],
+    "lines": [],
+    "notices": [],
+    "done": null,
+    "errors": []
+   },
+   {
+    "action": "answer needs-data IBD-N20=negative, IBD-N21=ulcerative colitis",
+    "request": {
+     "mode": "continue",
+     "walkId": "wk-d80fb0d0802b4ecdbb46105c921b8ce6",
+     "formMessageId": "msg-4aa5a480282f401a8ac8edfd40274894",
+     "formValues": {
+      "IBD-N20": "negative",
+      "IBD-N21": "ulcerative colitis"
+     }
+    },
+    "seconds": 0.0,
+    "events": {
+     "progress": 1,
+     "map_update": 1,
+     "form": 1,
+     "paused": 1
+    },
+    "components": [
+     "ChatForm (confirm-findings chips / needs-data)",
+     "ChatForm waiting state",
+     "ChatThread progress line",
+     "GraphCanvas (map)"
+    ],
+    "progress": [
+     "matching_diagnosis"
+    ],
+    "forms": [
+     {
+      "kind": "needs-data",
+      "fields": [
+       {
+        "name": "IBD-N22",
+        "label": "Extent of ulcerative colitis (Montreal E1 to E3)",
+        "nodeId": "IBD-N22",
+        "options": [
+         "E1",
+         "E2",
+         "E3"
+        ]
+       },
+       {
+        "name": "IBD-N23",
+        "label": "Severity of ulcerative colitis (Truelove and Witts)",
+        "nodeId": "IBD-N23",
+        "options": [
+         "mild",
+         "moderate",
+         "severe"
+        ]
+       }
+      ]
+     }
+    ],
+    "lines": [],
+    "notices": [],
+    "done": null,
+    "errors": []
+   },
+   {
+    "action": "answer needs-data IBD-N22=E3, IBD-N23=severe",
+    "request": {
+     "mode": "continue",
+     "walkId": "wk-d80fb0d0802b4ecdbb46105c921b8ce6",
+     "formMessageId": "msg-b473957417514e7ab1b41d66f5b26860",
+     "formValues": {
+      "IBD-N22": "E3",
+      "IBD-N23": "severe"
+     }
+    },
+    "seconds": 139.3,
+    "events": {
+     "progress": 10,
+     "map_update": 1,
+     "line": 39,
+     "section_done": 9,
+     "done": 1
+    },
+    "components": [
+     "ChatLine + NodeChip (cited line)",
+     "ChatThread progress line",
+     "ChatThread section header",
+     "GraphCanvas (map)",
+     "WalkSummary + ResultBadge"
+    ],
+    "progress": [
+     "matching_diagnosis",
+     "matching_diagnosis",
+     "matching_diagnosis",
+     "refining",
+     "refining",
+     "planning_treatment",
+     "checking_sources",
+     "checking_sources",
+     "checking_sources",
+     "writing_explanation"
+    ],
+    "forms": [],
+    "lines": [
+     {
+      "section": "findings",
+      "text": "Loose stools containing visible blood are a cardinal presenting feature to assess.",
+      "nodeIds": [
+       "IBD-N1"
+      ]
+     },
+     {
+      "section": "findings",
+      "text": "A haemoglobin below 10.5 g/dL counts as a marker of systemic toxicity.",
+      "nodeIds": [
+       "IBD-N3"
+      ]
+     },
+     {
+      "section": "findings",
+      "text": "A calprotectin above 50 ug/g supports referral to look for bowel inflammation.",
+      "nodeIds": [
+       "IBD-N5"
+      ]
+     },
+     {
+      "section": "diagnosis",
+      "text": "Consider suspected inflammatory bowel disease when symptoms and raised inflammatory markers are present.",
+      "nodeIds": [
+       "IBD-N10"
+      ]
+     },
+     {
+      "section": "diagnosis",
+      "text": "Confirmation rests on combined clinical, laboratory, endoscopic and histological assessment together.",
+      "nodeIds": [
+       "IBD-N10"
+      ]
+     },
+     {
+      "section": "diagnosis",
+      "text": "Ulcerative colitis is continuous mucosal inflammation starting in the rectum and extending a variable distance up the colon.",
+      "nodeIds": [
+       "IBD-N11"
+      ]
+     },
+     {
+      "section": "diagnosis",
+      "text": "Extent and severity of ulcerative colitis guide treatment decisions.",
+      "nodeIds": [
+       "IBD-N11"
+      ]
+     },
+     {
+      "section": "tests",
+      "text": "Send stool culture when this condition is suspected and with every flare.",
+      "nodeIds": [
+       "IBD-N20"
+      ]
+     },
+     {
+      "section": "tests",
+      "text": "Use colonoscopy with biopsy with samples from the terminal ileum and each colonic segment as the key test to establish the diagnosis.",
+      "nodeIds": [
+       "IBD-N21"
+      ]
+     },
+     {
+      "section": "tests",
+      "text": "Record disease extent to describe maximal involvement as E1 to E3.",
+      "nodeIds": [
+       "IBD-N22"
+      ]
+     },
+     {
+      "section": "tests",
+      "text": "Assess truelove and witts severity to grade activity, with severe activity needing hospital admission.",
+      "nodeIds": [
+       "IBD-N23"
+      ]
+     },
+     {
+      "section": "subtype",
+      "text": "Disease extending beyond the splenic flexure defines this extensive pattern.",
+      "nodeIds": [
+       "IBD-N32"
+      ]
+     },
+     {
+      "section": "subtype",
+      "text": "This severe acute pattern is a medical emergency needing admission, joint medical and surgical care, and an early decision on rescue therapy.",
+      "nodeIds": [
+       "IBD-N34"
+      ]
+     },
+     {
+      "section": "treatment",
+      "text": "Tier 2 hospital treatment uses intravenous corticosteroids, with response formally assessed on day 3.",
+      "nodeIds": [
+       "IBD-N41"
+      ]
+     },
+     {
+      "section": "treatment",
+      "text": "Hydrocortisone 100 mg given intravenously four times daily is a first-line regimen, continued until response is assessed on day 3.",
+      "nodeIds": [
+       "IBD-N51"
+      ]
+     },
+     {
+      "section": "treatment",
+      "text": "Methylprednisolone 60 mg given intravenously once daily is an alternative regimen, continued until response is assessed on day 3.",
+      "nodeIds": [
+       "IBD-N52"
+      ]
+     },
+     {
+      "section": "treatment",
+      "text": "Tier 3 rescue or advanced therapy is considered if there is no adequate response to intravenous steroids by day 3.",
+      "nodeIds": [
+       "IBD-N42"
+      ]
+     },
+     {
+      "section": "monitor",
+      "text": "Record stool frequency daily during intravenous steroid treatment, with formal review on day 3; more than 8 per day at that review predicts colectomy is likely.",
+      "nodeIds": [
+       "IBD-N70"
+      ]
+     },
+     {
+      "section": "monitor",
+      "text": "Check CRP during intravenous steroid treatment, with formal review on day 3; a value above 45 mg/L with three to eight stools a day predicts colectomy is likely.",
+      "nodeIds": [
+       "IBD-N71"
+      ]
+     },
+     {
+      "section": "monitor",
+      "text": "More than 8 per day on day 3 of intravenous steroids indicates lack of response, and rescue therapy or surgery should be discussed.",
+      "nodeIds": [
+       "IBD-N80"
+      ]
+     },
+     {
+      "section": "monitor",
+      "text": "A value above 45 mg/L on day 3 with three to eight stools a day indicates lack of response, and rescue therapy or surgery should be discussed.",
+      "nodeIds": [
+       "IBD-N81"
+      ]
+     },
+     {
+      "section": "diet",
+      "text": "No specific diet has been shown to induce or maintain remission, so do not prescribe one for disease control.",
+      "nodeIds": [
+       "IBD-N60"
+      ]
+     },
+     {
+      "section": "diet",
+      "text": "Screen for poor nutritional status and give individualized dietary advice.",
+      "nodeIds": [
+       "IBD-N60"
+      ]
+     },
+     {
+      "section": "watch_outs",
+      "text": "New or worsening bloody diarrhoea should be checked to exclude infection before treatment is escalated.",
+      "nodeIds": [
+       "IBD-N94"
+      ]
+     },
+     {
+      "section": "watch_outs",
+      "text": "Colonic dilatation with systemic toxicity is a surgical emergency needing urgent joint medical and surgical review.",
+      "nodeIds": [
+       "IBD-N90"
+      ]
+     },
+     {
+      "section": "watch_outs",
+      "text": "Hospital admission with active disease carries a risk of clots, so preventive treatment should be given unless contraindicated, even with rectal bleeding.",
+      "nodeIds": [
+       "IBD-N91"
+      ]
+     },
+     {
+      "section": "watch_outs",
+      "text": "Toxic dilatation that does not settle, perforation or major bleeding are triggers for emergency colectomy.",
+      "nodeIds": [
+       "IBD-N96"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Loose stools with visible blood are a cardinal presenting feature that should prompt assessment for inflammatory bowel disease as well as for an infective cause.",
+      "nodeIds": [
+       "IBD-N1",
+       "IBD-N10"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Inflammatory bowel disease is suspected from symptoms and raised inflammatory markers, with diagnosis resting on clinical, laboratory, endoscopic and histological findings together after infection has been excluded.",
+      "nodeIds": [
+       "IBD-N10"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Ulcerative colitis is continuous mucosal inflammation that starts in the rectum and extends a variable distance up the colon.",
+      "nodeIds": [
+       "IBD-N11"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Send stool culture when inflammatory bowel disease is suspected to exclude infection.",
+      "nodeIds": [
+       "IBD-N20",
+       "IBD-N10"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Colonoscopy with biopsy is the key test to establish the diagnosis.",
+      "nodeIds": [
+       "IBD-N21"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "A haemoglobin below 10.5 g/dL counts as a systemic toxicity marker.",
+      "nodeIds": [
+       "IBD-N3"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Acute severe ulcerative colitis is a medical emergency needing admission and joint medical and surgical care.",
+      "nodeIds": [
+       "IBD-N34"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Intravenous corticosteroids are tier 2 treatment for acute severe ulcerative colitis.",
+      "nodeIds": [
+       "IBD-N41",
+       "IBD-N34"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Give hydrocortisone 100 mg four times daily by the intravenous route, with response reviewed on day 3.",
+      "nodeIds": [
+       "IBD-N51"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Give methylprednisolone 60 mg once daily by the intravenous route as an alternative, with response reviewed on day 3.",
+      "nodeIds": [
+       "IBD-N52"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Record stool frequency daily on intravenous steroids, where more than 8 per day on day 3 means the patient is not responding.",
+      "nodeIds": [
+       "IBD-N70",
+       "IBD-N80"
+      ]
+     },
+     {
+      "section": "why",
+      "text": "Check CRP during intravenous steroid treatment, where above 45 mg/L on day 3 with three to eight stools a day means the patient is not responding.",
+      "nodeIds": [
+       "IBD-N71",
+       "IBD-N81"
+      ]
+     }
+    ],
+    "notices": [],
+    "done": {
+     "walkId": "wk-d80fb0d0802b4ecdbb46105c921b8ce6",
+     "sessionId": "s-1eb3d8d5789446e4b832a9e2bd4fb591",
+     "outcome": "answered",
+     "counts": {
+      "steps": 24,
+      "cited": 39,
+      "ungrounded": 0
+     },
+     "packVersion": "IBD 1.2",
+     "provider": "meta",
+     "model": "muse-spark-1.3",
+     "disclaimer": "Decision support, not diagnosis",
+     "followUp": true,
+     "offers": []
+    },
+    "errors": []
+   },
+   {
+    "action": "choose Hydrocortisone",
+    "request": {
+     "nodeId": "IBD-N51"
+    },
+    "http": 201,
+    "seconds": 0.01,
+    "response": "{\"map\": {\"version\": \"IBD 1.2\", \"nodes\": [{\"nodeId\": \"IBD-N1\", \"type\": \"symptom\", \"label\": \"Bloody diarrhoea\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N3\", \"type\": \"metric\", \"label\": \"Haemoglobin below 10.5 g/dL\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N5\", \"type\": \"metric\", \"label\": \"Faecal calprotectin above 50 ug/g\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N10\", \"type\": \"diagnosis\", \"label\": \"Suspected inflammatory bowel disease\", \"column\": \"diagnosis\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N11\", \"type\": \"diagnosis\", \"label\": \"Ulcerative colitis\", \"column\": \"diagnosis\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N20\", \"type\": \"test\", \"label\": \"Stool culture and C. difficile testing\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"negative\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N21\", \"type\": \"test\", \"label\": \"Ileocolonoscopy with biopsies\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"ulcerative colitis\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N22\", \"type\": \"test\", \"label\": \"Extent of ulcerative colitis (Montreal E1 to E3)\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"E3\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N23\", \"type\": \"test\", \"label\": \"Severity of ulcerative colitis (Truelove and Witts)\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"severe\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N32\", \"type\": \"subtype\", \"label\": \"Extensive ulcerative colitis, pancolitis (E3)\", \"column\": \"subtype\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N34\", \"type\": \"subtype\", \"label\": \"Acute severe ulcerative colitis\", \"column\": \"subtype\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N41\", \"type\": \"treatment_tier\", \"label\": \"UC Tier 2: intravenous corticosteroids\", \"column\": \"treatment\", \"status\": \"entry\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N51\", \"type\": \"drug\", \"label\": \"Hydrocortisone 100 mg IV four times daily\", \"column\": \"treatment\", \"status\": \"chosen\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N52\", \"type\": \"drug\", \"label\": \"Methylprednisolone 60 mg IV once daily\", \"column\": \"treatment\", \"status\": \"option\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N42\", \"type\": \"treatment_tier\", \"label\": \"UC Tier 3: rescue or advanced therapy\", \"column\": \"treatment\", \"status\": \"planned\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": nu…"
+   },
+   {
+    "action": "toxic megacolon present",
+    "request": {
+     "kind": "present",
+     "nodeId": "IBD-N90"
+    },
+    "http": 201,
+    "seconds": 0.01,
+    "response": "{\"map\": {\"version\": \"IBD 1.2\", \"nodes\": [{\"nodeId\": \"IBD-N1\", \"type\": \"symptom\", \"label\": \"Bloody diarrhoea\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N3\", \"type\": \"metric\", \"label\": \"Haemoglobin below 10.5 g/dL\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N5\", \"type\": \"metric\", \"label\": \"Faecal calprotectin above 50 ug/g\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N10\", \"type\": \"diagnosis\", \"label\": \"Suspected inflammatory bowel disease\", \"column\": \"diagnosis\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N11\", \"type\": \"diagnosis\", \"label\": \"Ulcerative colitis\", \"column\": \"diagnosis\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N20\", \"type\": \"test\", \"label\": \"Stool culture and C. difficile testing\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"negative\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N21\", \"type\": \"test\", \"label\": \"Ileocolonoscopy with biopsies\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"ulcerative colitis\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N22\", \"type\": \"test\", \"label\": \"Extent of ulcerative colitis (Montreal E1 to E3)\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"E3\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N23\", \"type\": \"test\", \"label\": \"Severity of ulcerative colitis (Truelove and Witts)\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"severe\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N32\", \"type\": \"subtype\", \"label\": \"Extensive ulcerative colitis, pancolitis (E3)\", \"column\": \"subtype\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N34\", \"type\": \"subtype\", \"label\": \"Acute severe ulcerative colitis\", \"column\": \"subtype\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N41\", \"type\": \"treatment_tier\", \"label\": \"UC Tier 2: intravenous corticosteroids\", \"column\": \"treatment\", \"status\": \"entry\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N51\", \"type\": \"drug\", \"label\": \"Hydrocortisone 100 mg IV four times daily\", \"column\": \"treatment\", \"status\": \"chosen\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N52\", \"type\": \"drug\", \"label\": \"Methylprednisolone 60 mg IV once daily\", \"column\": \"treatment\", \"status\": \"option\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N42\", \"type\": \"treatment_tier\", \"label\": \"UC Tier 3: rescue or advanced therapy\", \"column\": \"treatment\", \"status\": \"planned\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": nu…"
+   },
+   {
+    "action": "new bloody diarrhoea present",
+    "request": {
+     "kind": "present",
+     "nodeId": "IBD-N94"
+    },
+    "http": 201,
+    "seconds": 0.0,
+    "response": "{\"map\": {\"version\": \"IBD 1.2\", \"nodes\": [{\"nodeId\": \"IBD-N1\", \"type\": \"symptom\", \"label\": \"Bloody diarrhoea\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N3\", \"type\": \"metric\", \"label\": \"Haemoglobin below 10.5 g/dL\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N5\", \"type\": \"metric\", \"label\": \"Faecal calprotectin above 50 ug/g\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N10\", \"type\": \"diagnosis\", \"label\": \"Suspected inflammatory bowel disease\", \"column\": \"diagnosis\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N11\", \"type\": \"diagnosis\", \"label\": \"Ulcerative colitis\", \"column\": \"diagnosis\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N20\", \"type\": \"test\", \"label\": \"Stool culture and C. difficile testing\", \"column\": \"tests\", \"status\": \"due\", \"result\": {\"value\": \"negative\"}, \"kind\": \"test\", \"pos\": null, \"reason\": \"Because Exclude infection at presentation and in flares is present\"}, {\"nodeId\": \"IBD-N21\", \"type\": \"test\", \"label\": \"Ileocolonoscopy with biopsies\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"ulcerative colitis\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N22\", \"type\": \"test\", \"label\": \"Extent of ulcerative colitis (Montreal E1 to E3)\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"E3\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N23\", \"type\": \"test\", \"label\": \"Severity of ulcerative colitis (Truelove and Witts)\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"severe\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N32\", \"type\": \"subtype\", \"label\": \"Extensive ulcerative colitis, pancolitis (E3)\", \"column\": \"subtype\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N34\", \"type\": \"subtype\", \"label\": \"Acute severe ulcerative colitis\", \"column\": \"subtype\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N41\", \"type\": \"treatment_tier\", \"label\": \"UC Tier 2: intravenous corticosteroids\", \"column\": \"treatment\", \"status\": \"entry\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N51\", \"type\": \"drug\", \"label\": \"Hydrocortisone 100 mg IV four times daily\", \"column\": \"treatment\", \"status\": \"chosen\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N52\", \"type\": \"drug\", \"label\": \"Methylprednisolone 60 mg IV once daily\", \"column\": \"treatment\", \"status\": \"option\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N42\", \"type\": \"treatment_tier\", \"label\": \"UC Tier 3: rescue or advanced therapy\", \"column\": \"treatment\", \"status\": \"planne…"
+   },
+   {
+    "action": "stool culture negative",
+    "request": {
+     "kind": "result",
+     "nodeId": "IBD-N20",
+     "value": "negative"
+    },
+    "http": 201,
+    "seconds": 0.0,
+    "response": "{\"map\": {\"version\": \"IBD 1.2\", \"nodes\": [{\"nodeId\": \"IBD-N1\", \"type\": \"symptom\", \"label\": \"Bloody diarrhoea\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N3\", \"type\": \"metric\", \"label\": \"Haemoglobin below 10.5 g/dL\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N5\", \"type\": \"metric\", \"label\": \"Faecal calprotectin above 50 ug/g\", \"column\": \"findings\", \"status\": \"used\", \"result\": null, \"kind\": \"observation\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N10\", \"type\": \"diagnosis\", \"label\": \"Suspected inflammatory bowel disease\", \"column\": \"diagnosis\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N11\", \"type\": \"diagnosis\", \"label\": \"Ulcerative colitis\", \"column\": \"diagnosis\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N20\", \"type\": \"test\", \"label\": \"Stool culture and C. difficile testing\", \"column\": \"tests\", \"status\": \"done\", \"result\": {\"value\": \"negative\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N21\", \"type\": \"test\", \"label\": \"Ileocolonoscopy with biopsies\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"ulcerative colitis\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N22\", \"type\": \"test\", \"label\": \"Extent of ulcerative colitis (Montreal E1 to E3)\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"E3\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N23\", \"type\": \"test\", \"label\": \"Severity of ulcerative colitis (Truelove and Witts)\", \"column\": \"tests\", \"status\": \"used\", \"result\": {\"value\": \"severe\"}, \"kind\": \"test\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N32\", \"type\": \"subtype\", \"label\": \"Extensive ulcerative colitis, pancolitis (E3)\", \"column\": \"subtype\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N34\", \"type\": \"subtype\", \"label\": \"Acute severe ulcerative colitis\", \"column\": \"subtype\", \"status\": \"used\", \"result\": null, \"kind\": \"state\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N41\", \"type\": \"treatment_tier\", \"label\": \"UC Tier 2: intravenous corticosteroids\", \"column\": \"treatment\", \"status\": \"entry\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N51\", \"type\": \"drug\", \"label\": \"Hydrocortisone 100 mg IV four times daily\", \"column\": \"treatment\", \"status\": \"chosen\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N52\", \"type\": \"drug\", \"label\": \"Methylprednisolone 60 mg IV once daily\", \"column\": \"treatment\", \"status\": \"option\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": null}, {\"nodeId\": \"IBD-N42\", \"type\": \"treatment_tier\", \"label\": \"UC Tier 3: rescue or advanced therapy\", \"column\": \"treatment\", \"status\": \"planned\", \"result\": null, \"kind\": \"action\", \"pos\": null, \"reason\": nu…"
+   }
+  ],
+  "checks": [
+   {
+    "check": "walk ends answered",
+    "pass": true,
+    "got": "answered"
+   },
+   {
+    "check": "0 ungrounded lines (1 tolerated live)",
+    "pass": true,
+    "got": 0
+   },
+   {
+    "check": "CRP monitoring is Due, not Suggested",
+    "pass": true,
+    "got": "due"
+   },
+   {
+    "check": "megacolon Present, colectomy Now",
+    "pass": true,
+    "got": [
+     "present",
+     "now"
+    ]
+   },
+   {
+    "check": "stool culture Due again",
+    "pass": true,
+    "got": "due"
+   },
+   {
+    "check": "stool culture Done",
+    "pass": true,
+    "got": "done"
+   }
+  ],
+  "error": null
+ }
+]

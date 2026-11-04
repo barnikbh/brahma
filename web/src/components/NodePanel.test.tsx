@@ -16,7 +16,7 @@ describe("NodePanel", () => {
     expect(document.querySelector('[data-safety="not_checked"]')).toHaveTextContent(
       "? Interactions: Not checked: no grounded safety data",
     );
-    expect(screen.getByText("Suggested by pack IBD 1.0")).toBeInTheDocument();
+    expect(screen.getByText("From pack IBD 1.0")).toBeInTheDocument();
     expect(fake.calls[0].url).toBe("/api/nodes/IBD%401.0/IBD-N51?caseId=BR-000001");
   });
 
@@ -261,5 +261,99 @@ describe("NodePanel", () => {
     render(<NodePanel nodeId="IBD-N51" version="IBD 1.0" caseId="BR-000001" onClose={vi.fn()} />);
     expect(await screen.findByText("✎ edited")).toBeInTheDocument();
     expect(screen.getByText(/Edited by p-maya/)).toBeInTheDocument();
+  });
+});
+
+describe("NodePanel care buttons", () => {
+  const rec = (type: string, fields: Record<string, unknown>) =>
+    nodeDetail({
+      node: {
+        nodeId: "IBD-N90",
+        type,
+        label: "A node",
+        content: "Content.",
+        fields,
+        sourceIds: ["SRC-1"],
+        column: "monitor",
+      },
+    });
+
+  it("a sign gets 'Patient has this now' and sends a present event", async () => {
+    installFakeApi({ "GET /api/nodes/:v/:n": () => rec("watch_out", { sign: "s", action: "a" }) });
+    const onEvent = vi.fn();
+    render(
+      <NodePanel
+        nodeId="IBD-N90"
+        version="IBD 1.2"
+        caseId="BR-000001"
+        careStatus="watch"
+        onEvent={onEvent}
+        onClose={vi.fn()}
+      />,
+    );
+    await userEvent.click(await screen.findByRole("button", { name: "Patient has this now" }));
+    expect(onEvent).toHaveBeenCalledWith("present");
+  });
+
+  it("a measurement takes a number, a chosen step can be marked done", async () => {
+    installFakeApi({ "GET /api/nodes/:v/:n": () => rec("monitoring", { unit: "mg/L" }) });
+    const onEvent = vi.fn();
+    const { unmount } = render(
+      <NodePanel
+        nodeId="IBD-N90"
+        version="IBD 1.2"
+        caseId="BR-000001"
+        careStatus="due"
+        onEvent={onEvent}
+        onClose={vi.fn()}
+      />,
+    );
+    await userEvent.type(await screen.findByLabelText("Result"), "30");
+    await userEvent.click(screen.getByRole("button", { name: "Record result" }));
+    expect(onEvent).toHaveBeenCalledWith("result", "30");
+    unmount();
+    installFakeApi({ "GET /api/nodes/:v/:n": () => rec("drug", { drug: "x" }) });
+    render(
+      <NodePanel
+        nodeId="IBD-N90"
+        version="IBD 1.2"
+        caseId="BR-000001"
+        careStatus="chosen"
+        onEvent={onEvent}
+        onClose={vi.fn()}
+      />,
+    );
+    await userEvent.click(await screen.findByRole("button", { name: "Mark done" }));
+    expect(onEvent).toHaveBeenLastCalledWith("done");
+  });
+});
+
+describe("NodePanel induction dose", () => {
+  it("shows a drug's induction dose apart from its maintenance dose", async () => {
+    installFakeApi({
+      "GET /api/nodes/:v/:n": () =>
+        nodeDetail({
+          node: {
+            nodeId: "IBD-N112",
+            type: "drug",
+            label: "Example biologic",
+            content: "Induction then maintenance.",
+            fields: {
+              drug: "example biologic",
+              route: "intravenous then subcutaneous",
+              doseValue: 100,
+              doseUnit: "mg",
+              doseBasis: "absolute",
+              inductionDoseValue: 200,
+              inductionDoseUnit: "mg",
+            },
+            sourceIds: ["SRC-1"],
+            column: "treatment",
+          },
+        }),
+    });
+    render(<NodePanel nodeId="IBD-N112" version="IBD 1.3" onClose={vi.fn()} />);
+    expect(await screen.findByTestId("induction-dose")).toHaveTextContent("200 mg");
+    expect(screen.getByText("Maintenance dose")).toBeInTheDocument();
   });
 });

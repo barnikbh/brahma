@@ -47,6 +47,7 @@ from brahma.agent.errors import (
     WalkNotResumable,
     WalkRequestInvalid,
 )
+from brahma.agent.frontier import Frontier, apply_events
 from brahma.agent.guard import Guard
 from brahma.agent.logging import WalkLogger
 from brahma.agent.models import (
@@ -56,6 +57,8 @@ from brahma.agent.models import (
     SECTION_TITLES,
     WHY_INDEX,
     WHY_SECTION,
+    CareEvent,
+    CareEventKind,
     DraftLine,
     EmittedLine,
     ExploreLane,
@@ -67,6 +70,7 @@ from brahma.agent.models import (
     Outcome,
     PathItem,
     ProgressStep,
+    TimelineItem,
     TraverseChoice,
     TraversePath,
     Walk,
@@ -295,8 +299,42 @@ class WalkEngine:
         if walk is None or walk.map is None:
             return None
         base = MapData.model_validate(walk.map)
+        base = self._with_events(case_id, walk, base)
         lanes = self._open_lanes(walk)
         return views.with_lanes(base, lanes) if lanes else base
+
+    def _with_past(self, walk: Walk, data: MapData) -> MapData:
+        """The map plus the case's earlier walks on the same version (see with_history)."""
+        earlier = [
+            MapData.model_validate(w.map)
+            for w in self.repo.walks_for_case(walk.case_id)
+            if w.walk_id != walk.walk_id
+            and w.started_at <= walk.started_at
+            and w.pack_version == walk.pack_version
+            and w.map
+        ]
+        return views.with_history(data, earlier)
+
+    def _with_events(self, case_id: str, walk: Walk, base: MapData) -> MapData:
+        """The walk's map with the care-loop statuses the case's events produce."""
+        if walk.pack_version is None or not base.nodes:
+            return base
+        base = self._with_past(walk, base)  # maps saved before history was merged
+        events = self.repo.events_for_case(case_id)
+        data = apply_events(self._knowledge, walk.pack_version, base, events).data
+        return data.model_copy(update={"timeline": self._timeline(walk.pack_version, events)})
+
+    def _timeline(self, version: PackVersionRef, events: list[CareEvent]) -> list[TimelineItem]:
+        return [
+            TimelineItem(
+                node_id=e.node_id,
+                label=self._knowledge.get_node(version, e.node_id).label,
+                kind=e.kind,
+                value=e.value,
+                at=e.created_at,
+            )
+            for e in events
+        ]
 
     def _open_lanes(self, walk: Walk) -> list[tuple[str, list[MapNode], list[MapEdge]]]:
         """The walk's open explore lanes as map fragments (empty when none)."""
@@ -347,10 +385,11 @@ class WalkEngine:
         trav = walk_graph(self._knowledge, version, facts)
         trav.choices = {**previous, tier: node_id}
         label = str(walk.map.get("version") or "")
-        data = views.build_map(self._knowledge, version, trav, label)
+        data = self._with_past(walk, views.build_map(self._knowledge, version, trav, label))
         path = self._traverse_path(version, trav, tier, node_id, facts)
         walk.map = data.model_dump(by_alias=True)
         self.repo.save_progress(walk)
+        data = self._with_events(case_id, walk, data)
         lanes = self._open_lanes(walk)
         data = views.with_lanes(data, lanes) if lanes else data
         self.repo.add_choice(
@@ -389,7 +428,11 @@ class WalkEngine:
         review: list[PathItem] = []
         monitor: list[PathItem] = []
         watch_outs: list[PathItem] = []
-        for member in trav.tier_downstream.get(tier_id, []):
+        downstream = [
+            *trav.tier_downstream.get(tier_id, []),
+            *trav.drug_downstream.get(node_id, []),
+        ]
+        for member in dict.fromkeys(downstream):
             item = self._path_item(version, member)
             if item.type == "response_criterion":
                 review.append(item)
@@ -403,9 +446,14 @@ class WalkEngine:
             if step.status != "not_taken" and step.node.node_id not in seen_tiers:
                 seen_tiers.add(step.node.node_id)
                 next_tiers.append(self._path_item(version, step.node.node_id))
+        requires = [
+            self._path_item(version, step.node.node_id)
+            for step in self._knowledge.neighbours(version, node_id, [], "requires")
+        ]
         return TraversePath(
             drug=self._path_item(version, node_id),
             tier=self._path_item(version, tier_id),
+            requires=requires,
             review=review,
             monitor=monitor,
             watch_outs=watch_outs,
@@ -423,6 +471,146 @@ class WalkEngine:
             step.node.node_id == node_id
             for step in self._knowledge.neighbours(version, tier_id, [], "offers_drug")
         )
+
+    # --- care events (the loop) ---------------------------------------------------------
+
+    def _care_frontier(self, case_id: str) -> tuple[Walk, PackVersionRef, MapData, Frontier]:
+        walk = self.repo.latest_for_case(case_id)
+        if walk is None or walk.map is None or walk.pack_version is None:
+            raise TraverseInvalid(case_id, "this case has no map yet")
+        if walk.status not in ("answered", "needs_data"):
+            raise TraverseInvalid(case_id, "the walk has not answered yet")
+        base = self._with_past(walk, MapData.model_validate(walk.map))
+        events = self.repo.events_for_case(case_id)
+        return (
+            walk,
+            walk.pack_version,
+            base,
+            apply_events(self._knowledge, walk.pack_version, base, events),
+        )
+
+    def record_event(
+        self, case_id: str, kind: CareEventKind, node_id: str, value: str | None, profile_id: str
+    ) -> tuple[MapData, list[PathItem], str]:
+        """Record what happened (sign present, result in, step done) and re-light the map.
+
+        Deterministic, no model call. Returns the new map, the nodes this event newly lit
+        (labels from the pack only) and a short notice.
+        """
+        walk, version, base, before = self._care_frontier(case_id)
+        shown = {n.node_id: n for n in before.data.nodes}
+        node = shown.get(node_id)
+        if node is None:
+            raise TraverseInvalid(node_id, "not on this case's map")
+        text = (value or "").strip() or None
+        self._check_event(version, node, kind, text)
+        event = CareEvent(
+            event_id=new_id("ev"),
+            case_id=case_id,
+            kind=kind,
+            node_id=node_id,
+            value=text,
+            for_node_id=self._event_scope(version, base, node_id),
+            profile_id=profile_id,
+            created_at=utc_now(),
+        )
+        self.repo.add_event(event)
+        after = apply_events(self._knowledge, version, base, self.repo.events_for_case(case_id))
+        newly = [
+            self._path_item(version, n)
+            for n, status in after.lit.items()
+            if before.lit.get(n) != status
+        ]
+        self._append_audit(
+            walk,
+            "care_event",
+            {
+                "eventKind": kind,
+                "nodeId": node_id,
+                "value": text,
+                "litNodeIds": [i.node_id for i in newly],
+            },
+        )
+        data = after.data.model_copy(
+            update={"timeline": self._timeline(version, self.repo.events_for_case(case_id))}
+        )
+        lanes = self._open_lanes(walk)
+        data = views.with_lanes(data, lanes) if lanes else data
+        label = self._knowledge.get_node(version, node_id).label
+        words = {"present": "marked present", "result": "result recorded", "done": "marked done"}
+        notice = f"{label}: {words[kind]}."
+        return data, newly, notice
+
+    def _check_event(
+        self, version: PackVersionRef, node: MapNode, kind: CareEventKind, value: str | None
+    ) -> None:
+        pack = self._knowledge.get_node(version, node.node_id)
+        if kind == "present":
+            if node.kind != "observation":
+                raise TraverseInvalid(node.node_id, "only a sign or finding can be present")
+            return
+        if kind == "done" and node.kind not in ("action", "test"):
+            raise TraverseInvalid(node.node_id, "only a step can be marked done")
+        if kind != "result":
+            return
+        if pack.type == "test":
+            options = [str(o).lower() for o in pack.fields.get("resultOptions", [])]
+            if value is None or (options and value.lower() not in options):
+                raise TraverseInvalid(node.node_id, "pick one of the result options")
+        elif pack.type in ("monitoring", "response_criterion"):
+            try:
+                number = float(value or "")
+            except ValueError:
+                raise TraverseInvalid(node.node_id, "the result must be a number") from None
+            if not math.isfinite(number) or number < 0:
+                raise TraverseInvalid(node.node_id, "the result must be 0 or more")
+        else:
+            raise TraverseInvalid(node.node_id, "this step takes no result")
+
+    def _event_scope(self, version: PackVersionRef, base: MapData, node_id: str) -> str | None:
+        """The chosen action that requires this test, so the result counts for it."""
+        chosen = {n.node_id for n in base.nodes if n.status == "chosen"}
+        for action in chosen:
+            for step in self._knowledge.neighbours(version, action, [], "requires"):
+                if step.node.node_id == node_id:
+                    return action
+        return None
+
+    def event_card(self, case_id: str, node_ids: list[str]) -> dict[str, Any]:
+        """One cited card for the nodes an event newly lit: the model writes it from those
+        nodes only, and every line passes the same grounding guard as a walk."""
+        walk, version, _base, _front = self._care_frontier(case_id)
+        wanted = [n for n in dict.fromkeys(node_ids) if n]
+        if not wanted:
+            return {"lines": [], "rejected": 0}
+        nodes = [self._knowledge.get_node(version, n) for n in wanted]
+        context = views.case_context(self._cases.get_patient(case_id))
+        trav = Traversal(version=version, outcome="walked")
+        drafts = self.writer.write_section(
+            "care_step",
+            self._payloads(walk, nodes, trav),
+            views.sources_for(self._knowledge, version, nodes),
+            context,
+        )
+        lines: list[dict[str, Any]] = []
+        rejected = 0
+        for draft in drafts:
+            result = self.guard.check_line(
+                draft.text,
+                draft.node_ids,
+                version,
+                case_id,
+                declared=draft.claims,
+                allowed_node_ids=wanted,
+            )
+            if result.passed:
+                lines.append({"text": draft.text, "nodeIds": draft.node_ids})
+            else:
+                rejected += 1
+                self._reject(
+                    walk, "care_step", draft, [f.model_dump(mode="json") for f in result.failures]
+                )
+        return {"lines": lines, "rejected": rejected}
 
     # --- start and continue ------------------------------------------------------------
 
@@ -572,7 +760,9 @@ class WalkEngine:
         walk.path_node_ids = trav.path_node_ids
         label = version_label(version) or self._live_label()
         walk.map = (
-            views.build_map(self._knowledge, version, trav, label).model_dump(by_alias=True)
+            self._with_past(
+                walk, views.build_map(self._knowledge, version, trav, label)
+            ).model_dump(by_alias=True)
             if version is not None and trav.outcome == "walked"
             else {"version": label, "nodes": [], "edges": [], "selectedPath": []}
         )
@@ -951,7 +1141,9 @@ class WalkEngine:
         trav = walk_graph(self._knowledge, version, self._facts(walk, version))
         walk.path_node_ids = trav.path_node_ids
         label = version_label(version) or self._live_label()
-        walk.map = views.build_map(self._knowledge, version, trav, label).model_dump(by_alias=True)
+        walk.map = self._with_past(
+            walk, views.build_map(self._knowledge, version, trav, label)
+        ).model_dump(by_alias=True)
         walk.recount()
         yield _event(
             "map_update", walkId=walk.walk_id, nodes=walk.map["nodes"], edges=walk.map["edges"]

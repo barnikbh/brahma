@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import sqlite3
 
-from brahma.agent.models import ExploreLane, TraverseChoice, Walk
+from brahma.agent.models import CareEvent, ExploreLane, TraverseChoice, Walk
 from brahma.platform.base import utc_now
 from brahma.platform.db import transaction
 
@@ -62,6 +62,14 @@ class WalkRepository:
             (case_id,),
         ).fetchone()
         return Walk.model_validate_json(row["body_json"]) if row is not None else None
+
+    def walks_for_case(self, case_id: str) -> list[Walk]:
+        """Every walk of the case, oldest first."""
+        rows = self._conn.execute(
+            "SELECT body_json FROM ag_walk WHERE case_id = ? ORDER BY started_at, rowid",
+            (case_id,),
+        )
+        return [Walk.model_validate_json(r["body_json"]) for r in rows]
 
     # --- explore lanes ---------------------------------------------------------------
 
@@ -123,6 +131,28 @@ class WalkRepository:
                     choice.created_at,
                 ),
             )
+
+    def add_event(self, event: CareEvent) -> None:
+        """Append a care event; rows are never changed."""
+        with transaction(self._conn):
+            self._conn.execute(
+                "INSERT INTO ag_care_event (event_id, case_id, body_json, created_at) "
+                "VALUES (?, ?, ?, ?)",
+                (
+                    event.event_id,
+                    event.case_id,
+                    event.model_dump_json(by_alias=True),
+                    event.created_at,
+                ),
+            )
+
+    def events_for_case(self, case_id: str) -> list[CareEvent]:
+        """The case's care events, oldest first."""
+        rows = self._conn.execute(
+            "SELECT body_json FROM ag_care_event WHERE case_id = ? ORDER BY created_at, rowid",
+            (case_id,),
+        )
+        return [CareEvent.model_validate_json(r["body_json"]) for r in rows]
 
     def choices_for_walk(self, walk_id: str) -> dict[str, str]:
         """The latest chosen drug per tier, oldest tier first."""

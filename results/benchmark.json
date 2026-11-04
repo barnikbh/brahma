@@ -1,19 +1,19 @@
 {
   "model": "meta/muse-spark-1.3",
-  "date": "2026-10-31",
+  "date": "2026-11-04",
   "complete": true,
   "verdict": "Pass",
   "totals": {
     "IBD": {
-      "graph_grounded": 0.9930588235294117,
-      "graph_agreement": 1.0,
-      "plain_grounded": 0.4807142857142857,
-      "plain_agreement": 0.27697856065503124
+      "graph_grounded": 0.9862470862470862,
+      "graph_agreement": 0.9933333333333334,
+      "plain_grounded": 0.41261904761904755,
+      "plain_agreement": 0.31262658909717733
     },
     "URO": {
-      "graph_grounded": 0.9333333333333333,
+      "graph_grounded": 1.0,
       "graph_agreement": 1.0,
-      "plain_grounded": 0.3333333333333333,
+      "plain_grounded": 0.5,
       "plain_agreement": 0.5
     }
   },
@@ -51,7 +51,7 @@
         "outcome": "answered",
         "counts": {
           "steps": 24,
-          "cited": 35,
+          "cited": 36,
           "ungrounded": 0
         },
         "cited": [
@@ -88,7 +88,7 @@
       "plain": {
         "lines": [
           {
-            "text": "Diagnosis is ulcerative colitis confirmed by colonoscopy with ileocolonoscopy and biopsy for endoscopic and histologic assessment.",
+            "text": "Diagnosis: Ulcerative colitis confirmed by colonoscopy with biopsy",
             "sources": [
               "IBD-S8"
             ],
@@ -96,24 +96,15 @@
             "grounded": true
           },
           {
-            "text": "Subtype is Montreal E3 extensive ulcerative colitis / pancolitis.",
+            "text": "Test result: Negative stool culture helps exclude acute infectious diarrhoea as cause of bloody stool",
             "sources": [
-              "IBD-S9"
-            ],
-            "recommendation": true,
-            "grounded": true
-          },
-          {
-            "text": "Clinical severity is severe by Truelove and Witts criteria with 6 months bloody stool, Hb 10.2 g/dL and calprotectin 850 ug/g.",
-            "sources": [
-              "IBD-S2",
-              "IBD-S3"
+              "IBD-S18"
             ],
             "recommendation": true,
             "grounded": false
           },
           {
-            "text": "Faecal calprotectin 850 ug/g is markedly elevated and supports active inflammatory bowel disease.",
+            "text": "Test result: Faecal calprotectin 850 µg/g is elevated and indicates intestinal inflammation",
             "sources": [
               "IBD-S10"
             ],
@@ -121,7 +112,7 @@
             "grounded": false
           },
           {
-            "text": "Hb 10.2 g/dL indicates anaemia in an adult non-pregnant woman and requires anaemia workup and correction.",
+            "text": "Test result: Hb 10.2 g/dL indicates anaemia in an adult woman",
             "sources": [
               "IBD-S11"
             ],
@@ -129,45 +120,57 @@
             "grounded": false
           },
           {
-            "text": "Negative stool culture helps exclude acute diarrheal infection; continue infection prevention, diagnosis and management workup before/with immunosuppression.",
+            "text": "Subtype: Montreal extent E3 extensive ulcerative colitis",
             "sources": [
-              "IBD-S18",
-              "IBD-S15"
+              "IBD-S9"
+            ],
+            "recommendation": true,
+            "grounded": true
+          },
+          {
+            "text": "Subtype: Severe ulcerative colitis by Truelove and Witts severity classification",
+            "sources": [
+              "IBD-S3"
             ],
             "recommendation": true,
             "grounded": false
           },
           {
-            "text": "Initiate medical treatment for severe extensive ulcerative colitis per BSG/ACG/ECCO/AGA: systemic corticosteroids with plan for advanced therapy with anti-TNF, vedolizumab, ustekinumab, JAK inhibitor or other agent if severe, steroid-dependent or steroid-refractory.",
+            "text": "Treatment: Initiate medical treatment for severe extensive ulcerative colitis per acute severe colitis pathway",
             "sources": [
-              "IBD-S2",
-              "IBD-S3",
-              "IBD-S1",
+              "IBD-S1"
+            ],
+            "recommendation": true,
+            "grounded": false
+          },
+          {
+            "text": "Treatment: Escalate to advanced therapy for moderate to severe ulcerative colitis if steroid non-response or dependence",
+            "sources": [
               "IBD-S19"
             ],
             "recommendation": true,
             "grounded": false
           },
           {
-            "text": "If considering JAK inhibitor therapy, counsel on FDA warning of increased risk of serious heart-related events, cancer, blood clots and death.",
+            "text": "Monitoring threshold: Apply STRIDE-II treat-to-target monitoring for clinical, biomarker and endoscopic targets",
             "recommendation": false
           },
           {
-            "text": "Treatment target and monitoring per STRIDE-II: symptomatic remission, normalization of faecal calprotectin and endoscopic healing with regular clinical, biomarker and endoscopic reassessment.",
+            "text": "Monitoring threshold: Use therapeutic drug monitoring to guide biologic dosing decisions",
             "recommendation": false
           },
           {
-            "text": "Use therapeutic drug monitoring for thiopurines/anti-TNF and clinical nutrition assessment and support during active extensive colitis.",
+            "text": "Monitoring threshold: Screen and manage nutrition deficiency and anaemia with clinical nutrition support",
             "recommendation": false
           },
           {
-            "text": "Escalation trigger: persistent severe symptoms, worsening bleeding, anaemia, elevated inflammatory markers or acute severe colitis features requires urgent inpatient reassessment and medical-surgical review.",
+            "text": "Escalation trigger: Screen for, prevent and treat infections during immunosuppressive therapy",
             "recommendation": false
           }
         ],
-        "recommendations": 7,
-        "grounded": 0.2857142857142857,
-        "agreement": 0.23809523809523808
+        "recommendations": 8,
+        "grounded": 0.25,
+        "agreement": 0.2857142857142857
       }
     },
     {
@@ -194,7 +197,7 @@
         "outcome": "answered",
         "counts": {
           "steps": 15,
-          "cited": 26,
+          "cited": 23,
           "ungrounded": 0
         },
         "cited": [
@@ -222,16 +225,32 @@
       "plain": {
         "lines": [
           {
-            "text": "Diagnose ulcerative colitis by colonoscopy with biopsy after negative stool culture to exclude enteric infection.",
+            "text": "Diagnosis is ulcerative colitis confirmed by colonoscopy with ileocolonic biopsy and histology for diagnostic assessment",
             "sources": [
-              "IBD-S8",
-              "IBD-S18"
+              "IBD-S8"
             ],
             "recommendation": true,
             "grounded": true
           },
           {
-            "text": "Classify disease extent as E1 ulcerative proctitis per Montreal classification, disease limited to rectum.",
+            "text": "Stool culture negative excludes acute enteric/bacterial diarrheal infection as mimicker or co-infection",
+            "sources": [
+              "IBD-S18",
+              "IBD-S15"
+            ],
+            "recommendation": true,
+            "grounded": false
+          },
+          {
+            "text": "Faecal calprotectin 120 µg/g indicates intestinal inflammation supporting inflammatory bowel disease workup",
+            "sources": [
+              "IBD-S10"
+            ],
+            "recommendation": true,
+            "grounded": false
+          },
+          {
+            "text": "Subtype by Montreal classification: E1 ulcerative proctitis, disease limited to rectum",
             "sources": [
               "IBD-S9"
             ],
@@ -239,35 +258,39 @@
             "grounded": true
           },
           {
-            "text": "Classify clinical activity as mild by Truelove and Witts criteria.",
-            "recommendation": false
-          },
-          {
-            "text": "Induce remission of mild E1 ulcerative proctitis with rectal 5-ASA mesalamine suppository as first-line therapy.",
+            "text": "Severity by Truelove and Witts: mild ulcerative colitis",
             "sources": [
-              "IBD-S4",
-              "IBD-S1",
+              "IBD-S2",
               "IBD-S3"
             ],
             "recommendation": true,
             "grounded": false
           },
           {
-            "text": "Escalation trigger: if inadequate response to rectal 5-ASA, add rectal corticosteroid and/or oral 5-ASA and reassess for step-up medical therapy.",
+            "text": "First-line treatment for mild-to-moderate E1 ulcerative proctitis is rectal 5-ASA mesalazine suppositories as standard induction",
             "sources": [
               "IBD-S4",
               "IBD-S1"
             ],
             "recommendation": true,
-            "grounded": true
+            "grounded": false
           },
           {
-            "text": "Monitor treatment target of clinical remission with resolution of rectal bleeding, with faecal calprotectin and endoscopic healing as longer-term targets.",
+            "text": "Monitoring targets per STRIDE-II: achieve and maintain clinical remission with resolution of rectal bleeding and normalization of bowel habits, with faecal calprotectin and endoscopic healing as treatment targets",
             "recommendation": false
+          },
+          {
+            "text": "Escalation trigger: if persistent rectal bleeding, increased stool frequency, or lack of remission on rectal 5-ASA, add oral 5-ASA and/or topical corticosteroid then reassess for escalation to systemic therapy per moderate-to-severe pathway",
+            "sources": [
+              "IBD-S4",
+              "IBD-S3"
+            ],
+            "recommendation": true,
+            "grounded": true
           }
         ],
-        "recommendations": 4,
-        "grounded": 0.75,
+        "recommendations": 7,
+        "grounded": 0.42857142857142855,
         "agreement": 0.46153846153846156
       }
     },
@@ -323,7 +346,25 @@
       "plain": {
         "lines": [
           {
-            "text": "Diagnosis is ulcerative colitis confirmed by colonoscopy with biopsy in a patient with 4 months bloody diarrhoea.",
+            "text": "Faecal calprotectin 400 µg/g indicates intestinal inflammation supporting referral for endoscopic diagnostic assessment for IBD.",
+            "sources": [
+              "IBD-S10",
+              "IBD-S8"
+            ],
+            "recommendation": true,
+            "grounded": false
+          },
+          {
+            "text": "Negative stool culture helps exclude acute infectious diarrhoeal cause of bloody diarrhoea.",
+            "sources": [
+              "IBD-S18",
+              "IBD-S15"
+            ],
+            "recommendation": true,
+            "grounded": false
+          },
+          {
+            "text": "Diagnosis is ulcerative colitis confirmed by colonoscopy with biopsy.",
             "sources": [
               "IBD-S8"
             ],
@@ -331,23 +372,7 @@
             "grounded": true
           },
           {
-            "text": "Stool culture negative excludes acute infectious diarrhoea as cause.",
-            "sources": [
-              "IBD-S18"
-            ],
-            "recommendation": true,
-            "grounded": false
-          },
-          {
-            "text": "Faecal calprotectin 400 ug/g indicates intestinal inflammation supporting inflammatory bowel disease.",
-            "sources": [
-              "IBD-S10"
-            ],
-            "recommendation": true,
-            "grounded": false
-          },
-          {
-            "text": "Disease subtype is E2 left-sided ulcerative colitis by Montreal classification.",
+            "text": "Subtype is E2 left-sided ulcerative colitis by Montreal classification extent.",
             "sources": [
               "IBD-S9"
             ],
@@ -355,30 +380,43 @@
             "grounded": true
           },
           {
-            "text": "Disease severity is moderate by Truelove and Witts criteria.",
-            "recommendation": false
-          },
-          {
-            "text": "Induce remission with combined oral plus rectal 5-aminosalicylate for moderate left-sided disease.",
-            "recommendation": false
-          },
-          {
-            "text": "Escalate to systemic corticosteroids if inadequate response to optimized 5-ASA, then to advanced therapy for moderate to severe ulcerative colitis.",
+            "text": "Severity is moderate ulcerative colitis by Truelove and Witts criteria.",
             "sources": [
-              "IBD-S19",
-              "IBD-S1"
+              "IBD-S2",
+              "IBD-S3"
             ],
             "recommendation": true,
             "grounded": false
           },
           {
-            "text": "Monitor treatment target of clinical remission with normalization of faecal calprotectin and escalate if target not achieved.",
+            "text": "Induce remission of moderate E2 disease with high-dose oral 5-ASA combined with rectal 5-ASA, adding oral systemic corticosteroids for active moderate disease requiring prompt induction.",
+            "sources": [
+              "IBD-S1",
+              "IBD-S4",
+              "IBD-S2",
+              "IBD-S3"
+            ],
+            "recommendation": true,
+            "grounded": true
+          },
+          {
+            "text": "Check haemoglobin against WHO anaemia thresholds and review clinical nutrition status during active colitis.",
             "recommendation": false
+          },
+          {
+            "text": "Monitor stool frequency, rectal bleeding and faecal calprotectin per STRIDE-II targets and escalate to moderate-to-severe ulcerative colitis systemic therapy pathway if no response, worsening bleeding, or increased severity.",
+            "sources": [
+              "IBD-S12",
+              "IBD-S19",
+              "IBD-S13"
+            ],
+            "recommendation": true,
+            "grounded": false
           }
         ],
-        "recommendations": 5,
-        "grounded": 0.4,
-        "agreement": 0.46153846153846156
+        "recommendations": 7,
+        "grounded": 0.42857142857142855,
+        "agreement": 0.38461538461538464
       }
     },
     {
@@ -413,7 +451,7 @@
         "outcome": "answered",
         "counts": {
           "steps": 24,
-          "cited": 38,
+          "cited": 31,
           "ungrounded": 0
         },
         "cited": [
@@ -450,15 +488,16 @@
       "plain": {
         "lines": [
           {
-            "text": "Diagnosis is ulcerative colitis confirmed by colonoscopy with biopsy after negative stool culture.",
+            "text": "Diagnosis is ulcerative colitis confirmed by colonoscopy with biopsy after negative stool culture excluded enteric infection",
             "sources": [
-              "IBD-S8"
+              "IBD-S8",
+              "IBD-S18"
             ],
             "recommendation": true,
             "grounded": true
           },
           {
-            "text": "Subtype is Montreal E2 left-sided ulcerative colitis.",
+            "text": "Subtype extent as E2 left-sided ulcerative colitis per Montreal classification",
             "sources": [
               "IBD-S9"
             ],
@@ -466,15 +505,16 @@
             "grounded": true
           },
           {
-            "text": "Severity is severe ulcerative colitis by Truelove and Witts: 7 bloody stools/day with anaemia.",
+            "text": "Severity is severe ulcerative colitis by Truelove and Witts criteria with 7 bloody stools per day for 3 months plus anaemia",
             "sources": [
+              "IBD-S2",
               "IBD-S3"
             ],
             "recommendation": true,
             "grounded": false
           },
           {
-            "text": "Faecal calprotectin 900 µg/g indicates active intestinal inflammation supporting IBD activity.",
+            "text": "Faecal calprotectin 900 ug/g indicates active intestinal inflammation supporting IBD assessment",
             "sources": [
               "IBD-S10"
             ],
@@ -482,7 +522,7 @@
             "grounded": false
           },
           {
-            "text": "Hb 9.8 g/dL indicates anaemia in an adult man, moderate severity range.",
+            "text": "Hb 9.8 g/dL indicates anaemia with moderate severity in an adult man",
             "sources": [
               "IBD-S11"
             ],
@@ -490,52 +530,24 @@
             "grounded": false
           },
           {
-            "text": "Negative stool culture helps exclude enteric infection before attributing symptoms to IBD flare.",
-            "sources": [
-              "IBD-S15"
-            ],
-            "recommendation": true,
-            "grounded": false
-          },
-          {
-            "text": "Urgent hospital assessment for severe colitis and initiate systemic corticosteroids, intravenous if acute severe presentation.",
-            "recommendation": false
-          },
-          {
-            "text": "Escalation trigger: no improvement on intravenous steroids by day 3-5 -> rescue infliximab or ciclosporin with joint medical-surgical review.",
+            "text": "Initiate systemic corticosteroids for severe E2 ulcerative colitis with escalation to infliximab, ciclosporin, vedolizumab, tofacitinib or other advanced therapy if steroid non-response",
             "sources": [
               "IBD-S1",
-              "IBD-S3"
-            ],
-            "recommendation": true,
-            "grounded": true
-          },
-          {
-            "text": "For steroid-nonresponsive or steroid-dependent moderate-to-severe UC, use anti-TNF, vedolizumab, ustekinumab or small molecule per moderate-to-severe UC pathway.",
-            "sources": [
               "IBD-S19"
             ],
             "recommendation": true,
             "grounded": true
           },
           {
-            "text": "Screen for latent infection and vaccination status before immunosuppression/biologic initiation.",
+            "text": "Screen for and prevent infection before and during immunosuppressive therapy",
             "recommendation": false
           },
           {
-            "text": "Monitoring target is STRIDE-II: clinical remission plus normalization of CRP and faecal calprotectin, with endoscopic healing.",
-            "recommendation": false
-          },
-          {
-            "text": "Assess nutrition, correct iron deficiency/anaemia, and provide nutrition support for active IBD.",
-            "recommendation": false
-          },
-          {
-            "text": "Use therapeutic drug monitoring for anti-TNF loss of response, and consider serious heart, cancer and clot risk when selecting JAK inhibitor.",
+            "text": "Monitor treatment targets of clinical remission, normalization of haemoglobin and calprotectin, and endoscopic healing with escalation if targets not achieved",
             "recommendation": false
           }
         ],
-        "recommendations": 8,
+        "recommendations": 6,
         "grounded": 0.5,
         "agreement": 0.19047619047619047
       }
@@ -571,8 +583,8 @@
         "outcome": "answered",
         "counts": {
           "steps": 21,
-          "cited": 33,
-          "ungrounded": 1
+          "cited": 29,
+          "ungrounded": 0
         },
         "cited": [
           "IBD-N1",
@@ -599,32 +611,56 @@
         ],
         "extractMatched": 3,
         "extractTotal": 4,
-        "grounded": 0.9705882352941176,
+        "grounded": 1.0,
         "agreement": 1.0
       },
       "plain": {
         "lines": [
           {
-            "text": "Diagnosis is extensive ulcerative colitis, Montreal E3, with acute severe presentation per Truelove and Witts severe criteria confirmed by colonoscopy with biopsy.",
+            "text": "Classify disease as Montreal E3 extensive ulcerative colitis (pancolitis extending proximal to splenic flexure).",
             "sources": [
-              "IBD-S9",
-              "IBD-S8"
+              "IBD-S9"
             ],
             "recommendation": true,
             "grounded": true
           },
           {
-            "text": "Continue inpatient intravenous corticosteroids for acute severe ulcerative colitis with daily monitoring of stool frequency, rectal bleeding, CRP, haemoglobin, vitals and fluid-electrolyte status on day 3-5.",
+            "text": "Classify presentation as Truelove and Witts severe ulcerative colitis requiring hospital admission for intravenous corticosteroids.",
+            "sources": [
+              "IBD-S2",
+              "IBD-S3"
+            ],
+            "recommendation": true,
+            "grounded": false
+          },
+          {
+            "text": "Continue high-dose intravenous corticosteroids as first-line medical treatment for acute severe ulcerative colitis with daily stool frequency, CRP, haemoglobin and vital-sign monitoring.",
             "sources": [
               "IBD-S1",
-              "IBD-S2",
               "IBD-S3"
             ],
             "recommendation": true,
             "grounded": true
           },
           {
-            "text": "Infection work-up completed with negative stool culture; exclude Clostridioides difficile and other enteric infection per IBD infection assessment.",
+            "text": "Apply Oxford criteria on day 3 of intravenous steroids: stool frequency >8/day, or 3-8/day plus CRP >45 mg/L, predicts steroid failure and need for rescue therapy.",
+            "sources": [
+              "IBD-S2"
+            ],
+            "recommendation": true,
+            "grounded": true
+          },
+          {
+            "text": "Current day-3 values of 4 stools/day with CRP 20 mg/L and persistent bloody stool do not meet Oxford high-risk threshold, so continue intravenous steroids and reassess daily rather than immediate rescue.",
+            "sources": [
+              "IBD-S2",
+              "IBD-S1"
+            ],
+            "recommendation": true,
+            "grounded": false
+          },
+          {
+            "text": "Exclude enteric infection including Clostridioides difficile with stool studies; reported stool culture negative.",
             "sources": [
               "IBD-S15",
               "IBD-S18"
@@ -633,51 +669,30 @@
             "grounded": false
           },
           {
-            "text": "Mild anaemia present: Hb 11.8 g/dL below WHO anaemia threshold for adult men; monitor haemoglobin and correct iron deficiency and anaemia.",
-            "sources": [
-              "IBD-S11",
-              "IBD-S2"
-            ],
-            "recommendation": true,
-            "grounded": false
-          },
-          {
-            "text": "Assess steroid response at day 3 using Oxford criteria: >8 stools/day or 3-8 stools/day with CRP >45 mg/L predicts high colectomy risk and need for escalation.",
-            "sources": [
-              "IBD-S1",
-              "IBD-S2",
-              "IBD-S3"
-            ],
-            "recommendation": true,
-            "grounded": true
-          },
-          {
-            "text": "Current day-3 findings of 4 stools/day, CRP 20 mg/L with ongoing bloody stool indicate persistent activity requiring continued inpatient observation and re-assessment for rescue therapy.",
+            "text": "If steroid non-response or deterioration, escalate to rescue medical therapy with infliximab or ciclosporin.",
             "sources": [
               "IBD-S1",
               "IBD-S19"
             ],
             "recommendation": true,
-            "grounded": false
-          },
-          {
-            "text": "Escalation trigger: if no improvement after 3-5 days intravenous steroids, offer rescue therapy with infliximab or ciclosporin with early joint surgical review for acute severe colitis.",
-            "sources": [
-              "IBD-S1",
-              "IBD-S2",
-              "IBD-S3"
-            ],
-            "recommendation": true,
             "grounded": true
           },
           {
-            "text": "Provide venous thromboembolism prophylaxis and nutritional support and monitoring during acute severe colitis admission.",
+            "text": "Involve colorectal surgery early during acute severe colitis admission for assessment, monitoring for toxic megacolon, perforation and colectomy indication.",
             "recommendation": false
+          },
+          {
+            "text": "Haemoglobin 11.8 g/dL meets WHO definition of anaemia in an adult man (<13 g/dL), mild severity, monitor and evaluate iron deficiency and bleeding.",
+            "sources": [
+              "IBD-S11"
+            ],
+            "recommendation": true,
+            "grounded": false
           }
         ],
-        "recommendations": 7,
-        "grounded": 0.5714285714285714,
-        "agreement": 0.3
+        "recommendations": 8,
+        "grounded": 0.5,
+        "agreement": 0.4
       }
     },
     {
@@ -706,8 +721,8 @@
         "outcome": "answered",
         "counts": {
           "steps": 18,
-          "cited": 24,
-          "ungrounded": 1
+          "cited": 27,
+          "ungrounded": 0
         },
         "cited": [
           "IBD-N10",
@@ -731,62 +746,57 @@
         ],
         "extractMatched": 2,
         "extractTotal": 3,
-        "grounded": 0.96,
+        "grounded": 1.0,
         "agreement": 1.0
       },
       "plain": {
         "lines": [
           {
-            "text": "Diagnosis is Crohn's disease confirmed by colonoscopy with ileal biopsies and histology.",
+            "text": "Diagnose Crohn's disease based on colonoscopy with biopsy histology in context of 4 months abdominal pain, weight loss and elevated faecal calprotectin.",
             "sources": [
-              "IBD-S8"
+              "IBD-S8",
+              "IBD-S2"
             ],
             "recommendation": true,
             "grounded": true
           },
           {
-            "text": "Classify location as Montreal L1 ileal Crohn's disease.",
-            "sources": [
-              "IBD-S9"
-            ],
-            "recommendation": true,
-            "grounded": true
-          },
-          {
-            "text": "Classify behaviour as Montreal B1 non-stricturing, non-penetrating disease with mild activity.",
+            "text": "Classify subtype by Montreal classification as L1 ileal location, B1 non-stricturing non-penetrating behaviour, mild activity.",
             "recommendation": false
           },
           {
-            "text": "Faecal calprotectin 200 µg/g is elevated and supports intestinal inflammation requiring IBD evaluation.",
+            "text": "Faecal calprotectin 200 µg/g used as inflammatory bowel disease diagnostic test; negative stool culture excludes acute enteric infection.",
             "sources": [
-              "IBD-S10"
+              "IBD-S10",
+              "IBD-S18"
             ],
             "recommendation": true,
             "grounded": false
           },
           {
-            "text": "Negative stool culture helps exclude enteric infection as contributor to abdominal pain before attributing symptoms to Crohn's activity.",
+            "text": "Induce remission of mildly active ileal Crohn's disease with ileal-release budesonide as first-line medical treatment per Crohn's therapeutics.",
             "sources": [
-              "IBD-S15"
+              "IBD-S5",
+              "IBD-S6"
             ],
             "recommendation": true,
             "grounded": false
           },
           {
-            "text": "For mildly active localized ileal Crohn's disease, induce remission with budesonide as first-line medical treatment.",
-            "sources": [
-              "IBD-S5"
-            ],
-            "recommendation": true,
-            "grounded": false
+            "text": "Perform clinical nutrition assessment and provide nutrition support and counselling for 3 kg weight loss.",
+            "recommendation": false
           },
           {
-            "text": "Manage ongoing care per adult IBD consensus: screen for malnutrition and weight loss with nutrition support, and monitor STRIDE-II targets with clinical symptoms, calprotectin and endoscopic healing to trigger escalation if mild disease persists or progresses.",
+            "text": "Monitor treatment targets per STRIDE-II including clinical remission and biomarker normalization, and check haemoglobin for anaemia.",
+            "recommendation": false
+          },
+          {
+            "text": "Screen for infections before immunosuppression and escalate care if persistent active disease, stricturing or penetrating complications, or surgical indication develops.",
             "recommendation": false
           }
         ],
-        "recommendations": 5,
-        "grounded": 0.4,
+        "recommendations": 3,
+        "grounded": 0.3333333333333333,
         "agreement": 0.4
       }
     },
@@ -810,14 +820,13 @@
         "IBD-N61",
         "IBD-N72",
         "IBD-N85",
-        "IBD-N92",
         "IBD-N94"
       ],
       "graph": {
         "outcome": "answered",
         "counts": {
-          "steps": 19,
-          "cited": 34,
+          "steps": 18,
+          "cited": 26,
           "ungrounded": 0
         },
         "cited": [
@@ -838,7 +847,6 @@
           "IBD-N72",
           "IBD-N8",
           "IBD-N85",
-          "IBD-N92",
           "IBD-N94"
         ],
         "extractMatched": 2,
@@ -849,20 +857,15 @@
       "plain": {
         "lines": [
           {
-            "text": "Crohn's disease confirmed by ileocolonoscopy with biopsy after negative stool culture to exclude enteric infection",
+            "text": "Diagnose Crohn's disease based on colonoscopy with biopsy histology.",
             "sources": [
-              "IBD-S8",
-              "IBD-S18"
+              "IBD-S8"
             ],
             "recommendation": true,
             "grounded": true
           },
           {
-            "text": "Montreal subtype L2 colonic location, B1 non-stricturing non-penetrating behaviour",
-            "recommendation": false
-          },
-          {
-            "text": "Faecal calprotectin 350 µg/g supports intestinal inflammation in diagnostic workup",
+            "text": "Faecal calprotectin 350 ug/g indicates intestinal inflammation supporting inflammatory bowel disease assessment.",
             "sources": [
               "IBD-S10"
             ],
@@ -870,44 +873,57 @@
             "grounded": false
           },
           {
-            "text": "Moderate active Crohn's disease requiring systemic induction therapy",
+            "text": "Negative stool culture excludes acute diarrheal infection as cause of diarrhoea.",
             "sources": [
-              "IBD-S5",
-              "IBD-S6"
-            ],
-            "recommendation": true,
-            "grounded": true
-          },
-          {
-            "text": "Induce remission with systemic corticosteroids for moderate L2 colonic Crohn's disease",
-            "sources": [
-              "IBD-S5",
-              "IBD-S6",
-              "IBD-S2"
+              "IBD-S18"
             ],
             "recommendation": true,
             "grounded": false
           },
           {
-            "text": "Screen for malnutrition, assess weight loss 4 kg and offer nutrition support plan",
+            "text": "Subtype as Montreal L2: colonic location Crohn's disease.",
+            "sources": [
+              "IBD-S9"
+            ],
+            "recommendation": true,
+            "grounded": false
+          },
+          {
+            "text": "Subtype as Montreal B1: non-stricturing, non-penetrating behaviour.",
             "recommendation": false
           },
           {
-            "text": "Check haemoglobin to diagnose and grade anaemia in IBD",
-            "recommendation": false
+            "text": "Initiate medical induction treatment for moderate active Crohn's disease.",
+            "sources": [
+              "IBD-S5"
+            ],
+            "recommendation": true,
+            "grounded": true
           },
           {
-            "text": "Screen for latent infection and update vaccination before starting steroids / immunomodulator / biologic",
-            "recommendation": false
+            "text": "Use systemic corticosteroids for induction of moderate colonic Crohn's disease when budesonide is not appropriate.",
+            "sources": [
+              "IBD-S6"
+            ],
+            "recommendation": true,
+            "grounded": false
           },
           {
-            "text": "Monitor treat-to-target with clinical remission plus normalisation of calprotectin and escalate to immunomodulator / biologic if steroid-dependent, refractory or relapsing",
+            "text": "Assess nutritional status and provide nutrition support for active Crohn's disease with 4 kg weight loss.",
+            "sources": [
+              "IBD-S14"
+            ],
+            "recommendation": true,
+            "grounded": false
+          },
+          {
+            "text": "Monitor STRIDE-II targets including clinical remission and biomarker normalization and escalate therapy if targets not achieved.",
             "recommendation": false
           }
         ],
-        "recommendations": 4,
-        "grounded": 0.5,
-        "agreement": 0.25
+        "recommendations": 7,
+        "grounded": 0.2857142857142857,
+        "agreement": 0.3333333333333333
       }
     },
     {
@@ -930,15 +946,14 @@
         "IBD-N61",
         "IBD-N72",
         "IBD-N85",
-        "IBD-N92",
         "IBD-N94"
       ],
       "graph": {
         "outcome": "answered",
         "counts": {
-          "steps": 20,
-          "cited": 31,
-          "ungrounded": 0
+          "steps": 19,
+          "cited": 24,
+          "ungrounded": 2
         },
         "cited": [
           "IBD-N10",
@@ -956,21 +971,19 @@
           "IBD-N5",
           "IBD-N53",
           "IBD-N61",
-          "IBD-N72",
           "IBD-N8",
           "IBD-N85",
-          "IBD-N92",
           "IBD-N94"
         ],
         "extractMatched": 2,
         "extractTotal": 4,
-        "grounded": 1.0,
-        "agreement": 1.0
+        "grounded": 0.9230769230769231,
+        "agreement": 0.9333333333333333
       },
       "plain": {
         "lines": [
           {
-            "text": "Diagnosis is Crohn's disease confirmed by colonoscopy with biopsy",
+            "text": "Diagnosis: Crohn's disease confirmed by colonoscopy with ileocolonic biopsy",
             "sources": [
               "IBD-S8"
             ],
@@ -978,15 +991,23 @@
             "grounded": true
           },
           {
-            "text": "Montreal subtype L3: ileocolonic location",
+            "text": "Subtype location: Montreal L3 ileocolonic disease",
             "recommendation": false
           },
           {
-            "text": "Montreal subtype B1: non-stricturing, non-penetrating behaviour",
+            "text": "Subtype behaviour: Montreal B1 non-stricturing, non-penetrating disease",
             "recommendation": false
           },
           {
-            "text": "Hb 10.0 g/dL indicates anaemia in an adult man",
+            "text": "Infection workup: stool culture negative helps exclude acute infectious diarrhoea as cause",
+            "sources": [
+              "IBD-S18"
+            ],
+            "recommendation": true,
+            "grounded": false
+          },
+          {
+            "text": "Anaemia: Hb 10.0 g/dL indicates anaemia in an adult man",
             "sources": [
               "IBD-S11"
             ],
@@ -994,7 +1015,7 @@
             "grounded": false
           },
           {
-            "text": "Faecal calprotectin 700 µg/g indicates intestinal inflammation supporting IBD assessment",
+            "text": "Inflammation: faecal calprotectin 700 ug/g is elevated and consistent with active intestinal inflammation",
             "sources": [
               "IBD-S10"
             ],
@@ -1002,25 +1023,31 @@
             "grounded": false
           },
           {
-            "text": "Severe active Crohn's disease requires medical induction therapy per Crohn's medical treatment guidance",
+            "text": "Treatment induction: systemic corticosteroids for severe active L3 B1 Crohn's disease with early escalation to anti-TNF with or without thiopurine/methotrexate",
             "sources": [
-              "IBD-S5"
+              "IBD-S5",
+              "IBD-S6",
+              "IBD-S2"
             ],
             "recommendation": true,
             "grounded": true
           },
           {
-            "text": "Provide nutrition assessment and support for 8-kg weight loss",
+            "text": "Nutrition: screen for malnutrition and provide nutritional assessment and support for 8 kg weight loss",
             "recommendation": false
           },
           {
-            "text": "Set STRIDE-II treatment targets with monitoring and escalate if clinical, biomarker or endoscopic targets not achieved",
+            "text": "Pre-immunosuppression: screen for and prevent opportunistic infections before starting steroids/biologic/immunomodulator",
+            "recommendation": false
+          },
+          {
+            "text": "Monitoring target: treat-to-target clinical remission plus normalization of calprotectin, haemoglobin and CRP with escalation if targets not achieved",
             "recommendation": false
           }
         ],
-        "recommendations": 4,
-        "grounded": 0.5,
-        "agreement": 0.125
+        "recommendations": 5,
+        "grounded": 0.4,
+        "agreement": 0.2
       }
     },
     {
@@ -1051,7 +1078,7 @@
         "outcome": "answered",
         "counts": {
           "steps": 19,
-          "cited": 27,
+          "cited": 31,
           "ungrounded": 0
         },
         "cited": [
@@ -1083,15 +1110,25 @@
       "plain": {
         "lines": [
           {
-            "text": "Diagnosis of Crohn's disease established by colonoscopy with biopsy histology; complete diagnostic assessment per ECCO-ESGAR.",
+            "text": "Confirm Crohn's disease diagnosis by colonoscopy with biopsy histology integrated with clinical and diagnostic assessment",
             "sources": [
-              "IBD-S8"
+              "IBD-S8",
+              "IBD-S2"
             ],
             "recommendation": true,
             "grounded": true
           },
           {
-            "text": "Faecal calprotectin 300 µg/g indicates intestinal inflammation supporting IBD diagnostic workup.",
+            "text": "Negative stool culture excludes acute enteric infection as cause of abdominal pain and weight loss",
+            "sources": [
+              "IBD-S18",
+              "IBD-S15"
+            ],
+            "recommendation": true,
+            "grounded": false
+          },
+          {
+            "text": "Faecal calprotectin 300 µg/g indicates active intestinal inflammation supporting IBD evaluation",
             "sources": [
               "IBD-S10"
             ],
@@ -1099,46 +1136,39 @@
             "grounded": false
           },
           {
-            "text": "Negative stool culture helps exclude acute infectious diarrhoea as cause of symptoms.",
+            "text": "Classify as Montreal L1: terminal ileal location",
+            "recommendation": false
+          },
+          {
+            "text": "Classify as Montreal B2: stricturing behaviour",
+            "recommendation": false
+          },
+          {
+            "text": "Initiate medical induction and maintenance therapy for moderate active ileal Crohn's disease per Crohn's therapeutics guidance",
             "sources": [
-              "IBD-S18"
+              "IBD-S5",
+              "IBD-S6",
+              "IBD-S2"
             ],
             "recommendation": true,
             "grounded": false
           },
           {
-            "text": "Montreal subtype L1: terminal ileal location.",
+            "text": "Evaluate for surgical management of stricturing terminal ileal B2 disease, including obstruction risk and need for imaging and surgical referral",
             "recommendation": false
           },
           {
-            "text": "Montreal subtype B2: stricturing behaviour.",
+            "text": "Provide clinical nutrition assessment and support for 5 kg weight loss and active ileal disease",
             "recommendation": false
           },
           {
-            "text": "Moderate active L1 Crohn's disease: initiate specialist medical treatment per ECCO Crohn's medical therapeutics and BSG adult IBD management.",
-            "sources": [
-              "IBD-S5",
-              "IBD-S2"
-            ],
-            "recommendation": true,
-            "grounded": true
-          },
-          {
-            "text": "B2 stricturing ileal disease with crampy pain: assess for obstruction and refer for surgical evaluation per ECCO Crohn's surgical therapeutics if stricture is symptomatic or refractory.",
-            "recommendation": false
-          },
-          {
-            "text": "Weight loss 5 kg with active disease: screen for malnutrition and provide nutrition support per ESPEN IBD nutrition guideline.",
-            "recommendation": false
-          },
-          {
-            "text": "Monitor STRIDE-II treatment targets including clinical remission and CRP and calprotectin normalisation; escalate therapy if targets not achieved.",
+            "text": "Monitor treatment response to defined clinical, biomarker, endoscopic and transmural targets and escalate if targets not achieved",
             "recommendation": false
           }
         ],
         "recommendations": 4,
-        "grounded": 0.5,
-        "agreement": 0.17647058823529413
+        "grounded": 0.25,
+        "agreement": 0.23529411764705882
       }
     },
     {
@@ -1162,16 +1192,15 @@
         "IBD-N61",
         "IBD-N72",
         "IBD-N85",
-        "IBD-N92",
         "IBD-N93",
         "IBD-N94"
       ],
       "graph": {
         "outcome": "answered",
         "counts": {
-          "steps": 21,
-          "cited": 36,
-          "ungrounded": 0
+          "steps": 20,
+          "cited": 31,
+          "ungrounded": 2
         },
         "cited": [
           "IBD-N10",
@@ -1192,19 +1221,18 @@
           "IBD-N72",
           "IBD-N8",
           "IBD-N85",
-          "IBD-N92",
           "IBD-N93",
           "IBD-N94"
         ],
         "extractMatched": 2,
         "extractTotal": 3,
-        "grounded": 1.0,
+        "grounded": 0.9393939393939394,
         "agreement": 1.0
       },
       "plain": {
         "lines": [
           {
-            "text": "Diagnosis is Crohn's disease confirmed by colonoscopy with biopsy histology as part of diagnostic assessment",
+            "text": "Diagnosis: Crohn's disease confirmed by colonoscopy with biopsy after negative stool culture and elevated faecal calprotectin workup",
             "sources": [
               "IBD-S8"
             ],
@@ -1212,7 +1240,7 @@
             "grounded": true
           },
           {
-            "text": "Faecal calprotectin 500 µg/g indicates intestinal inflammation supporting IBD diagnostic workup",
+            "text": "Faecal calprotectin 500 µg/g supports inflammatory bowel disease and need for diagnostic assessment",
             "sources": [
               "IBD-S10"
             ],
@@ -1220,23 +1248,19 @@
             "grounded": false
           },
           {
-            "text": "Negative stool culture helps exclude acute diarrheal infection as cause of symptoms",
-            "sources": [
-              "IBD-S18"
-            ],
-            "recommendation": true,
-            "grounded": false
-          },
-          {
-            "text": "Subtype as Montreal L3 ileocolonic disease",
+            "text": "Subtype Montreal A2: age 31 at diagnosis (17-40 years)",
             "recommendation": false
           },
           {
-            "text": "Subtype as Montreal B3 penetrating behaviour",
+            "text": "Subtype Montreal L3: ileocolonic location",
             "recommendation": false
           },
           {
-            "text": "Initiate systemic medical treatment for severe active Crohn's disease per medical therapeutics guidance",
+            "text": "Subtype Montreal B3: penetrating behaviour",
+            "recommendation": false
+          },
+          {
+            "text": "Classification: severe Crohn's disease activity requiring intensive medical management",
             "sources": [
               "IBD-S5",
               "IBD-S6"
@@ -1245,33 +1269,35 @@
             "grounded": true
           },
           {
-            "text": "Refer for multidisciplinary surgical assessment for B3 penetrating ileocolonic disease",
-            "recommendation": false
-          },
-          {
-            "text": "Provide clinical nutrition assessment and support for 6 kg weight loss and active Crohn's disease",
+            "text": "Treatment: initiate medical treatment for severe L3-B3 Crohn's disease per ECCO therapeutics and ACG/BSG management pathways",
             "sources": [
-              "IBD-S14"
+              "IBD-S5",
+              "IBD-S6",
+              "IBD-S2"
             ],
             "recommendation": true,
-            "grounded": false
+            "grounded": true
           },
           {
-            "text": "Use treat-to-target monitoring with clinical, biomarker and endoscopic targets to guide escalation",
+            "text": "Evaluation for penetrating B3 complications and surgical input per ECCO surgical treatment guidance",
             "recommendation": false
           },
           {
-            "text": "Screen for and prevent infections before and during immunosuppressive therapy",
+            "text": "Nutritional assessment and support for 6 kg weight loss per ESPEN IBD nutrition guidance",
             "recommendation": false
           },
           {
-            "text": "Use therapeutic drug monitoring to guide biologic dosing and loss of response",
+            "text": "Screen for and prevent infections before/during immunosuppressive therapy",
+            "recommendation": false
+          },
+          {
+            "text": "Monitoring: treat-to-target with clinical, biomarker, endoscopic goals and therapeutic drug monitoring with escalation if targets not achieved",
             "recommendation": false
           }
         ],
-        "recommendations": 5,
-        "grounded": 0.4,
-        "agreement": 0.16666666666666666
+        "recommendations": 4,
+        "grounded": 0.75,
+        "agreement": 0.23529411764705882
       }
     },
     {
@@ -1291,8 +1317,8 @@
         "outcome": "answered",
         "counts": {
           "steps": 8,
-          "cited": 13,
-          "ungrounded": 2
+          "cited": 19,
+          "ungrounded": 0
         },
         "cited": [
           "URO-N1",
@@ -1306,13 +1332,13 @@
         ],
         "extractMatched": 2,
         "extractTotal": 2,
-        "grounded": 0.8666666666666667,
+        "grounded": 1.0,
         "agreement": 1.0
       },
       "plain": {
         "lines": [
           {
-            "text": "Diagnosis is acute renal colic due to 6 mm ureteric stone confirmed on non-contrast CT KUB",
+            "text": "Diagnosis: acute renal colic due to 6 mm ureteric stone confirmed on non-contrast CT KUB",
             "sources": [
               "URO-S1"
             ],
@@ -1320,11 +1346,11 @@
             "grounded": false
           },
           {
-            "text": "Provide NSAID as first-line analgesia for renal colic, with opioid if NSAID insufficient or contraindicated",
+            "text": "Test: assess pain, infection signs, renal function and urinalysis at presentation",
             "recommendation": false
           },
           {
-            "text": "Offer conservative watchful waiting with medical expulsive therapy using alpha-blocker for 6 mm ureteric stone without complications",
+            "text": "Subtype: 6 mm ureteral stone eligible for initial conservative management with medical expulsive therapy",
             "sources": [
               "URO-S1"
             ],
@@ -1332,7 +1358,11 @@
             "grounded": false
           },
           {
-            "text": "Offer shock wave lithotripsy or ureteroscopy for ureteric stone requiring active removal",
+            "text": "Treatment: offer NSAIDs as first-line analgesia and alpha-blocker medical expulsive therapy",
+            "recommendation": false
+          },
+          {
+            "text": "Treatment: if intervention required for 6 mm ureteral stone, offer ureteroscopy or shock wave lithotripsy",
             "sources": [
               "URO-S2"
             ],
@@ -1340,11 +1370,11 @@
             "grounded": false
           },
           {
-            "text": "Escalate to urgent decompression with ureteral stent or nephrostomy for infected obstructed stone, anuria, acute kidney injury, or intractable pain/vomiting",
+            "text": "Monitoring threshold: re-image in 2-4 weeks if not passed and intervene for persistent stone",
             "recommendation": false
           },
           {
-            "text": "Re-image and proceed to definitive treatment if stone persists after 4 weeks of observation or pain recurs",
+            "text": "Escalation trigger: urgent decompression for fever/infection, intractable pain or vomiting, acute kidney injury, single kidney or bilateral obstruction",
             "recommendation": false
           }
         ],
@@ -1384,28 +1414,24 @@
       "plain": {
         "lines": [
           {
-            "text": "Diagnosis: ureteric urolithiasis causing renal colic confirmed on non-contrast CT KUB",
+            "text": "Diagnosis: 12-mm symptomatic ureteric stone with 3-day renal colic on non-contrast CT KUB - spontaneous passage unlikely, plan active management.",
             "sources": [
-              "URO-S1"
+              "URO-S1",
+              "URO-S2"
             ],
             "recommendation": true,
             "grounded": true
           },
           {
-            "text": "Test: assess for infection, obstruction, renal function and urinalysis in acute ureteric colic",
+            "text": "Assess fever, infection/UTI, pain severity, nausea/vomiting, renal function, degree of obstruction/hydronephrosis, and high-risk features including single kidney, bilateral stones, or acute kidney injury.",
             "recommendation": false
           },
           {
-            "text": "Subtype: large ureteric stone 12 mm with low likelihood of spontaneous passage",
-            "sources": [
-              "URO-S1",
-              "URO-S2"
-            ],
-            "recommendation": true,
-            "grounded": false
+            "text": "Provide NSAID first-line analgesia for renal colic if no contraindication, with antiemetic and supportive hydration as needed.",
+            "recommendation": false
           },
           {
-            "text": "Treatment: offer active stone removal with ureteroscopy or shock wave lithotripsy for ureteric stone >10 mm",
+            "text": "Treatment: offer definitive stone removal for 12-mm ureteric stone - ureteroscopy with lithotripsy as preferred option, with shock wave lithotripsy as alternative based on stone location, anatomy, and patient preference.",
             "sources": [
               "URO-S1",
               "URO-S2"
@@ -1414,12 +1440,16 @@
             "grounded": true
           },
           {
-            "text": "Escalation trigger: urgent decompression for fever, suspected infection, acute kidney injury, anuria, single kidney or intractable pain/nausea",
+            "text": "Do not rely on medical expulsive therapy alone for 12-mm stone; consider only as adjunct since efficacy is mainly for smaller distal ureteral stones.",
+            "recommendation": false
+          },
+          {
+            "text": "Escalation trigger: urgent decompression by ureteral stenting or percutaneous nephrostomy plus antibiotics for infected obstructed stone, sepsis, fever with obstruction, anuria, AKI, or intractable pain/vomiting.",
             "recommendation": false
           }
         ],
-        "recommendations": 3,
-        "grounded": 0.6666666666666666,
+        "recommendations": 2,
+        "grounded": 1.0,
         "agreement": 0.6666666666666666
       }
     }

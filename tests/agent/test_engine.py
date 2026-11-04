@@ -30,7 +30,7 @@ from tests.agent.conftest import (
     walk_through,
 )
 
-IBD_LIVE = PackVersionRef(pack="IBD", number="1.1")
+IBD_LIVE = PackVersionRef(pack="IBD", number="1.2")
 
 
 def _lines(events: list[Any]) -> list[dict[str, Any]]:
@@ -64,7 +64,7 @@ def test_demo_walk_is_fully_grounded_in_fr4_6_order(
     assert done["counts"]["ungrounded"] == 0
     assert done["counts"]["cited"] == len(_lines(events)) > 0
     assert (done["packVersion"], done["provider"], done["disclaimer"]) == (
-        "IBD 1.1",
+        "IBD 1.2",
         "recorded",
         DISCLAIMER,
     )
@@ -173,14 +173,14 @@ def test_rewalk_on_a_newer_version_records_both(
     )
     events = collect(engine, demo_case.case_id, mode="rewalk")
     done = of_type(events, "done")[0]
-    assert (done["packVersion"], done["previousPackVersion"]) == ("IBD 1.2", "IBD 1.1")
+    assert (done["packVersion"], done["previousPackVersion"]) == ("IBD 1.3", "IBD 1.2")
     assert done["counts"]["ungrounded"] == 0
     assert cases.get_case(demo_case.case_id).pinned_pack_version == PackVersionRef(
-        pack="IBD", number="1.2"
+        pack="IBD", number="1.3"
     )
     record = audit.get_session(done["sessionId"]).record
-    assert record.pack_version == "IBD 1.2"
-    assert "was IBD 1.1" in record.answer.summary
+    assert record.pack_version == "IBD 1.3"
+    assert "was IBD 1.2" in record.answer.summary
 
 
 def test_session_record_holds_the_audit_fields(
@@ -190,7 +190,7 @@ def test_session_record_holds_the_audit_fields(
     record = audit.get_session(done["sessionId"]).record
     assert (record.profile_id, record.pack_version, record.provider, record.model) == (
         DOCTOR,
-        "IBD 1.1",
+        "IBD 1.2",
         "recorded",
         "recorded",
     )
@@ -226,7 +226,7 @@ def test_run_walk_answers_forms_from_the_given_results(engine: WalkEngine, demo_
     result = engine.run_walk(demo_case.case_id, findings, answers)
     assert result.outcome == "answered"
     assert result.counts.ungrounded == 0 and result.counts.cited > 0
-    assert result.pack_version == "IBD 1.1"
+    assert result.pack_version == "IBD 1.2"
     assert "IBD-N34" in result.path_node_ids
 
 

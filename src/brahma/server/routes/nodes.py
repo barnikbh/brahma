@@ -19,8 +19,8 @@ from brahma.server.mapview import parse_version
 
 router = APIRouter(tags=["core"])
 
-# Demo-day branch links authored by the case owner (Nov 4): the pack has no edge
-# for these yet. Absorb as real pack edges in v1.2 and re-run the benchmark.
+# Demo-day branch links authored by the case owner (Nov 4) for packs older than 1.2: from
+# IBD 1.2 the same link is a real ``if_present`` edge in the pack, and the pack wins.
 # Display-only navigation: lines never cite these links, so grounding is untouched.
 BRANCH_LINKS: dict[str, list[str]] = {"IBD-N90": ["IBD-N96"]}
 
@@ -50,8 +50,14 @@ def _initial_version(shared: ServicesDep, ref: PackVersionRef) -> str:
 
 
 def _branch_links(shared: ServicesDep, ref: PackVersionRef, node_id: str) -> list[dict[str, str]]:
-    """Owner-authored next paths (see BRANCH_LINKS); missing targets are skipped."""
-    links: list[dict[str, str]] = []
+    """Where a node leads: its pack ``if_present`` edges, else the owner-authored links
+    (see BRANCH_LINKS) for older packs; missing targets are skipped."""
+    links: list[dict[str, str]] = [
+        {"nodeId": step.node.node_id, "label": step.node.label}
+        for step in shared.knowledge.neighbours(ref, node_id, [], "if_present")
+    ]
+    if links:
+        return links
     for target_id in BRANCH_LINKS.get(node_id, []):
         try:
             target = shared.knowledge.get_node(ref, target_id)

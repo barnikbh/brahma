@@ -101,7 +101,7 @@ def test_publishing_as_the_reviewer_returns_200_and_the_versions_list_shows_it(
         headers=_as(REVIEWER),
     )
     assert response.status_code == 200
-    assert response.json()["publishedVersion"] == "1.2"
+    assert response.json()["publishedVersion"] == "1.3"
     again = client.post(
         f"/api/knowledge/proposals/{created['proposalId']}/reject",
         json={"comment": "late"},
@@ -110,8 +110,8 @@ def test_publishing_as_the_reviewer_returns_200_and_the_versions_list_shows_it(
     assert again.status_code == 409
     versions = client.get("/api/knowledge/versions?pack=IBD", headers=_as(DOCTOR)).json()
     assert [(v["version"], v["status"]) for v in versions["versions"]] == [
-        ("1.2", "live"),
-        ("1.1", "superseded"),
+        ("1.3", "live"),
+        ("1.2", "superseded"),
     ]
     assert versions["versions"][0]["comment"] == "Matches the source"
 

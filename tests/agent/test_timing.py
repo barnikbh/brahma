@@ -29,7 +29,7 @@ def test_a_line_check_takes_under_50_ms_once_the_vocabulary_is_cached(
     knowledge: KnowledgeService, cases: CaseService, demo_case: Case
 ) -> None:
     guard = Guard(knowledge, cases)
-    version = PackVersionRef(pack="IBD", number="1.1")
+    version = PackVersionRef(pack="IBD", number="1.2")
     text = "Hydrocortisone 100 mg intravenously four times daily."
     guard.check_line(text, ["IBD-N51"], version, demo_case.case_id)
     started = time.perf_counter()

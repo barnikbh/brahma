@@ -87,7 +87,115 @@ export interface NodePanelProps {
   onStopExplore?: () => void;
   onSuggest?: () => void;
   onReview?: (nodeId: string, value: string) => void;
+  /** The node's care-loop status and why it is lit, from the map. */
+  careStatus?: string;
+  careReason?: string | null;
+  /** Records an event for this node: a sign present, a result in, or a step done. */
+  onEvent?: (kind: "present" | "result" | "done", value?: string) => void;
   onSelectNode?: (nodeId: string) => void;
+}
+
+const OBSERVATION_TYPES = new Set(["symptom", "metric", "watch_out", "interaction"]);
+const ACTION_TYPES = new Set(["drug", "treatment_tier", "diet"]);
+
+/** The buttons that record what happened. Clicking a block only opens this panel; these
+ *  buttons are what change the case, and the map lights the next step from the result. */
+function CareActions(props: {
+  type: string;
+  status?: string;
+  reason?: string | null;
+  options: string[];
+  unit: string | null;
+  disabled: boolean;
+  value: string;
+  onValue: (value: string) => void;
+  onEvent: (kind: "present" | "result" | "done", value?: string) => void;
+}) {
+  const { type, status } = props;
+  const isTest = type === "test";
+  const isMeasure = type === "monitoring";
+  const isSign = OBSERVATION_TYPES.has(type);
+  const isStep = ACTION_TYPES.has(type);
+  if (!isTest && !isMeasure && !isSign && !isStep) return null;
+  const canMark = isStep && (status === "chosen" || status === "entry" || status === "now");
+  if (isStep && !canMark && status !== "done") return null;
+  return (
+    <section aria-label="Record" data-testid="node-care" className="space-y-2">
+      {props.reason ? <p className="text-xs font-medium">{props.reason}</p> : null}
+      {isSign ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={props.disabled || status === "present"}
+            onClick={() => props.onEvent("present")}
+          >
+            Patient has this now
+          </Button>
+          {status === "present" ? <span className="text-xs text-ink-quiet">Recorded</span> : null}
+        </div>
+      ) : null}
+      {isTest ? (
+        <form
+          className="flex flex-wrap items-center gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (props.value) props.onEvent("result", props.value);
+          }}
+        >
+          <select
+            aria-label="Result"
+            value={props.value}
+            disabled={props.disabled}
+            onChange={(e) => props.onValue(e.target.value)}
+            className="h-8 rounded border border-neutral-300 bg-white px-2 text-sm"
+          >
+            <option value="">Result…</option>
+            {props.options.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </select>
+          <Button size="sm" type="submit" disabled={props.disabled || !props.value}>
+            Record result
+          </Button>
+        </form>
+      ) : null}
+      {isMeasure ? (
+        <form
+          className="flex flex-wrap items-center gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (props.value.trim()) props.onEvent("result", props.value.trim());
+          }}
+        >
+          <Input
+            aria-label="Result"
+            value={props.value}
+            inputMode="decimal"
+            disabled={props.disabled}
+            onChange={(e) => props.onValue(e.target.value)}
+            placeholder={props.unit ? `Value (${props.unit})` : "Value"}
+            className="w-32"
+          />
+          <Button size="sm" type="submit" disabled={props.disabled || !props.value.trim()}>
+            Record result
+          </Button>
+        </form>
+      ) : null}
+      {canMark ? (
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={props.disabled}
+          onClick={() => props.onEvent("done")}
+        >
+          Mark done
+        </Button>
+      ) : null}
+    </section>
+  );
 }
 
 export function NodePanel(props: NodePanelProps) {
@@ -97,6 +205,7 @@ export function NodePanel(props: NodePanelProps) {
   const [comment, setComment] = useState("");
   const [commentError, setCommentError] = useState<string | null>(null);
   const [reviewValue, setReviewValue] = useState("");
+  const [resultValue, setResultValue] = useState("");
   const heading = useRef<HTMLHeadingElement | null>(null);
 
   const load = useCallback(async () => {
@@ -204,7 +313,7 @@ export function NodePanel(props: NodePanelProps) {
               {detail.node.type}
             </Badge>
             <NodeChip nodeId={detail.node.nodeId} />
-            <Badge variant="sage">Suggested by pack {detail.packVersion ?? version}</Badge>
+            <Badge variant="sage">From pack {detail.packVersion ?? version}</Badge>
           </div>
           {props.contextLine ? (
             <p className="text-xs text-ink-quiet" data-testid="node-context">
@@ -277,6 +386,21 @@ export function NodePanel(props: NodePanelProps) {
               </p>
             </section>
           ) : null}
+          {caseId && props.onEvent ? (
+            <CareActions
+              type={detail.node.type}
+              status={props.careStatus}
+              reason={props.careReason}
+              options={
+                Array.isArray(fields.resultOptions) ? (fields.resultOptions as string[]) : []
+              }
+              unit={typeof fields.unit === "string" ? fields.unit : null}
+              disabled={Boolean(props.readOnly)}
+              value={resultValue}
+              onValue={setResultValue}
+              onEvent={props.onEvent}
+            />
+          ) : null}
           <p className="text-xs text-ink-quiet" data-testid="node-updated">
             {detail.updated
               ? `Updated by ${detail.updated.updatedByName} · ${formatWhen(detail.updated.updatedAt)}`
@@ -300,7 +424,17 @@ export function NodePanel(props: NodePanelProps) {
                 {text(fields.route)}
                 <Edited name="route" />
               </dd>
-              <dt className="text-ink-quiet">Pack dose</dt>
+              {fields.inductionDoseValue != null ? (
+                <>
+                  <dt className="text-ink-quiet">Induction dose</dt>
+                  <dd data-testid="induction-dose">
+                    {text(fields.inductionDoseValue)} {text(fields.inductionDoseUnit)}
+                  </dd>
+                </>
+              ) : null}
+              <dt className="text-ink-quiet">
+                {fields.inductionDoseValue != null ? "Maintenance dose" : "Pack dose"}
+              </dt>
               <dd>
                 {fields.doseBasis === "weight_band" ? (
                   formatDoseBands(fields.doseBands).join("; ")

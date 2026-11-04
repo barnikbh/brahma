@@ -29,6 +29,8 @@ def resolve_version(service: UpdateService, pack: str, version: str | None) -> P
 def relation_label(edge: Edge) -> str:
     """A short readable edge label such as ``refines to`` or ``first line (finding = x)``."""
     label = edge.relation.replace("_", " ")
+    if edge.relation == "requires":
+        label = f"needs first ({edge.strength or 'must'})"
     condition = edge.condition
     if condition is None:
         return label

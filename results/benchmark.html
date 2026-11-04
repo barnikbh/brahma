@@ -18,20 +18,20 @@ details { margin: 1rem 0; }
 </head>
 <body>
 <h1>Brahma benchmark: graph vs plain model</h1>
-<p>Model: meta/muse-spark-1.3 &middot; Run: 2026-10-31 &middot;
+<p>Model: meta/muse-spark-1.3 &middot; Run: 2026-11-04 &middot;
 Expected pathways: pending review</p>
 <h2 class='verdict-pass'>Pass</h2>
 <h2>Totals</h2>
 <table><tr><th></th><th>Graph grounded</th><th>Graph agreement</th>
 <th>Plain grounded</th><th>Plain agreement</th></tr>
-<tr><td>IBD</td><td>99.3%</td><td>100.0%</td><td>48.1%</td><td>27.7%</td></tr><tr><td>URO (shown, not counted)</td><td>93.3%</td><td>100.0%</td><td>33.3%</td><td>50.0%</td></tr></table>
+<tr><td>IBD</td><td>98.6%</td><td>99.3%</td><td>41.3%</td><td>31.3%</td></tr><tr><td>URO (shown, not counted)</td><td>100.0%</td><td>100.0%</td><td>50.0%</td><td>50.0%</td></tr></table>
 <h2>Cases</h2>
 <p><label>Group: <select id="group" onchange="filter()">
 <option value="">All</option><option>UC</option><option>CD</option><option>URO</option>
 </select></label></p>
 <table id="cases"><tr><th>Case</th><th>Group</th><th>Graph grounded</th><th>Graph agreement</th>
 <th>Plain grounded</th><th>Plain agreement</th><th>Plain recs</th><th>Reviewed by</th></tr>
-<tr data-group='UC'><td>uc-acute-severe</td><td>UC</td><td>100.0%</td><td>100.0%</td><td>28.6%</td><td>23.8%</td><td>7</td><td>pending</td></tr><tr data-group='UC'><td>uc-mild-proctitis</td><td>UC</td><td>100.0%</td><td>100.0%</td><td>75.0%</td><td>46.2%</td><td>4</td><td>pending</td></tr><tr data-group='UC'><td>uc-moderate-leftsided</td><td>UC</td><td>100.0%</td><td>100.0%</td><td>40.0%</td><td>46.2%</td><td>5</td><td>pending</td></tr><tr data-group='UC'><td>uc-severe-e2</td><td>UC</td><td>100.0%</td><td>100.0%</td><td>50.0%</td><td>19.0%</td><td>8</td><td>pending</td></tr><tr data-group='UC'><td>uc-day3-responder</td><td>UC</td><td>97.1%</td><td>100.0%</td><td>57.1%</td><td>30.0%</td><td>7</td><td>pending</td></tr><tr data-group='CD'><td>cd-ileal-mild</td><td>CD</td><td>96.0%</td><td>100.0%</td><td>40.0%</td><td>40.0%</td><td>5</td><td>pending</td></tr><tr data-group='CD'><td>cd-colonic-moderate</td><td>CD</td><td>100.0%</td><td>100.0%</td><td>50.0%</td><td>25.0%</td><td>4</td><td>pending</td></tr><tr data-group='CD'><td>cd-ileocolonic-severe</td><td>CD</td><td>100.0%</td><td>100.0%</td><td>50.0%</td><td>12.5%</td><td>4</td><td>pending</td></tr><tr data-group='CD'><td>cd-stricturing</td><td>CD</td><td>100.0%</td><td>100.0%</td><td>50.0%</td><td>17.6%</td><td>4</td><td>pending</td></tr><tr data-group='CD'><td>cd-penetrating</td><td>CD</td><td>100.0%</td><td>100.0%</td><td>40.0%</td><td>16.7%</td><td>5</td><td>pending</td></tr><tr data-group='URO'><td>uro-distal-small</td><td>URO</td><td>86.7%</td><td>100.0%</td><td>0.0%</td><td>33.3%</td><td>3</td><td>pending</td></tr><tr data-group='URO'><td>uro-large</td><td>URO</td><td>100.0%</td><td>100.0%</td><td>66.7%</td><td>66.7%</td><td>3</td><td>pending</td></tr></table>
+<tr data-group='UC'><td>uc-acute-severe</td><td>UC</td><td>100.0%</td><td>100.0%</td><td>25.0%</td><td>28.6%</td><td>8</td><td>pending</td></tr><tr data-group='UC'><td>uc-mild-proctitis</td><td>UC</td><td>100.0%</td><td>100.0%</td><td>42.9%</td><td>46.2%</td><td>7</td><td>pending</td></tr><tr data-group='UC'><td>uc-moderate-leftsided</td><td>UC</td><td>100.0%</td><td>100.0%</td><td>42.9%</td><td>38.5%</td><td>7</td><td>pending</td></tr><tr data-group='UC'><td>uc-severe-e2</td><td>UC</td><td>100.0%</td><td>100.0%</td><td>50.0%</td><td>19.0%</td><td>6</td><td>pending</td></tr><tr data-group='UC'><td>uc-day3-responder</td><td>UC</td><td>100.0%</td><td>100.0%</td><td>50.0%</td><td>40.0%</td><td>8</td><td>pending</td></tr><tr data-group='CD'><td>cd-ileal-mild</td><td>CD</td><td>100.0%</td><td>100.0%</td><td>33.3%</td><td>40.0%</td><td>3</td><td>pending</td></tr><tr data-group='CD'><td>cd-colonic-moderate</td><td>CD</td><td>100.0%</td><td>100.0%</td><td>28.6%</td><td>33.3%</td><td>7</td><td>pending</td></tr><tr data-group='CD'><td>cd-ileocolonic-severe</td><td>CD</td><td>92.3%</td><td>93.3%</td><td>40.0%</td><td>20.0%</td><td>5</td><td>pending</td></tr><tr data-group='CD'><td>cd-stricturing</td><td>CD</td><td>100.0%</td><td>100.0%</td><td>25.0%</td><td>23.5%</td><td>4</td><td>pending</td></tr><tr data-group='CD'><td>cd-penetrating</td><td>CD</td><td>93.9%</td><td>100.0%</td><td>75.0%</td><td>23.5%</td><td>4</td><td>pending</td></tr><tr data-group='URO'><td>uro-distal-small</td><td>URO</td><td>100.0%</td><td>100.0%</td><td>0.0%</td><td>33.3%</td><td>3</td><td>pending</td></tr><tr data-group='URO'><td>uro-large</td><td>URO</td><td>100.0%</td><td>100.0%</td><td>100.0%</td><td>66.7%</td><td>2</td><td>pending</td></tr></table>
 <script>
 function filter() {
   const g = document.getElementById('group').value;

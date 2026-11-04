@@ -64,9 +64,9 @@ def test_a_proposal_shows_before_and_after_and_links_its_source(
     assert (proposal.status, proposal.origin, proposal.base_version) == (
         "proposed",
         "doctor",
-        "1.1",
+        "1.2",
     )
-    assert proposal.target_version == "1.2 draft"
+    assert proposal.target_version == "1.3 draft"
     change = proposal.changes[0]
     assert change.before is not None
     assert change.before["content"] == old
@@ -77,7 +77,7 @@ def test_a_proposal_shows_before_and_after_and_links_its_source(
     source = UpdateRepository(conn).get_linked_source(proposal.source_id or "")
     assert source is not None
     assert (source.url, source.title) == (SOURCE_URL, "Synthetic colitis note")
-    assert knowledge.live_version("IBD").number == "1.1"  # nothing live yet
+    assert knowledge.live_version("IBD").number == "1.2"  # nothing live yet
     assert [e["kind"] for e in audit_kinds()] == ["proposal_created"]
 
 
@@ -146,27 +146,27 @@ def test_publishing_bumps_the_version_for_new_sessions_and_keeps_the_old_one(
 ) -> None:
     proposal = updates.create_proposal(_suggest(), DOCTOR)
     published = updates.publish(proposal.proposal_id, REVIEWER, "Checked against the source")
-    assert (published.status, published.published_version) == ("published", "1.2")
+    assert (published.status, published.published_version) == ("published", "1.3")
     assert published.reviewer_profile_id == REVIEWER
     fresh = KnowledgeService(kg_connect(tmp_db))  # a new session opens the database again
     try:
         live = fresh.live_version("IBD")
-        assert live.number == "1.2"
+        assert live.number == "1.3"
         assert fresh.get_node(live, "IBD-N36").content == NEW_N36
         versions = {v.number: v.status for v in fresh.list_versions("IBD")}
-        assert versions == {"1.2": "live", "1.1": "superseded"}
-        old = fresh.get_node(PackVersionRef(pack="IBD", number="1.1"), "IBD-N36")
+        assert versions == {"1.3": "live", "1.2": "superseded"}
+        old = fresh.get_node(PackVersionRef(pack="IBD", number="1.2"), "IBD-N36")
         assert old.content != NEW_N36
-        assert knowledge.live_version("IBD").number == "1.2"
+        assert knowledge.live_version("IBD").number == "1.3"
     finally:
         fresh.close()
     row = audit_kinds()[-1]
     assert (row["kind"], row["profileId"], row["packVersion"]) == (
         "proposal_published",
         REVIEWER,
-        "IBD 1.2",
+        "IBD 1.3",
     )
-    assert (row["publishedVersion"], row["rebased"]) == ("1.2", False)
+    assert (row["publishedVersion"], row["rebased"]) == ("1.3", False)
     with pytest.raises(ProposalClosed):
         updates.publish(proposal.proposal_id, REVIEWER)
 
@@ -180,7 +180,7 @@ def test_a_proposal_on_an_older_base_is_reapplied_to_the_live_version(
     second = updates.create_proposal(_suggest("IBD-N37", NEW_N37), DOCTOR)
     updates.publish(first.proposal_id, REVIEWER)
     result = updates.publish(second.proposal_id, REVIEWER)
-    assert (result.base_version, result.published_version) == ("1.1", "1.3")
+    assert (result.base_version, result.published_version) == ("1.2", "1.4")
     live = knowledge.live_version("IBD")
     assert knowledge.get_node(live, "IBD-N36").content == NEW_N36
     assert knowledge.get_node(live, "IBD-N37").content == NEW_N37
@@ -216,7 +216,7 @@ def test_rejecting_needs_a_comment_and_is_audited(
     assert audit_kinds()[-1] == {
         "kind": "proposal_rejected",
         "profileId": REVIEWER,
-        "packVersion": "IBD 1.1",
+        "packVersion": "IBD 1.2",
         "proposalId": proposal.proposal_id,
         "comment": "Not supported by the source",
     }
@@ -233,11 +233,11 @@ def test_history_merges_live_superseded_proposed_and_rejected(updates: UpdateSer
     history = updates.version_history("IBD")
     by_status = {e.status: e for e in history}
     assert set(by_status) == {"live", "superseded", "proposed", "rejected"}
-    assert (by_status["live"].version, by_status["live"].comment) == ("1.2", "Looks right")
+    assert (by_status["live"].version, by_status["live"].comment) == ("1.3", "Looks right")
     assert by_status["live"].proposal_id == published.proposal_id
     assert by_status["live"].author == REVIEWER
     assert by_status["proposed"].proposal_id == pending.proposal_id
-    assert by_status["proposed"].version == "1.3 draft"
+    assert by_status["proposed"].version == "1.4 draft"
     assert by_status["rejected"].comment == "No"
     assert [e.date for e in history] == sorted((e.date for e in history), reverse=True)
 

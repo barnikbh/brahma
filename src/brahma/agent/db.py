@@ -58,6 +58,21 @@ CREATE TABLE IF NOT EXISTS ag_traverse_choice (
 
 CREATE INDEX IF NOT EXISTS ag_traverse_choice_walk
     ON ag_traverse_choice(walk_id, created_at);
+
+CREATE TABLE IF NOT EXISTS ag_care_event (
+    event_id   TEXT PRIMARY KEY,
+    case_id    TEXT NOT NULL REFERENCES cs_case(case_id),
+    body_json  TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS ag_care_event_case ON ag_care_event(case_id, created_at);
+
+CREATE TRIGGER IF NOT EXISTS ag_care_event_no_update BEFORE UPDATE ON ag_care_event
+BEGIN SELECT RAISE(ABORT, 'ag_care_event rows are kept'); END;
+
+CREATE TRIGGER IF NOT EXISTS ag_care_event_no_delete BEFORE DELETE ON ag_care_event
+BEGIN SELECT RAISE(ABORT, 'ag_care_event rows are kept'); END;
 """
 
 
