@@ -20,16 +20,16 @@
       "outputTokens": 260
     },
     {
-      "match": "\"nodeId\": \"IBD-N53\"",
-      "text": "{\"lines\": [{\"text\": \"Entry point is Tier 3 rescue therapy: without an adequate response by day 3, rescue therapy is the step taken now.\", \"nodeIds\": [\"IBD-N42\"], \"claims\": [{\"kind\": \"tier\", \"value\": \"3\"}]}, {\"text\": \"Infliximab 5 mg/kg intravenously at weeks 0, 2 and 6, then every 8 weeks.\", \"nodeIds\": [\"IBD-N53\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"infliximab\"}, {\"kind\": \"dose\", \"value\": \"5\", \"unit\": \"mg/kg\"}, {\"kind\": \"frequency\", \"value\": \"weeks 0, 2 and 6, then every 8 weeks\"}]}, {\"text\": \"Ustekinumab starts with one weight-based intravenous induction dose, then 90 mg under the skin every 8 weeks.\", \"nodeIds\": [\"IBD-N54\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"ustekinumab\"}, {\"kind\": \"dose\", \"value\": \"90\", \"unit\": \"mg\"}]}]}",
-      "inputTokens": 1200,
-      "outputTokens": 200
-    },
-    {
       "match": "\"nodeId\": \"IBD-N72\"",
       "text": "{\"lines\": [{\"text\": \"Check the anti-TNF trough level and antibodies; a trough of at least 5 ug/mL is the suggested target.\", \"nodeIds\": [\"IBD-N72\"], \"claims\": [{\"kind\": \"threshold\", \"value\": \"5\", \"unit\": \"ug/mL\"}]}, {\"text\": \"On the new treatment, aim for a faecal calprotectin of 250 ug/g or below.\", \"nodeIds\": [\"IBD-N83\"], \"claims\": [{\"kind\": \"threshold\", \"value\": \"250\", \"unit\": \"ug/g\"}]}]}",
       "inputTokens": 700,
       "outputTokens": 90
+    },
+    {
+      "match": "\"nodeId\": \"IBD-N53\"",
+      "text": "{\"lines\": [{\"text\": \"Entry point is Tier 3 rescue therapy: without an adequate response by day 3, rescue therapy is the step taken now.\", \"nodeIds\": [\"IBD-N42\"], \"claims\": [{\"kind\": \"tier\", \"value\": \"3\"}]}, {\"text\": \"Infliximab 5 mg/kg intravenously at weeks 0, 2 and 6, then every 8 weeks.\", \"nodeIds\": [\"IBD-N53\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"infliximab\"}, {\"kind\": \"dose\", \"value\": \"5\", \"unit\": \"mg/kg\"}, {\"kind\": \"frequency\", \"value\": \"weeks 0, 2 and 6, then every 8 weeks\"}]}, {\"text\": \"Ustekinumab starts with one weight-based intravenous induction dose, then 90 mg under the skin every 8 weeks.\", \"nodeIds\": [\"IBD-N54\"], \"claims\": [{\"kind\": \"drug\", \"value\": \"ustekinumab\"}, {\"kind\": \"dose\", \"value\": \"90\", \"unit\": \"mg\"}]}]}",
+      "inputTokens": 1200,
+      "outputTokens": 200
     },
     {
       "match": "\"nodeId\": \"IBD-N99\"",

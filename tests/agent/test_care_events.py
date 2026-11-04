@@ -192,3 +192,20 @@ def test_a_result_recorded_before_any_choice_still_counts_as_done(
     data = engine.map_data(demo_case.case_id)
     assert data is not None and _statuses(data)["IBD-N71"] == "done"
     assert _statuses(data)["IBD-N51"] == "not_taken"  # never chosen on this case
+
+
+def test_a_drugs_own_monitoring_is_written_with_the_drug_to_co_cite(
+    engine: WalkEngine, demo_case: Case, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    walk_through(engine, demo_case.case_id)
+    seen: dict[str, list[str]] = {}
+    real = engine.writer.write_section
+
+    def spy(section_id: str, nodes: list[dict[str, Any]], *args: Any) -> Any:
+        seen[section_id] = [n["nodeId"] for n in nodes]
+        return real(section_id, nodes, *args)
+
+    monkeypatch.setattr(engine.writer, "write_section", spy)
+    collect(engine, demo_case.case_id, mode="review", branch_node_id="IBD-N81", review_value="60")
+    # "Infliximab trough level" names infliximab, so infliximab comes along to be cited.
+    assert {"IBD-N72", "IBD-N53"} <= set(seen["monitor"])

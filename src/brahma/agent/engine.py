@@ -823,12 +823,20 @@ class WalkEngine:
             node_ids = trav.section(section_id) if plan is None else list(plan.get(section_id, []))
             if node_ids:
                 yield progress(SECTION_STEP[section_id])
-                nodes = [self._knowledge.get_node(version, n) for n in node_ids]
+                # A drug's own monitoring or watch-out names the drug ("infliximab trough
+                # level"), so the drug comes along as a node the line may co-cite.
+                owners = [
+                    drug
+                    for drug, members in trav.drug_downstream.items()
+                    if drug not in node_ids and set(members) & set(node_ids)
+                ]
+                cited = [*node_ids, *owners]
+                nodes = [self._knowledge.get_node(version, n) for n in cited]
                 sources = views.sources_for(self._knowledge, version, nodes)
                 drafts = self.writer.write_section(
                     section_id, self._payloads(walk, nodes, trav), sources, context
                 )
-                yield from self._emit(walk, version, section_id, drafts, node_ids)
+                yield from self._emit(walk, version, section_id, drafts, cited)
                 yield from self._section_done(walk, section_id, index, node_ids)
             else:
                 walk.last_section_done = index
