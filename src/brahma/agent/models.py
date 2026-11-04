@@ -368,6 +368,25 @@ class MapEdge(AgModel):
     style: EdgeStyle
 
 
+class PathItem(AgModel):
+    """One node on the chosen path: drug, tier, review, monitor or watch-out."""
+
+    node_id: str
+    label: str
+    type: str
+
+
+class TraversePath(AgModel):
+    """The chosen path's next steps. Labels come from the walked graph only."""
+
+    drug: PathItem
+    tier: PathItem
+    review: list[PathItem] = Field(default_factory=list)
+    monitor: list[PathItem] = Field(default_factory=list)
+    watch_outs: list[PathItem] = Field(default_factory=list)
+    next_tiers: list[PathItem] = Field(default_factory=list)
+
+
 class MapLane(AgModel):
     """An explore lane on the map."""
 

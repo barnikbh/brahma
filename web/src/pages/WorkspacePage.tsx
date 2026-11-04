@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ApiError, api } from "@/api/client";
-import type { EditOutcome, FormField, NodeDetail } from "@/api/types";
+import type { EditOutcome, FormField, MapEdge, MapNode, NodeDetail } from "@/api/types";
 import { Banner } from "@/components/Banner";
 import { ChatThread } from "@/components/ChatThread";
 import { GraphCanvas } from "@/components/GraphCanvas";
@@ -30,6 +30,37 @@ const EDIT_FIELDS: { name: string; label: string }[] = [
 ];
 
 const MAX_TEXT = 4000;
+
+interface PathContext {
+  prefix: string;
+  nodeId: string;
+  label: string;
+}
+
+/** Where an option, planned or chosen node sits, from the map's own edges. */
+function contextLineFor(
+  selected: MapNode | undefined,
+  nodes: MapNode[],
+  edges: MapEdge[],
+): PathContext | null {
+  if (
+    !selected ||
+    (selected.status !== "option" && selected.status !== "planned" && selected.status !== "chosen")
+  ) {
+    return null;
+  }
+  const incoming = edges.find(
+    (e) => e.to === selected.nodeId && nodes.some((n) => n.nodeId === e.from),
+  );
+  if (!incoming) return null;
+  const parent = nodes.find((n) => n.nodeId === incoming.from);
+  if (!parent) return null;
+  let prefix = "During";
+  if (selected.status === "option") prefix = "Option of";
+  else if (selected.status === "chosen") prefix = "Chosen for";
+  else if (selected.type === "treatment_tier") prefix = "Next tier after";
+  return { prefix, nodeId: parent.nodeId, label: parent.label };
+}
 
 export function WorkspacePage() {
   const { caseId } = useParams<{ caseId: string }>();
@@ -140,8 +171,12 @@ export function WorkspacePage() {
     void (async () => {
       try {
         const result = await api.traverse(caseId, selectedNodeId);
-        dispatch({ type: "map_loaded", map: result.map });
-        dispatch({ type: "notice", text: result.notice });
+        dispatch({
+          type: "traversed",
+          map: result.map,
+          card: result.path,
+          notice: result.notice,
+        });
       } catch (e) {
         dispatch({
           type: "request_failed",
@@ -231,6 +266,9 @@ export function WorkspacePage() {
   const selectedNode = state.map.nodes.find((n) => n.nodeId === selectedNodeId);
   const laneOpen = selectedNodeId ? state.openLanes[selectedNodeId] : undefined;
   const settled = state.done !== null;
+  const chooseUnavailable =
+    selectedNode?.status === "option" && !settled ? "Available once the walk answers." : null;
+  const contextLine = contextLineFor(selectedNode, state.map.nodes, state.map.edges);
 
   return (
     <div className="space-y-3">
@@ -380,6 +418,8 @@ export function WorkspacePage() {
               canExplore={Boolean(settled && selectedNode && selectedNode.status === "not_taken")}
               exploring={Boolean(laneOpen && laneOpen !== "pending")}
               canChoose={Boolean(settled && selectedNode && selectedNode.status === "option")}
+              chooseUnavailable={chooseUnavailable}
+              contextLine={contextLine}
               onClose={closePanel}
               onEdit={openEdit}
               onChoose={chooseOption}

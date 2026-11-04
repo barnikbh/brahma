@@ -364,6 +364,10 @@ def test_traverse_route_records_a_choice_and_replays_it(client: TestClient) -> N
     assert statuses["IBD-N52"] == "option"
     assert statuses["IBD-N70"] == "used"
     assert statuses["IBD-N42"] == "planned"
+    assert body["path"]["drug"]["nodeId"] == "IBD-N51"
+    assert body["path"]["tier"]["nodeId"] == "IBD-N41"
+    assert [n["nodeId"] for n in body["path"]["review"]] == ["IBD-N80", "IBD-N81"]
+    assert [n["nodeId"] for n in body["path"]["nextTiers"]] == ["IBD-N42"]
     replay = client.get(f"/api/cases/{case_id}/map", params={"sessionId": done["sessionId"]}).json()
     assert replay["selectedPath"][0] == "IBD-N1"
     assert {n["nodeId"]: n["status"] for n in replay["nodes"]}["IBD-N51"] == "chosen"

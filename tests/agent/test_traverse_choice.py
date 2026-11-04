@@ -23,7 +23,13 @@ def test_choice_marks_the_drug_chosen_and_lights_its_tier(
     engine: WalkEngine, demo_case: Case
 ) -> None:
     walk_through(engine, demo_case.case_id)
-    data, notice = engine.traverse_choice(demo_case.case_id, "IBD-N51", DOCTOR)
+    data, notice, path = engine.traverse_choice(demo_case.case_id, "IBD-N51", DOCTOR)
+    assert path.drug.node_id == "IBD-N51"
+    assert path.tier.node_id == "IBD-N41"
+    assert [n.node_id for n in path.review] == ["IBD-N80", "IBD-N81"]
+    assert [n.node_id for n in path.monitor] == ["IBD-N70", "IBD-N71"]
+    assert [n.node_id for n in path.watch_outs] == ["IBD-N90", "IBD-N91", "IBD-N96"]
+    assert [n.node_id for n in path.next_tiers] == ["IBD-N42"]
     statuses = _statuses(data)
     assert statuses["IBD-N51"] == "chosen"
     assert statuses["IBD-N52"] == "option"
@@ -65,7 +71,7 @@ def test_rechoosing_moves_the_highlight_and_keeps_history(
 ) -> None:
     walk_through(engine, demo_case.case_id)
     engine.traverse_choice(demo_case.case_id, "IBD-N51", DOCTOR)
-    data, _ = engine.traverse_choice(demo_case.case_id, "IBD-N52", DOCTOR)
+    data, _, _ = engine.traverse_choice(demo_case.case_id, "IBD-N52", DOCTOR)
     statuses = _statuses(data)
     assert statuses["IBD-N51"] == "option"
     assert statuses["IBD-N52"] == "chosen"

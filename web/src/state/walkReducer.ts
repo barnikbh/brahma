@@ -16,6 +16,7 @@ import type {
   MapNode,
   Message,
   ProgressStep,
+  TraversePath,
   WalkCounts,
   WalkEvent,
   WalkRequest,
@@ -101,7 +102,8 @@ export type ChatItem =
       laneId: string | null;
     }
   | { kind: "summary"; id: string; info: SummaryInfo }
-  | { kind: "notice"; id: string; text: string };
+  | { kind: "notice"; id: string; text: string }
+  | { kind: "path"; id: string; card: TraversePath };
 
 export interface MapState {
   version: string;
@@ -152,6 +154,7 @@ export type WalkAction =
   | { type: "form_submitted"; messageId: string; summary: string }
   | { type: "loaded"; view: CaseView }
   | { type: "map_loaded"; map: MapData }
+  | { type: "traversed"; map: MapData; card: TraversePath; notice: string }
   | { type: "lock"; state: LockState }
   | { type: "open_edit"; nodeId: string; fields: FormField[] }
   | { type: "edit_done"; formId: string; summary: string | null }
@@ -531,6 +534,16 @@ function fromCaseView(state: WalkState, view: CaseView): WalkState {
   };
 }
 
+/** A whole-map replace from the server (reload or traverse). */
+function applyMapLoaded(map: MapState, data: MapData): MapState {
+  return {
+    version: data.version || map.version,
+    nodes: data.nodes,
+    edges: data.edges,
+    lanes: Object.fromEntries((data.exploreLanes ?? []).map((lane) => [lane.laneId, lane.nodeIds])),
+  };
+}
+
 export function walkReducer(state: WalkState, action: WalkAction): WalkState {
   switch (action.type) {
     case "request": {
@@ -587,17 +600,21 @@ export function walkReducer(state: WalkState, action: WalkAction): WalkState {
     case "loaded":
       return fromCaseView(state, action.view);
     case "map_loaded":
+      return { ...state, map: applyMapLoaded(state.map, action.map) };
+    case "traversed": {
+      const [cardId, cardSeq] = nextId(state, "p");
+      const [noticeId, seq] = nextId({ ...state, seq: cardSeq }, "n");
       return {
         ...state,
-        map: {
-          version: action.map.version || state.map.version,
-          nodes: action.map.nodes,
-          edges: action.map.edges,
-          lanes: Object.fromEntries(
-            (action.map.exploreLanes ?? []).map((lane) => [lane.laneId, lane.nodeIds]),
-          ),
-        },
+        seq,
+        map: applyMapLoaded(state.map, action.map),
+        items: [
+          ...state.items,
+          { kind: "path", id: cardId, card: action.card },
+          { kind: "notice", id: noticeId, text: action.notice },
+        ],
       };
+    }
     case "lock":
       return { ...state, readOnly: action.state === "read_only" };
     case "open_edit": {

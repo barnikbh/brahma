@@ -111,6 +111,27 @@ describe("NodePanel", () => {
     expect(onChoose).toHaveBeenCalledTimes(1);
   });
 
+  it("explains when choosing must wait and shows the path context", async () => {
+    installFakeApi();
+    render(
+      <NodePanel
+        nodeId="IBD-N51"
+        version="IBD 1.0"
+        caseId="BR-000001"
+        onClose={vi.fn()}
+        chooseUnavailable="Available once the walk answers."
+        contextLine={{ prefix: "Option of", nodeId: "IBD-N41", label: "UC Tier 2" }}
+      />,
+    );
+    await screen.findByTestId("dose");
+    expect(screen.getByRole("button", { name: "Choose this option" })).toBeDisabled();
+    expect(screen.getByText("Available once the walk answers.")).toBeInTheDocument();
+    const context = screen.getByTestId("node-context");
+    expect(context).toHaveTextContent("Option of");
+    expect(context).toHaveTextContent("UC Tier 2");
+    expect(context.querySelector('[data-node-chip="IBD-N41"]')).toBeInTheDocument();
+  });
+
   it("shows the stored edit marker with no in-memory outcome (reload)", async () => {
     installFakeApi({
       "GET /api/nodes/:v/:n": () =>

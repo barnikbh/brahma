@@ -73,6 +73,11 @@ test("demo walk: sign in, walk the case, cited answer, audit record", async ({ p
   await expect(page.locator('[data-map-node="IBD-N52"]')).toContainText("○ Option");
   await expect(page.locator('[data-map-node="IBD-N70"]')).toContainText("→ Suggested");
   await expect(page.getByText(/Hydrocortisone 100 mg IV four times daily chosen/)).toBeVisible();
+  const card = page.getByTestId("path-card");
+  await expect(card).toContainText("Now on Hydrocortisone 100 mg IV four times daily");
+  await expect(card).toContainText("Day-3 review");
+  await expect(card).toContainText("IBD-N70");
+  await expect(card).toContainText("If UC Tier 2: intravenous corticosteroids fails");
 
   // Follow-up: chat after the answer is read as treatment history, with no extra button.
   const composer = page.getByLabel(/Message the agent/);

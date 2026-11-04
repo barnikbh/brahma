@@ -358,9 +358,25 @@ export interface EditOutcome {
   safety: SafetyResult[];
 }
 
+export interface TraversePathItem {
+  nodeId: string;
+  label: string;
+  type: string;
+}
+
+export interface TraversePath {
+  drug: TraversePathItem;
+  tier: TraversePathItem;
+  review: TraversePathItem[];
+  monitor: TraversePathItem[];
+  watchOuts: TraversePathItem[];
+  nextTiers: TraversePathItem[];
+}
+
 export interface TraverseResponse {
   map: MapData;
   notice: string;
+  path: TraversePath;
 }
 
 // --- Sessions (history) ----------------------------------------------------------------

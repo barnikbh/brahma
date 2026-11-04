@@ -386,4 +386,23 @@ describe("walkReducer", () => {
     expect(state.status).toBe("answered");
     expect(state.items.at(-1)).toMatchObject({ state: "submitted" });
   });
+
+  it("records a traverse as a path card plus notice with the new map", () => {
+    const answered = demoState();
+    const card = {
+      drug: { nodeId: "IBD-N51", label: "Hydrocortisone", type: "drug" },
+      tier: { nodeId: "IBD-N41", label: "UC Tier 2", type: "treatment_tier" },
+      review: [],
+      monitor: [],
+      watchOuts: [],
+      nextTiers: [],
+    };
+    const map = { version: "IBD 1.0", nodes: [], edges: [], selectedPath: [] };
+    const state = walkReducer(answered, { type: "traversed", map, card, notice: "chosen" });
+    expect(state.items.slice(-2).map((i) => i.kind)).toEqual(["path", "notice"]);
+    expect(state.items.at(-2)).toMatchObject({ card });
+    expect(state.items.at(-1)).toMatchObject({ text: "chosen" });
+    expect(state.map.nodes).toEqual([]);
+    expect(state.status).toBe("answered");
+  });
 });

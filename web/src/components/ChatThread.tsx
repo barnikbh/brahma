@@ -4,6 +4,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { NodeChip } from "@/components/NodeChip";
 import { ChatForm } from "@/components/ChatForm";
+import { PathCard } from "@/components/PathCard";
 import { WalkSummary } from "@/components/WalkSummary";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -151,6 +152,8 @@ export function ChatThread(props: ChatThreadProps) {
                 {item.text}
               </p>
             );
+          case "path":
+            return <PathCard key={item.id} path={item.card} />;
           default:
             return null;
         }

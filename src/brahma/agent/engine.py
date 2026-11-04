@@ -64,8 +64,10 @@ from brahma.agent.models import (
     MapEdge,
     MapNode,
     Outcome,
+    PathItem,
     ProgressStep,
     TraverseChoice,
+    TraversePath,
     Walk,
     WalkEvent,
     WalkRequest,
@@ -305,12 +307,15 @@ class WalkEngine:
             if lane.status == "open"
         ]
 
-    def traverse_choice(self, case_id: str, node_id: str, profile_id: str) -> tuple[MapData, str]:
+    def traverse_choice(
+        self, case_id: str, node_id: str, profile_id: str
+    ) -> tuple[MapData, str, TraversePath]:
         """Record the doctor's chosen drug option and re-light its tier's path.
 
         Deterministic: the walk is re-walked from its stored facts (no model call),
         prior choices are re-applied, and the map snapshot is rebuilt. Re-choosing
         another drug of the same tier moves the highlight; the audit keeps every event.
+        The returned path is the tier's next steps, all taken from the walked graph.
         """
         walk = self.repo.latest_for_case(case_id)
         if walk is None:
@@ -334,10 +339,12 @@ class WalkEngine:
         if tier is None:
             raise TraverseInvalid(node_id, "no entry tier offers this drug")
         previous = self.repo.choices_for_walk(walk.walk_id)
-        trav = walk_graph(self._knowledge, version, self._facts(walk, version))
+        facts = self._facts(walk, version)
+        trav = walk_graph(self._knowledge, version, facts)
         trav.choices = {**previous, tier: node_id}
         label = str(walk.map.get("version") or "")
         data = views.build_map(self._knowledge, version, trav, label)
+        path = self._traverse_path(version, trav, tier, node_id, facts)
         walk.map = data.model_dump(by_alias=True)
         self.repo.save_progress(walk)
         lanes = self._open_lanes(walk)
@@ -363,7 +370,47 @@ class WalkEngine:
             },
         )
         drug = self._knowledge.get_node(version, node_id).label
-        return data, f"{drug} chosen. Its tier's monitoring is now highlighted on the map."
+        notice = f"{drug} chosen. Its tier's monitoring is now highlighted on the map."
+        return data, notice, path
+
+    def _traverse_path(
+        self,
+        version: PackVersionRef,
+        trav: Traversal,
+        tier_id: str,
+        node_id: str,
+        facts: list[Fact],
+    ) -> TraversePath:
+        """The tier's next steps for the card: review, monitor, watch-outs, next tiers."""
+        review: list[PathItem] = []
+        monitor: list[PathItem] = []
+        watch_outs: list[PathItem] = []
+        for member in trav.tier_downstream.get(tier_id, []):
+            item = self._path_item(version, member)
+            if item.type == "response_criterion":
+                review.append(item)
+            elif item.type == "monitoring":
+                monitor.append(item)
+            elif item.type in ("watch_out", "escalation"):
+                watch_outs.append(item)
+        next_tiers: list[PathItem] = []
+        seen_tiers: set[str] = set()
+        for step in self._knowledge.neighbours(version, tier_id, facts, "escalate_to"):
+            if step.status != "not_taken" and step.node.node_id not in seen_tiers:
+                seen_tiers.add(step.node.node_id)
+                next_tiers.append(self._path_item(version, step.node.node_id))
+        return TraversePath(
+            drug=self._path_item(version, node_id),
+            tier=self._path_item(version, tier_id),
+            review=review,
+            monitor=monitor,
+            watch_outs=watch_outs,
+            next_tiers=next_tiers,
+        )
+
+    def _path_item(self, version: PackVersionRef, node_id: str) -> PathItem:
+        node = self._knowledge.get_node(version, node_id)
+        return PathItem(node_id=node.node_id, label=node.label, type=node.type)
 
     def _offers(self, version: PackVersionRef, tier_id: str, node_id: str) -> bool:
         """Whether the tier offers the drug (relation match only; option status on the

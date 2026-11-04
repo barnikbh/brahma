@@ -329,6 +329,14 @@ describe("WorkspacePage", () => {
         selectedPath: ["IBD-N41", "IBD-N51"],
       },
       notice: "Hydrocortisone 100 mg IV chosen. Its tier's monitoring is now highlighted.",
+      path: {
+        drug: { nodeId: "IBD-N51", label: "Hydrocortisone 100 mg IV", type: "drug" },
+        tier: { nodeId: "IBD-N41", label: "UC Tier 2", type: "treatment_tier" },
+        review: [],
+        monitor: [],
+        watchOuts: [],
+        nextTiers: [],
+      },
     }));
     renderApp("/cases/BR-000001");
     await userEvent.type(await screen.findByLabelText(/Describe the patient/), "case");
@@ -345,6 +353,7 @@ describe("WorkspacePage", () => {
       expect(document.querySelector('[data-map-node="IBD-N51"]')).toHaveTextContent("✓ Chosen"),
     );
     expect(await screen.findByText(/Hydrocortisone 100 mg IV chosen/)).toBeInTheDocument();
+    expect(screen.getByTestId("path-card")).toHaveTextContent("Now on Hydrocortisone 100 mg IV");
   });
 
   it("shows the synthetic patient card with the allergy and saves new details", async () => {

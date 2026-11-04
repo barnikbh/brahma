@@ -187,8 +187,12 @@ def traverse(
 ) -> dict[str, Any]:
     """Record the doctor's chosen drug option and re-light its tier's path."""
     shared.cases.get_case(case_id)
-    data, notice = shared.engine.traverse_choice(case_id, body.node_id, profile)
-    return {"map": data.model_dump(by_alias=True), "notice": notice}
+    data, notice, path = shared.engine.traverse_choice(case_id, body.node_id, profile)
+    return {
+        "map": data.model_dump(by_alias=True),
+        "notice": notice,
+        "path": path.model_dump(by_alias=True),
+    }
 
 
 @router.get("/cases/{case_id}/map")

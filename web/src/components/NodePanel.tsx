@@ -70,6 +70,8 @@ export interface NodePanelProps {
   canExplore?: boolean;
   exploring?: boolean;
   canChoose?: boolean;
+  chooseUnavailable?: string | null;
+  contextLine?: { prefix: string; nodeId: string; label: string } | null;
   onClose: () => void;
   onEdit?: (detail: NodeDetail) => void;
   onChoose?: () => void;
@@ -187,6 +189,13 @@ export function NodePanel(props: NodePanelProps) {
             <NodeChip nodeId={detail.node.nodeId} />
             <Badge variant="sage">Suggested by pack {detail.packVersion ?? version}</Badge>
           </div>
+          {props.contextLine ? (
+            <p className="text-xs text-ink-quiet" data-testid="node-context">
+              {props.contextLine.prefix}{" "}
+              <strong className="font-semibold">{props.contextLine.label}</strong>{" "}
+              <NodeChip nodeId={props.contextLine.nodeId} />
+            </p>
+          ) : null}
           <p className="text-xs text-ink-quiet" data-testid="node-updated">
             {detail.updated
               ? `Updated by ${detail.updated.updatedByName} · ${formatWhen(detail.updated.updatedAt)}`
@@ -315,6 +324,13 @@ export function NodePanel(props: NodePanelProps) {
               >
                 Choose this option
               </Button>
+            ) : props.chooseUnavailable ? (
+              <span>
+                <Button size="sm" variant="outline" disabled={true}>
+                  Choose this option
+                </Button>
+                <span className="ml-2 text-xs text-ink-quiet">{props.chooseUnavailable}</span>
+              </span>
             ) : null}
             {props.exploring && props.onStopExplore ? (
               <Button
