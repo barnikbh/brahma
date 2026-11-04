@@ -1,6 +1,7 @@
 # Brahma: handoff for the next coding agent
 
-Last updated: Wed Nov 4, 2026, by Claude. Read this first, then `README.md`.
+Last updated: Wed Nov 4, 2026, by Muse Code. Read this first, then `README.md`.
+Branch `main` is pushed to `github.com/barnikbh/brahma` and in sync with it.
 
 ## What this is
 
@@ -20,7 +21,15 @@ Hard rules, never break these:
 
 ## Where things stand
 
-The product runs end to end. 371 backend tests (97% coverage) and 80 web tests (93%) pass. Ruff, `mypy --strict`, ESLint, Prettier and the build are clean. A Playwright demo-walk test passes against the recorded provider. The follow-up turn, the Knowledge screen rebuild and the live Meta walk were not all covered by that e2e (see Known issues).
+The product runs end to end. 436 backend tests (97% coverage) and 100 web tests (93% lines) pass. Ruff, `mypy --strict`, ESLint, Prettier and the build are clean. Two Playwright tests pass against the recorded provider (demo walk incl. traverse choice + follow-up over Enter, and day-3 review). The Knowledge screen rebuild and the live Meta walk are covered by live rehearsal, not e2e.
+
+### Right now (Nov 4, submission day)
+
+- **HEAD:** `main`, pushed and in sync with `github.com/barnikbh/brahma`. Last feature commit is `cf57ad3` (day-3 review walk); the Nov 3–4 traversal/review series is all on `main`.
+- **Deadline:** today, Nov 4, 9 PM ET. Critical path: fresh server → `scripts/live_rehearsal.py` → tag the record commit → record → submit. Zero commits after the tag until the video is submitted.
+- **Live server:** the owner tests at `http://127.0.0.1:8000` on this machine. Any agent-owned server dies with its session, so if the port answers stale code (or nothing), kill the holder and start fresh: `set -a && source .env && set +a && .venv/bin/python -m brahma.server`. The app is served from `web/dist` (gitignored): rebuild after any web change.
+- **Local-only files (NOT in git, a fresh clone lacks them):** `web/index.html` has a 1-line favicon link and `web/public/stethoscope.svg` is its target — a pair, commit together or not at all. Also untracked: `.DS_Store` files everywhere, the AI-DLC audit shard under `aidlc/spaces/default/intents/261029-clinical-decision-graph/audit/`, and gitignored `data/*.db` / `*.log` (the owner's demo case `BR-495233` lives in the local DB).
+- **Do not demo or claim:** anything "pending review" in content gaps; symptom-asserted branching beyond the one N90→N96 display link; CI on runners (workflow exists, never verified).
 
 | Unit | What | Status |
 |---|---|---|
@@ -31,7 +40,7 @@ The product runs end to end. 371 backend tests (97% coverage) and 80 web tests (
 | U5 `src/brahma/updates/` | Proposals, reviewer publish, safe URL fetch, copy check, conversational knowledge updates, browse | Done |
 | U8 `web/` | React app: sign-in, patients, workspace, map, node panel, history, knowledge | Done |
 | U6 prescriptions and follow-up visits | | **Cut** by the owner (Oct 30) |
-| U7 benchmark (20 cases, graph vs plain model) | | **Cut for now** |
+| U7 benchmark (lean 12-case version, Pass Oct 31) | | **Done** (see Open deadlines) |
 
 Recent additions (all done, tested):
 - **Follow-up turn:** after an answered walk, the doctor types treatment history ("Remicade failed. steroids work."). It is extracted, brands are mapped to generics through pack synonyms, and a cited next step is suggested. There is no button. Prior drugs show as "↺ Tried" on the map.
@@ -40,7 +49,7 @@ Recent additions (all done, tested):
 - **Patients page** lists recent patients on open.
 - **Knowledge screen** has a Browse tab (free exploration of nodes and edges) and an Update tab (free text and source URLs, one model call per node, follow-up questions, "updated by who and when"). A reviewer still publishes.
 - **Pathway traversal (Nov 3):** offered drugs render as grey ○ Option boxes and tier-sourced monitoring/watch-outs plus escalation tiers as grey planned steps. The doctor opens an option (dose/safety first) and presses "Choose this option" in the node panel: `POST /api/cases/{id}/traverse` records an append-only choice plus a `traverse_choice` audit event (no model call) and re-lights the map — chosen drug ✓ Chosen, its tier's monitoring blue, siblings grey. Re-choosing moves the highlight. History replay shows the recorded choice (session replay now reads the walk's stored map instead of rebuilding all-used). Follow-up (Nov 4): choosing shows a cited "Now on" next-step card (dose, day-3 review, monitor, watch-for, next tier, follow-up hint; deterministic, no model call); the panel explains when choosing must wait for the walk and shows path context ("Option of / During / Next tier after"). Day-3 review (Nov 4): wired response criteria show "If met → tier" from the pack's escalation conditions, and the panel's "Record day-3 result" form records the value as a review-scoped fact — a presenting value can never skip a tier. A met criterion opens the next tier as a new `review` walk (audited `review_recorded`, `reviewed` SSE event); an unmet one keeps the tier standing with no new walk. Toxic megacolon → Emergency colectomy triggers is an owner-authored display-only branch link (Nov 4, absorb as a real pack edge in v1.2); full symptom-asserted branching still needs clinician-authored branch content (post-submission).
-- **Criterion "If met" links (Nov 4):** response-criterion panels show where a met threshold leads (day-3 stool/CRP → Tier 3), derived only from exact criterion-field↔escalate-condition matches in the pack (`KnowledgeService.criterion_targets`, `leadsTo` on node detail). Measurements, watch-outs, escalation nodes and unwired criteria (all calprotectin criteria, all Crohn's branches) link nowhere: no matching conditions exist. Acting on a met criterion (moving the entry tier on day-3 results) is still NOT built — findings carry no review/temporal scope, so "CRP 60" cannot safely re-tier (a presenting CRP 60 must not skip Tier 2). Needs clinician-designed review semantics.
+- **Criterion "If met" links (Nov 4):** response-criterion panels show where a met threshold leads (day-3 stool/CRP → Tier 3), derived only from exact criterion-field↔escalate-condition matches in the pack (`KnowledgeService.criterion_targets`, `leadsTo` on node detail). Measurements, watch-outs, escalation nodes and unwired criteria (all calprotectin criteria, all Crohn's branches) link nowhere: no matching conditions exist. Acting on a met criterion is now built via the day-3 review walk (see the traversal bullet): review-scoped facts only, so a presenting CRP 60 still never skips Tier 2.
 
 ## Run it
 
@@ -94,7 +103,7 @@ python scripts/check_env_example.py && python scripts/check_secrets.py
 - `content/ibd.yaml` (v1.1), `content/urology.yaml` (v0.1). On start-up the server loads any pack file with a version **newer than the live one** as a new live version; older versions are kept so past sessions replay on the version they used.
 - `web/` — Vite, React, TypeScript, Tailwind, shadcn/ui, React Flow.
 - `tests/` — pytest. Recorded model replies live in `tests/*/fixtures/recorded/` (`replies` with a `match` string, see `RecordedAdapter`).
-- `.github/workflows/ci.yml` — backend and web jobs (never run yet; the repo isn't on GitHub).
+- `.github/workflows/ci.yml` — backend and web jobs (repo is at `github.com/barnikbh/brahma`; a green CI run on a runner is still unverified).
 - `aidlc/` and `.claude/` — the AI-DLC workflow record (requirements, stories, designs, contracts, per-unit plans and summaries) for Claude Code. It is **optional reading** for another agent. Best entry points: `aidlc/spaces/default/intents/261029-clinical-decision-graph/inception/requirements-analysis/requirements.md` (FR/NFR), `.../contract-design/contract-summary.md` (C1–C11 interfaces), `.../delivery-planning/bolt-plan.md` (plan and backlog).
 - The AI-DLC workflow is **parked at Build and Test** (`/aidlc --resume` in Claude Code). Skipped units: U6 and U7.
 
@@ -108,7 +117,7 @@ python scripts/check_env_example.py && python scripts/check_secrets.py
 6. **Old cases: non-issue, verified Oct 31.** No IBD 1.0 cases exist locally (all are 1.1+); the banner logic is covered by `test_case_view_shows_the_newer_version_banner`. Still: record with fresh patients.
 7. **Map density: accepted, no code.** 12 Monitor-column nodes shrink on fit (minZoom 0.2, React Flow's own zoom/pan controls present and verified). Zoom in while recording.
 8. **Not built — all four confirmed correctly unbuilt Oct 31:** form-draft *restore* in the web UI (API + `formDrafts` done and tested; restore is backlog, demo fills forms in one go); zoom slider (React Flow's own controls suffice); first-run tour (cut by owner); background source checker (structurally off — no server wiring, only the `python -m brahma.updates.check` CLI — and its 24 h interval cannot help a demo).
-9. **Repo is not a git repo yet.** Initialise it, make sure `.env` and `data/` stay ignored (`.gitignore` covers them), run `scripts/check_secrets.py`, then create the public GitHub repo. Tag the commit the demo video is recorded from. No commits after the deadline.
+9. **Repo on GitHub: done Nov 4.** `github.com/barnikbh/brahma`, branch `main`, pushed and in sync. `.env` and `data/` stay ignored (`.gitignore` covers them) and `scripts/check_secrets.py` passes. Still to do: tag the commit the demo video is recorded from; no commits after the tag until the video is submitted.
 10. Leftover local files `data/*.db`, `data/*.log` are gitignored.
 11. **Knowledge ask-loop: fixed.** Impossible requests (new pack, "find your own sources") repeated the same questions to 5 rounds, because the flow can only edit existing nodes from doctor-pasted URLs and the prompt's only move for missing info was to ask. The interpret prompt now states the real limits, and `send()` stops at round 2 when a message adds no URL, node ID or number — with an explanatory message naming the limits. Verified live with the exact transcript.
 
@@ -132,7 +141,7 @@ The owner planned for a family or friend reviewer to check the IBD content **by 
 - **Nov 2, 9 PM ET:** Meta credentials. The key now works (`muse-spark-1.3`), so the Meta path is confirmed; record this against requirement FR13.10.
 - **Nov 3–4:** rehearse the demo on the Meta model, record the video from a tagged commit, submit repo and video before **Nov 4, 9 PM ET**. Ungrounded runs 0–1 per walk and the badge is demo-visible, so record multiple takes and ship a 0-take.
 - **Benchmark (U7): DONE Oct 31 (lean 12-case version).** Owner said "do it all", so the shelved 20-case plan became 5 UC + 5 CD + 2 URO (shown, not counted) in `results/benchmark_cases.json`, run live on `muse-spark-1.3` via `scripts/run_benchmark.py` (judge in `src/brahma/bench.py`). Verdict **Pass**: IBD graph 99.3% grounded / 100% pathway agreement vs plain model 48% / 28%; URO graph 93% / 100% vs plain 33% / 50%. Report: `results/benchmark.html`. Expected pathways are derived from `walk_graph`, never hand-written. Note: `uc-stool-positive` was replaced by `uc-day3-responder` because no edge gates on stool culture (see content gaps) — the positive result changed nothing, so the case discriminated only in the plain arm.
-- **Review prep + recording guide (added Oct 31):** `docs/review-checklist.md` (dose table, thresholds, 4 pack-design questions for the reviewer, expected pathways, sign-off via `reviewedBy`) and `docs/recording-guide.md` (9-step demo script, takes/recovery, submission checklist).
+- **Review prep + recording guide (added Oct 31):** `docs/review-checklist.md` (dose table, thresholds, 4 pack-design questions for the reviewer, expected pathways, sign-off via `reviewedBy`) and `docs/recording-guide.md` (10-step demo script incl. the day-3 review beat, takes/recovery, submission checklist).
 
 ## Backlog (low priority, not scheduled)
 

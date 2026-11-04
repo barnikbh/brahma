@@ -90,7 +90,7 @@ npm run lint && npm run typecheck && npx prettier --check .
 npm run test -- --coverage   # Vitest, 80% line floor
 npm run build
 npx playwright install chromium   # once
-npm run e2e                      # local smoke test of the demo walk (starts the server itself)
+npm run e2e                      # demo walk + day-3 review (starts the server itself)
 ```
 
 ### Backend tests
