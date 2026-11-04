@@ -164,3 +164,19 @@ def test_uc_after_anti_tnf_failure_reaches_the_class_switch(
     assert "IBD-N99" not in reached
     refractory = [Fact(kind="therapy", name="corticosteroid", value="failed"), history[0]]
     assert "IBD-N99" in _walk(service, ibd, [*no_response, *refractory])
+
+
+def test_day3_criteria_link_to_the_tier_their_threshold_escalates_to(
+    service: KnowledgeService, ibd: PackVersionRef
+) -> None:
+    assert [n.node_id for n in service.criterion_targets(ibd, "IBD-N80")] == ["IBD-N42"]
+    assert [n.node_id for n in service.criterion_targets(ibd, "IBD-N81")] == ["IBD-N42"]
+
+
+def test_measurements_watchouts_and_unwired_criteria_link_nowhere(
+    service: KnowledgeService, ibd: PackVersionRef
+) -> None:
+    assert service.criterion_targets(ibd, "IBD-N70") == []  # monitoring, not a decision
+    assert service.criterion_targets(ibd, "IBD-N90") == []  # watch-out, prose only
+    assert service.criterion_targets(ibd, "IBD-N82") == []  # no wired consequence
+    assert service.criterion_targets(ibd, "IBD-N51") == []  # not a criterion

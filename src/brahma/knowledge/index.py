@@ -63,8 +63,10 @@ class GraphIndex:
             n.node_id: n.model_copy(update={"pack_version": version}) for n in nodes
         }
         self.out_edges: dict[str, list[Edge]] = {}
+        self.in_edges: dict[str, list[Edge]] = {}
         for edge in sorted(edges, key=lambda e: natural_key(e.edge_id)):
             self.out_edges.setdefault(edge.from_node_id, []).append(edge)
+            self.in_edges.setdefault(edge.to_node_id, []).append(edge)
         self.names: dict[str, list[str]] = {}
         self.by_source: dict[str, list[str]] = {}
         for node in sorted(self.nodes.values(), key=lambda n: natural_key(n.node_id)):
@@ -156,6 +158,20 @@ class GraphIndex:
         return "met" if compare(converted, comparator, limit) else "not_met"
 
     # --- neighbours (BR2.2, BR2.3) ---------------------------------------------------
+
+    def incoming(self, node_id: str, relation: str | None = None) -> list[Edge]:
+        """Every edge into a node, in edge order, optionally filtered by relation."""
+        self.node(node_id)
+        return [
+            e for e in self.in_edges.get(node_id, []) if relation is None or e.relation == relation
+        ]
+
+    def outgoing(self, node_id: str, relation: str | None = None) -> list[Edge]:
+        """Every outgoing edge, in edge order, optionally filtered by relation."""
+        self.node(node_id)
+        return [
+            e for e in self.out_edges.get(node_id, []) if relation is None or e.relation == relation
+        ]
 
     def neighbours(
         self, node_id: str, facts: list[Fact], relation: str | None = None

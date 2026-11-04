@@ -132,6 +132,25 @@ describe("NodePanel", () => {
     expect(context.querySelector('[data-node-chip="IBD-N41"]')).toBeInTheDocument();
   });
 
+  it("shows where a met criterion leads, and nothing otherwise", async () => {
+    const fake = installFakeApi();
+    fake.on("GET /api/nodes/:v/:n", () =>
+      nodeDetail({ leadsTo: [{ nodeId: "IBD-N42", label: "UC Tier 3" }] }),
+    );
+    const { unmount } = render(
+      <NodePanel nodeId="IBD-N80" version="IBD 1.0" caseId="BR-000001" onClose={vi.fn()} />,
+    );
+    const leads = await screen.findByTestId("node-leads-to");
+    expect(leads).toHaveTextContent("If met →");
+    expect(leads).toHaveTextContent("UC Tier 3");
+    expect(leads.querySelector('[data-node-chip="IBD-N42"]')).toBeInTheDocument();
+    unmount();
+    fake.on("GET /api/nodes/:v/:n", () => nodeDetail());
+    render(<NodePanel nodeId="IBD-N51" version="IBD 1.0" caseId="BR-000001" onClose={vi.fn()} />);
+    await screen.findByTestId("dose");
+    expect(screen.queryByTestId("node-leads-to")).not.toBeInTheDocument();
+  });
+
   it("shows the stored edit marker with no in-memory outcome (reload)", async () => {
     installFakeApi({
       "GET /api/nodes/:v/:n": () =>

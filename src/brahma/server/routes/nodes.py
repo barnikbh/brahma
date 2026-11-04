@@ -59,6 +59,10 @@ def node_detail(
         "node": node.model_dump(by_alias=True),
         "sources": [s.model_dump(by_alias=True) for s in sources],
         "comments": [c.model_dump(by_alias=True) for c in shared.knowledge.list_comments(node_id)],
+        "leadsTo": [
+            {"nodeId": target.node_id, "label": target.label}
+            for target in shared.knowledge.criterion_targets(ref, node_id)
+        ],
         "safety": [],
         "dose": None,
         "edited": None,

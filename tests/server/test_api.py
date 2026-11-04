@@ -201,6 +201,15 @@ def test_node_detail_with_dose_safety_and_comments(client: TestClient) -> None:
     assert [s["sourceId"] for s in detail["sources"]] == ["IBD-S1", "IBD-S5", "IBD-S6"]
     assert client.get("/api/nodes/IBD@9.9/IBD-N53").status_code == 404
     assert client.get("/api/nodes/IBD@1.1/IBD-N999").status_code == 404
+
+
+def test_node_detail_carries_criterion_targets(client: TestClient) -> None:
+    day3 = client.get("/api/nodes/IBD@1.1/IBD-N80").json()
+    assert day3["leadsTo"] == [
+        {"nodeId": "IBD-N42", "label": "UC Tier 3: rescue or advanced therapy"}
+    ]
+    watch = client.get("/api/nodes/IBD@1.1/IBD-N90").json()
+    assert watch["leadsTo"] == []
     assert client.get("/api/nodes/nonsense/IBD-N1").status_code == 422
     added = client.post("/api/nodes/IBD-1.1/IBD-N53/comments", json={"text": "Check TB first"})
     assert added.status_code == 201 and added.json()["authorProfileId"] == DOCTOR

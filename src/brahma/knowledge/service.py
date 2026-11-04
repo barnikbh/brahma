@@ -199,6 +199,57 @@ class KnowledgeService:
         """Outgoing edges of a node as Steps with their status for these facts (BR2.2, BR2.3)."""
         return self._index(version).neighbours(node_id, facts, relation)
 
+    def criterion_targets(self, version: PackVersionRef, node_id: str) -> list[Node]:
+        """Tiers a response criterion escalates to when it is met (empty when none).
+
+        A criterion links to a tier only when one of the tiers reviewing it (an
+        incoming ``responds_if`` or ``monitor_with`` edge) has an ``escalate_to``
+        edge whose condition exactly matches the criterion's own
+        measure/threshold/comparator/unit fields. Monitoring nodes, watch-outs
+        and prose-only criteria have no wired consequence and link nowhere.
+        """
+        index = self._index(version)
+        node = index.node(node_id)
+        if node.type != "response_criterion":
+            return []
+        fields = node.fields
+        measure, threshold, comparator = (
+            fields.get("measure"),
+            fields.get("threshold"),
+            fields.get("comparator"),
+        )
+        if (
+            not isinstance(measure, str)
+            or not measure
+            or not isinstance(comparator, str)
+            or not comparator
+            or threshold is None
+        ):
+            return []
+        unit = fields.get("unit")
+        tiers = [
+            edge.from_node_id
+            for edge in index.incoming(node_id)
+            if edge.relation in ("responds_if", "monitor_with")
+        ]
+        targets: list[Node] = []
+        seen: set[str] = set()
+        for tier in tiers:
+            for edge in index.outgoing(tier, "escalate_to"):
+                condition = edge.condition
+                if (
+                    condition is None
+                    or condition.finding != measure
+                    or str(condition.value) != str(threshold)
+                    or condition.comparator != comparator
+                    or (condition.unit or None) != (unit or None)
+                ):
+                    continue
+                if edge.to_node_id not in seen:
+                    seen.add(edge.to_node_id)
+                    targets.append(index.node(edge.to_node_id))
+        return targets
+
     def reference_range(
         self,
         version: PackVersionRef,

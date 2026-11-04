@@ -196,6 +196,18 @@ export function NodePanel(props: NodePanelProps) {
               <NodeChip nodeId={props.contextLine.nodeId} />
             </p>
           ) : null}
+          {detail.leadsTo.length > 0 ? (
+            <p className="text-xs" data-testid="node-leads-to">
+              If met →{" "}
+              {detail.leadsTo.map((target, i) => (
+                <span key={target.nodeId}>
+                  {i > 0 ? " · " : null}
+                  <strong className="font-semibold">{target.label}</strong>{" "}
+                  <NodeChip nodeId={target.nodeId} />
+                </span>
+              ))}
+            </p>
+          ) : null}
           <p className="text-xs text-ink-quiet" data-testid="node-updated">
             {detail.updated
               ? `Updated by ${detail.updated.updatedByName} · ${formatWhen(detail.updated.updatedAt)}`

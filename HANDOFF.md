@@ -1,6 +1,6 @@
 # Brahma: handoff for the next coding agent
 
-Last updated: Tue Nov 3, 2026, by Claude. Read this first, then `README.md`.
+Last updated: Wed Nov 4, 2026, by Claude. Read this first, then `README.md`.
 
 ## What this is
 
@@ -40,6 +40,7 @@ Recent additions (all done, tested):
 - **Patients page** lists recent patients on open.
 - **Knowledge screen** has a Browse tab (free exploration of nodes and edges) and an Update tab (free text and source URLs, one model call per node, follow-up questions, "updated by who and when"). A reviewer still publishes.
 - **Pathway traversal (Nov 3):** offered drugs render as grey ○ Option boxes and tier-sourced monitoring/watch-outs plus escalation tiers as grey planned steps. The doctor opens an option (dose/safety first) and presses "Choose this option" in the node panel: `POST /api/cases/{id}/traverse` records an append-only choice plus a `traverse_choice` audit event (no model call) and re-lights the map — chosen drug ✓ Chosen, its tier's monitoring blue, siblings grey. Re-choosing moves the highlight. History replay shows the recorded choice (session replay now reads the walk's stored map instead of rebuilding all-used). Follow-up (Nov 4): choosing shows a cited "Now on" next-step card (dose, day-3 review, monitor, watch-for, next tier, follow-up hint; deterministic, no model call); the panel explains when choosing must wait for the walk and shows path context ("Option of / During / Next tier after"). Monitor/watch nodes have no outgoing edges in v1.1, so symptom-asserted branching (e.g. toxic megacolon → surgery path) is NOT built — it needs clinician-authored branch content plus temporal scoping for review findings (post-submission redesign, not a demo-day change).
+- **Criterion "If met" links (Nov 4):** response-criterion panels show where a met threshold leads (day-3 stool/CRP → Tier 3), derived only from exact criterion-field↔escalate-condition matches in the pack (`KnowledgeService.criterion_targets`, `leadsTo` on node detail). Measurements, watch-outs, escalation nodes and unwired criteria (all calprotectin criteria, all Crohn's branches) link nowhere: no matching conditions exist. Acting on a met criterion (moving the entry tier on day-3 results) is still NOT built — findings carry no review/temporal scope, so "CRP 60" cannot safely re-tier (a presenting CRP 60 must not skip Tier 2). Needs clinician-designed review semantics.
 
 ## Run it
 

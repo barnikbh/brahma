@@ -343,6 +343,7 @@ export interface NodeDetail {
   node: GraphNode;
   sources: Source[];
   comments: NodeComment[];
+  leadsTo: { nodeId: string; label: string }[];
   safety: SafetyResult[];
   dose: DoseNote | null;
   edited: TreatmentEdit | null;
