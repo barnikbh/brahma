@@ -5,6 +5,9 @@ cited clinical knowledge graph and shows only lines that trace to a graph node a
 source. It works on synthetic cases only, never on real patient data, and it makes no
 claim of HIPAA compliance or any certification.
 
+**Demo video:** [Brahma walkthrough on YouTube](https://www.youtube.com/watch?v=-4TcE8g_X-c).
+It was recorded from the `demo-recording` tag: `git checkout demo-recording` runs exactly what the video shows.
+
 ## Run the backend
 
 The backend runs locally only. There is no hosted URL.
